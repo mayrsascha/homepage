@@ -1,15 +1,14 @@
 import React from 'react';
-import { Box, Code, Text } from "@chakra-ui/core";
 
 function Hero() {
   return (
-    <Box w="100vw" h="100vh">
-      <Box bgImage="url('./profile.jpg')" bgPos="center" bgRepeat="no-repeat">
-        <Code fontSize="2xl">Hello {"{visitorName}"}</Code>
-        <Text as="h1" fontSize="5xl">My name is Sascha Mayr</Text>
-        <Text fontSize="3xl">Full Stack Web Dev</Text>
-      </Box>
-    </Box>
+    <div w="100vw" h="100vh">
+      <div bgImage="url('./profile.jpg')" bgPos="center" bgRepeat="no-repeat">
+        <div fontSize="2xl">Hello {"{visitorName}"}</div>
+        <h1 as="h1" fontSize="5xl">My name is Sascha Mayr</h1>
+        <p fontSize="3xl">Full Stack Web Dev</p>
+      </div>
+    </div>
   );
 }
 

@@ -1,12 +1,11 @@
 import React from 'react';
-import { Box } from "@chakra-ui/core";
 
 function Contact() {
   return (
-    <Box w="100vw">
-      <p>Built with Netlify, Webpack, React and Chakra UI</p>
+    <div w="100vw">
+      <p>Built with Netlify, Webpack and React</p>
       <p>© {new Date().getFullYear()} Sascha Mayr. All rights reserved.</p>
-    </Box>
+    </div>
   );
 }
 
