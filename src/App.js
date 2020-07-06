@@ -3,9 +3,11 @@ import Hero from './Hero';
 import Contact from './Contact';
 import Footer from './Footer';
 
+import "./App.css"
+
 function App() {
   return (
-    <div>
+    <div className="App">
       <Hero/>
       <Contact/>
       <Footer/>
