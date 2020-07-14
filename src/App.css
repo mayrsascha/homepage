@@ -1,4 +1,38 @@
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+pre {
+    margin: 0;
+}
+
+html, body, #root {
+    height: 100%;
+}
+
 .App {
+    height: 100%;
     width: 100vw;
-    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1 0 auto;
+    padding: 1em 1em 0;
+    display: flex;
+}
+
+.profile {
+    flex: 0 1 auto;
+    max-width:100%;
+    height: auto;
+}
+
+footer {
+    flex-shrink: 0;
 }

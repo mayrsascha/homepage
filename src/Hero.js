@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import hljs from 'highlight.js/lib/core';
+import markdown from 'highlight.js/lib/languages/markdown';
+import 'highlight.js/styles/tomorrow-night.css';
+
+import "./Hero.css"
+import Intro from "./Intro.js"
+
+hljs.registerLanguage('markdown', markdown);
 
 function Hero() {
+  const mdRef = useRef(null);
+  useEffect(() => {
+    hljs.highlightBlock(mdRef.current);
+  });
   return (
-    <div w="100vw" h="100vh">
-      <div bgImage="url('./profile.jpg')" bgPos="center" bgRepeat="no-repeat">
-        <div fontSize="2xl">Hello {"{visitorName}"}</div>
-        <h1 as="h1" fontSize="5xl">My name is Sascha Mayr</h1>
-        <p fontSize="3xl">Full Stack Web Dev</p>
-      </div>
+    <div className="Hero">
+      <pre ref={mdRef}>
+        <code className="markdown" dangerouslySetInnerHTML={{ __html: Intro }}>
+        </code>
+      </pre>
     </div>
   );
 }

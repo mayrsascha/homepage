@@ -1,12 +1,13 @@
 import React from 'react';
+import "./Footer.css"
 
-function Contact() {
+function Footer() {
   return (
-    <div w="100vw">
+    <footer className="Footer">
       <p>Built with Netlify, Webpack and React</p>
       <p>© {new Date().getFullYear()} Sascha Mayr. All rights reserved.</p>
-    </div>
+    </footer>
   );
 }
 
-export default Contact;
+export default Footer;

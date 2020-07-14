@@ -1,0 +1,8 @@
+.Hero {
+    flex: 0 0 50%;
+}
+
+.Hero pre a {
+    color: unset;
+    text-decoration: none;
+}
