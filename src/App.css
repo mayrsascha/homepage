@@ -12,6 +12,7 @@ pre {
 
 html, body, #root {
     height: 100%;
+    font-family: monospace;
 }
 
 .App {
@@ -23,20 +24,27 @@ html, body, #root {
 
 .content {
     flex: 1 0 auto;
-    padding: 1em 1em 0;;
+    padding: 1em 1em 0;
 }
 
 @media only screen and (min-width: 720px) {
+    .content {
+        display: flex;
+        align-items: center;
+    }
+
     .profile {
         width: 50%;
         display: inline-flex;
         justify-content: center;
+        align-items: flex-start;
     }
 }
 
 .profile img {
     width:100%; 
     max-width: 500px;
+    object-fit: cover;
 }
 
 footer {
