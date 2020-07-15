@@ -20,16 +20,16 @@ html, body, #root {
     width: 100%;
     display: flex;
     flex-direction: column;
-    background-color: #fdf6e3;
-}
-
-.App.darkmode {
-    background-color: #1d1f21;
 }
 
 .content {
     flex: 1 0 auto;
     padding: 1em 1em 0;
+    background-color: #fdf6e3;
+}
+
+.App.darkmode .content {
+    background-color: #1d1f21;
 }
 
 @media only screen and (min-width: 720px) {

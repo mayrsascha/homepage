@@ -5,10 +5,12 @@
     justify-content: center;
     align-items: center;
     color: #657b83;
+    background-color: #fdf6e3;
 }
 
 .App.darkmode .Footer {
     color: #c5c8c6;
+    background-color: #1d1f21;
 }
 
 .Footer .button {
