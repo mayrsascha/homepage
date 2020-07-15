@@ -1,4 +1,21 @@
 .Footer {
     width: 100%;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #657b83;
+}
+
+.App.darkmode .Footer {
+    color: #c5c8c6;
+}
+
+.Footer .button {
+    background: inherit;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    margin-left: 20px;
+    font-size: 2em;
 }

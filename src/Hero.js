@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import hljs from 'highlight.js/lib/core';
 import markdown from 'highlight.js/lib/languages/markdown';
-import 'highlight.js/styles/tomorrow-night.css';
 
 import "./Hero.css"
 import Intro from "./Intro.js"
