@@ -9,7 +9,7 @@ function Footer(props) {
         <p>© {new Date().getFullYear()} Sascha Mayr. All rights reserved.</p>
       </div>
       <button className="button" onClick={() => {props.darkMode ? props.setDarkMode(false) : props.setDarkMode(true)} }>
-        { props.darkMode ? "🌞" : "🌙" }
+        { props.darkMode ? "☀️" : "🌙" }
       </button>
       <a href="https://github.com/mayrsascha/homepage" target="_blank" rel="noopener noreferrer" className="github-link">
         <img src={props.darkMode ? "/github-light.png" : "/github.png"} alt="github" />
