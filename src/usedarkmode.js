@@ -2,11 +2,18 @@ import { useState, useEffect } from 'react';
 
 export default () => {
     let initialMode = false;
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    const localStorageMode = localStorage.getItem('darkMode');
+    if (localStorageMode) {
+        initialMode = localStorageMode === 'true';
+    } else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         initialMode = true;
     }
     const [darkMode, setDarkMode] = useState(initialMode);
-    const darkModeCheck = (e) => { e.matches ? setDarkMode(true) : setDarkMode(false); }
+    const setMode = (mode) => {
+        setDarkMode(mode);
+        localStorage.setItem('darkMode', mode);
+    }
+    const darkModeCheck = (e) => { e.matches ? setMode(true) : setMode(false); }
     useEffect(() => {
         if (window.matchMedia) {
             const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -28,5 +35,5 @@ export default () => {
         }
     });
 
-    return [darkMode, setDarkMode];
+    return [darkMode, setMode];
 }
