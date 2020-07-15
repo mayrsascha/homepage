@@ -1,8 +1,27 @@
-.Hero {
-    flex: 0 0 50%;
+@media only screen and (min-width: 720px) {
+    .Hero {
+        width: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: top;
+        height: 100%;
+    }
 }
 
 .Hero pre a {
     color: unset;
     text-decoration: none;
+}
+
+.Hero pre h1, h2 {
+    margin: 0;
+}
+
+.Hero pre h1 {
+    font-size: 1.5em;
+}
+
+.Hero pre h2 {
+    font-size: 1.25em;
 }

@@ -16,21 +16,27 @@ html, body, #root {
 
 .App {
     height: 100%;
-    width: 100vw;
+    width: 100%;
     display: flex;
     flex-direction: column;
 }
 
 .content {
     flex: 1 0 auto;
-    padding: 1em 1em 0;
-    display: flex;
+    padding: 1em 1em 0;;
 }
 
-.profile {
-    flex: 0 1 auto;
-    max-width:100%;
-    height: auto;
+@media only screen and (min-width: 720px) {
+    .profile {
+        width: 50%;
+        display: inline-flex;
+        justify-content: center;
+    }
+}
+
+.profile img {
+    width:100%; 
+    max-width: 500px;
 }
 
 footer {

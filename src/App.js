@@ -9,7 +9,9 @@ function App() {
     <div className="App">
       <main className="content">
         <Hero/>
-        <img className="profile" src="/profile.png" alt="Profile"></img>
+        <div className="profile">
+          <img src="/profile.png" alt="Profile"></img>
+        </div>
       </main>
       <Footer/>
     </div>
