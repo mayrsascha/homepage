@@ -12,7 +12,7 @@ function Footer(props) {
         { props.darkMode ? "🌞" : "🌙" }
       </button>
       <a href="https://github.com/mayrsascha/homepage" target="_blank" rel="noopener noreferrer" className="github-link">
-        <img src={props.darkMode ? "/GitHub-Mark-64px-Light.png" : "/GitHub-Mark-64px.png"} alt="github" />
+        <img src={props.darkMode ? "/github-light.png" : "/github.png"} alt="github" />
       </a>
     </footer>
   );
