@@ -10,6 +10,7 @@
 .Hero pre a {
     color: unset;
     text-decoration: none;
+    white-space: pre-wrap;
 }
 
 .Hero pre h1, h2 {
