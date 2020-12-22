@@ -1,4 +1,4 @@
-export default `
+const Intro = `
 <h1># Hello \`{visitorName}\`</h2>
 My name is <b>**Sascha Mayr**</b>.
 
@@ -20,3 +20,5 @@ More about me at the links below.
 - <a href="https://cutt.ly/1arVt8y" target="_blank" rel="noopener noreferrer">[Is water safe to drink in...?](https://cutt.ly/1arVt8y)</a>
 - <a href="https://cutt.ly/Ep8dfug" target="_blank" rel="noopener noreferrer">[Incognito killer Chrome extension](https://cutt.ly/Ep8dfug)</a>
 `
+
+export default Intro;

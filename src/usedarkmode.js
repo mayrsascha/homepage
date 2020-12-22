@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default () => {
+const useDarkMode = () => {
     let initialMode = false;
     const localStorageMode = localStorage.getItem('darkMode');
     if (localStorageMode) {
@@ -23,7 +23,7 @@ export default () => {
                 // Safari
                 darkMediaQuery.addListener(darkModeCheck);
             }
-            
+
             return () => {
             try {
                 darkMediaQuery.removeEventListener('change', darkModeCheck);
@@ -37,3 +37,5 @@ export default () => {
 
     return [darkMode, setMode];
 }
+
+export default useDarkMode;
