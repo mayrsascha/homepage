@@ -16,7 +16,8 @@ More about me at the links below.
 - <a href="https://cutt.ly/YarC6s5" target="_blank" rel="noopener noreferrer">[Instagram](https://cutt.ly/YarC6s5)</a>
 - <a href="mailto:mayr.sascha@gmail.com">[Email](mailto:mayr.sascha@gmail.com)</a>
 
-<h2>## Pet projects</h2>
+<h2>## Personal projects</h2>
+- <a href="https://cutt.ly/hnQU8ZA" target="_blank" rel="noopener noreferrer">[Kickstart Upsells](https://cutt.ly/hnQU8ZA)</a>
 - <a href="https://cutt.ly/1arVt8y" target="_blank" rel="noopener noreferrer">[Is water safe to drink in...?](https://cutt.ly/1arVt8y)</a>
 - <a href="https://cutt.ly/Ep8dfug" target="_blank" rel="noopener noreferrer">[Incognito killer Chrome extension](https://cutt.ly/Ep8dfug)</a>
 `
