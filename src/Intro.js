@@ -7,6 +7,7 @@ Drinking too much coffee <span role="img" aria-label="coffe icon">☕️</span>.
 More about me at the links below.
 
 <h2>## Professional profiles</h2>
+- <a href="https://cutt.ly/XRFh579" target="_blank" rel="noopener noreferrer">[Braintrust](https://cutt.ly/XRFh579)</a>
 - <a href="https://cutt.ly/iarIG3p" target="_blank" rel="noopener noreferrer">[TopTal](https://cutt.ly/iarIG3p)</a>
 - <a href="https://cutt.ly/narCNb4" target="_blank" rel="noopener noreferrer">[Stack Overflow](https://cutt.ly/narCNb4)</a>
 
@@ -17,6 +18,7 @@ More about me at the links below.
 - <a href="mailto:mayr.sascha@gmail.com">[Email](mailto:mayr.sascha@gmail.com)</a>
 
 <h2>## Personal projects</h2>
+- <a href="https://cutt.ly/xRFjlZa" target="_blank" rel="noopener noreferrer">[Coinrotator](https://cutt.ly/xRFjlZa)</a>
 - <a href="https://cutt.ly/hnQU8ZA" target="_blank" rel="noopener noreferrer">[Kickstart Upsells](https://cutt.ly/hnQU8ZA)</a>
 - <a href="https://cutt.ly/1arVt8y" target="_blank" rel="noopener noreferrer">[Is water safe to drink in...?](https://cutt.ly/1arVt8y)</a>
 - <a href="https://cutt.ly/Ep8dfug" target="_blank" rel="noopener noreferrer">[Incognito killer Chrome extension](https://cutt.ly/Ep8dfug)</a>
