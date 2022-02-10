@@ -10,9 +10,10 @@ More about me at the links below.
 - <a href="https://cutt.ly/XRFh579" target="_blank" rel="noopener noreferrer">[Braintrust](https://cutt.ly/XRFh579)</a>
 - <a href="https://cutt.ly/iarIG3p" target="_blank" rel="noopener noreferrer">[TopTal](https://cutt.ly/iarIG3p)</a>
 - <a href="https://cutt.ly/narCNb4" target="_blank" rel="noopener noreferrer">[Stack Overflow](https://cutt.ly/narCNb4)</a>
+- <a href="https://cutt.ly/NO9lbk1" target="_blank" rel="noopener noreferrer">[GitHub](https://cutt.ly/NO9lbk1)</a>
 
 <h2>## Personal profiles</h2>
-- <a href="https://cutt.ly/xarC2mt" target="_blank" rel="noopener noreferrer">[GitHub](https://cutt.ly/xarC2mt)</a>
+- <a href="https://cutt.ly/xarC2mt" target="_blank" rel="noopener noreferrer">[Personal GitHub](https://cutt.ly/xarC2mt)</a>
 - <a href="https://cutt.ly/IarVG4E" target="_blank" rel="noopener noreferrer">[Twitter](https://cutt.ly/IarVG4E)</a>
 - <a href="https://cutt.ly/YarC6s5" target="_blank" rel="noopener noreferrer">[Instagram](https://cutt.ly/YarC6s5)</a>
 - <a href="mailto:mayr.sascha@gmail.com">[Email](mailto:mayr.sascha@gmail.com)</a>
