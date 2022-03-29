@@ -9,7 +9,7 @@ More about me at the links below.
 <h2>## Professional profiles</h2>
 - <a href="https://cutt.ly/XRFh579" target="_blank" rel="noopener noreferrer">[Braintrust](https://cutt.ly/XRFh579)</a>
 - <a href="https://cutt.ly/iarIG3p" target="_blank" rel="noopener noreferrer">[TopTal](https://cutt.ly/iarIG3p)</a>
-- <a href="https://cutt.ly/narCNb4" target="_blank" rel="noopener noreferrer">[Stack Overflow](https://cutt.ly/narCNb4)</a>
+- <a href="https://cutt.ly/GDQtbGb" target="_blank" rel="noopener noreferrer">[Stack Overflow](https://cutt.ly/GDQtbGb)</a>
 - <a href="https://cutt.ly/NO9lbk1" target="_blank" rel="noopener noreferrer">[GitHub](https://cutt.ly/NO9lbk1)</a>
 
 <h2>## Personal profiles</h2>
