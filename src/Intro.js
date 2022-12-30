@@ -19,10 +19,10 @@ More about me at the links below.
 - <a href="mailto:mayr.sascha@gmail.com">[Email](mailto:mayr.sascha@gmail.com)</a>
 
 <h2>## Personal projects</h2>
-- <a href="https://cutt.ly/xRFjlZa" target="_blank" rel="noopener noreferrer">[Coinrotator](https://cutt.ly/xRFjlZa)</a>
+- <a href="https://cutt.ly/S2rcro5" target="_blank" rel="noopener noreferrer">[Theta Health](https://cutt.ly/S2rcro5)</a>
+- <a href="https://cutt.ly/xRFjlZa" target="_blank" rel="noopener noreferrer">[CoinRotator](https://cutt.ly/xRFjlZa)</a>
 - <a href="https://cutt.ly/hnQU8ZA" target="_blank" rel="noopener noreferrer">[Kickstart Upsells](https://cutt.ly/hnQU8ZA)</a>
 - <a href="https://cutt.ly/1arVt8y" target="_blank" rel="noopener noreferrer">[Is water safe to drink in...?](https://cutt.ly/1arVt8y)</a>
-- <a href="https://cutt.ly/Ep8dfug" target="_blank" rel="noopener noreferrer">[Incognito killer Chrome extension](https://cutt.ly/Ep8dfug)</a>
 `
 
 export default Intro;
