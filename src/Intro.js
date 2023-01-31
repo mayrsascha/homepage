@@ -7,6 +7,7 @@ Drinking too much coffee <span role="img" aria-label="coffe icon">☕️</span>.
 More about me at the links below.
 
 <h2>## Professional profiles</h2>
+- <a href="https://cutt.ly/X9FPb6r" target="_blank" rel="noopener noreferrer">[Storetasker](https://cutt.ly/X9FPb6r)</a>
 - <a href="https://cutt.ly/XRFh579" target="_blank" rel="noopener noreferrer">[Braintrust](https://cutt.ly/XRFh579)</a>
 - <a href="https://cutt.ly/iarIG3p" target="_blank" rel="noopener noreferrer">[TopTal](https://cutt.ly/iarIG3p)</a>
 - <a href="https://cutt.ly/GDQtbGb" target="_blank" rel="noopener noreferrer">[Stack Overflow](https://cutt.ly/GDQtbGb)</a>
