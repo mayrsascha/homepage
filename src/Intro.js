@@ -17,7 +17,7 @@ More about me at the links below.
 - <a href="https://cutt.ly/xarC2mt" target="_blank" rel="noopener noreferrer">[Personal GitHub](https://cutt.ly/xarC2mt)</a>
 - <a href="https://cutt.ly/IarVG4E" target="_blank" rel="noopener noreferrer">[Twitter](https://cutt.ly/IarVG4E)</a>
 - <a href="https://cutt.ly/YarC6s5" target="_blank" rel="noopener noreferrer">[Instagram](https://cutt.ly/YarC6s5)</a>
-- <a href="mailto:mayr.sascha@gmail.com">[Email](mailto:mayr.sascha@gmail.com)</a>
+- <a href="mailto:sascha.mayr.storetasker@gmail.com">[Email](mailto:sascha.mayr.storetasker@gmail.com)</a>
 
 <h2>## Personal projects</h2>
 - <a href="https://cutt.ly/S2rcro5" target="_blank" rel="noopener noreferrer">[Theta Health](https://cutt.ly/S2rcro5)</a>
