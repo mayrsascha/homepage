@@ -20,9 +20,9 @@ More about me at the links below.
 - <a href="mailto:sascha.mayr.storetasker@gmail.com">[Email](mailto:sascha.mayr.storetasker@gmail.com)</a>
 
 <h2>## Projects</h2>
+- <a href="https://cutt.ly/Sek1YSyX" target="_blank" rel="noopener noreferrer">[Crypto Design Club](https://cutt.ly/Sek1YSyX)</a>
 - <a href="https://cutt.ly/xRFjlZa" target="_blank" rel="noopener noreferrer">[CoinRotator](https://cutt.ly/xRFjlZa)</a>
 - <a href="https://cutt.ly/S2rcro5" target="_blank" rel="noopener noreferrer">[Theta Health](https://cutt.ly/S2rcro5)</a>
-- <a href="https://cutt.ly/hnQU8ZA" target="_blank" rel="noopener noreferrer">[Kickstart Upsells](https://cutt.ly/hnQU8ZA)</a>
 - <a href="https://cutt.ly/1arVt8y" target="_blank" rel="noopener noreferrer">[Is water safe to drink in...?](https://cutt.ly/1arVt8y)</a>
 `
 
