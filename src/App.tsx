@@ -1,11 +1,26 @@
+import { useEffect } from 'react';
 import useDarkMode from './usedarkmode';
 import Hero from './Hero';
 import Footer from './Footer';
 
 import './App.css';
 
+declare global {
+  interface HTMLLinkElement {
+    disabled: boolean;
+  }
+}
+
 function App() {
   const [darkMode, setDarkMode] = useDarkMode();
+
+  useEffect(() => {
+    const light = document.getElementById('hljs-light') as HTMLLinkElement | null;
+    const dark = document.getElementById('hljs-dark') as HTMLLinkElement | null;
+    if (light) light.disabled = darkMode;
+    if (dark) dark.disabled = !darkMode;
+  }, [darkMode]);
+
   return (
     <div className={`App ${darkMode ? 'darkmode' : ''}`}>
       <main className="content">

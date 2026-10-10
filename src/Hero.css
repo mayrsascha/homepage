@@ -7,101 +7,28 @@
     }
 }
 
-.Hero h1 {
-    font-size: 1.5em;
-    margin: 0 0 0.5em;
+.Hero pre {
+    font-family: monospace;
 }
 
-.Hero h2 {
-    font-size: 1.25em;
-    margin: 2em 0 0.5em;
-    border-bottom: 1px solid currentColor;
-    padding-bottom: 0.25em;
-}
-
-.Hero p {
-    margin: 0.5em 0;
-    line-height: 1.6;
-}
-
-.project-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1em;
-    margin-top: 1em;
-}
-
-.project-card {
-    padding: 1em;
-    border: 1px solid currentColor;
-    border-radius: 4px;
-    opacity: 0.8;
-    transition: opacity 0.2s, transform 0.2s;
-}
-
-.project-card:hover {
-    opacity: 1;
-    transform: translateY(-2px);
-}
-
-.project-card h3 {
-    margin: 0 0 0.5em;
-    font-size: 1.1em;
-}
-
-.project-card h3 a {
-    color: inherit;
+.Hero pre a {
+    color: unset;
     text-decoration: none;
+    white-space: pre-wrap;
 }
 
-.project-card h3 a:hover {
-    text-decoration: underline;
-}
-
-.project-role {
-    margin: 0 0 0.5em;
-    font-size: 0.85em;
-    font-weight: 600;
-    opacity: 0.7;
-}
-
-.project-desc {
+.Hero pre h1, .Hero pre h2 {
     margin: 0;
-    font-size: 0.9em;
-    line-height: 1.5;
-    opacity: 0.85;
 }
 
-.engagements ul,
-.links ul,
-.professional-profiles ul,
-.personal-profiles ul {
-    list-style: none;
-    padding: 0;
-    margin: 1em 0 0;
+.Hero pre h1 {
+    font-size: 1.5em;
 }
 
-.engagements li,
-.links li,
-.professional-profiles li,
-.personal-profiles li {
-    margin: 0.5em 0;
-    font-size: 0.95em;
+.Hero pre h2 {
+    font-size: 1.25em;
 }
 
-.links a,
-.professional-profiles a,
-.personal-profiles a {
-    color: inherit;
-    text-decoration: none;
-}
-
-.links a:hover,
-.professional-profiles a:hover,
-.personal-profiles a:hover {
-    text-decoration: underline;
-}
-
-.Intro > * + * {
-    margin-top: 1.5em;
+.Intro {
+    white-space: pre-wrap;
 }

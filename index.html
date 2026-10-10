@@ -16,8 +16,8 @@
     />
     <title>Sascha Mayr | Software Engineer → Data Accuracy & Visualization</title>
     <link rel="preload" as="image" href="/profile.webp" type="image/webp" />
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.1/build/styles/solarized-light.min.css" media="(prefers-color-scheme: light)" />
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.1/build/styles/tomorrow-night.min.css" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" id="hljs-light" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.1/build/styles/solarized-light.min.css" />
+    <link rel="stylesheet" id="hljs-dark" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.1/build/styles/tomorrow-night.min.css" />
     <style>
       html,body,#root{height:100%;font-family:monospace;margin:0}
       *,*::before,*::after{box-sizing:border-box}
@@ -27,10 +27,6 @@
       .profile img{width:100%;max-width:500px;object-fit:cover}
       .Footer{width:100%;text-align:center;display:flex;justify-content:space-around;align-items:center;color:#657b83;background-color:#fdf6e3;padding:0 10px}
       .App.darkmode .Footer{color:#c5c8c6;background-color:#1d1f21}
-      @media (prefers-color-scheme: dark){
-        .content{background-color:#1d1f21}
-        .Footer{color:#c5c8c6;background-color:#1d1f21}
-      }
       @media (min-width: 720px){
         .content{display:flex;align-items:center}
         .profile{width:50%;display:inline-flex;justify-content:center;align-items:flex-start}
@@ -80,11 +76,33 @@
     <div id="root">
       <div class="App">
         <main class="content">
-          <div class="Hero">
-            <h1># Hello `visitorName`</h1>
-            <p><strong>Sascha Mayr</strong> — Software Engineer → Data Accuracy & Visualization</p>
-            <p>Drinking too much coffee <span role="img" aria-label="coffee icon">☕️</span>.</p>
-          </div>
+          <div class="Hero"><pre><code class="markdown hljs">
+<h1><span class="hljs-section"># Hello `{visitorName}`</span></h1>
+My name is <b><span class="hljs-strong">**Sascha Mayr**</span></b>.
+
+*<i><span class="hljs-emphasis">Software Engineer → Data Accuracy & Visualization</span></i>*
+Drinking too much coffee <span role="img" aria-label="coffee icon">☕️</span>.
+More about me at the links below.
+
+<h2><span class="hljs-section">## Projects</span></h2>
+<span class="hljs-bullet">-</span> <a href="https://shumi.ai/" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Shumi</span>](<span class="hljs-link">https://shumi.ai/</span>)</a> — Co-founder & Lead Developer
+<span class="hljs-bullet">-</span> <a href="https://coinrotator.app/" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">CoinRotator</span>](<span class="hljs-link">https://coinrotator.app/</span>)</a> — Founder & Developer
+<span class="hljs-bullet">-</span> <a href="https://cryptodesign.club/" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Crypto Design Club</span>](<span class="hljs-link">https://cryptodesign.club/</span>)</a> — Co-founder & Developer
+<span class="hljs-bullet">-</span> <a href="https://www.theta.health/" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Wayfinder Health</span>](<span class="hljs-link">https://www.theta.health/</span>)</a> — Lead Data Engineer
+<span class="hljs-bullet">-</span> <a href="https://aquascala.com/" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Aqua Scala</span>](<span class="hljs-link">https://aquascala.com/</span>)</a> — Founder & Developer
+<span class="hljs-bullet">-</span> <a href="https://www.iswatersafetodrink.in/" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Is water safe to drink in...?</span>](<span class="hljs-link">https://www.iswatersafetodrink.in/</span>)</a> — Founder & Developer
+<span class="hljs-bullet">-</span> <a href="https://github.com/RubyMoney/money" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Ruby Money</span>](<span class="hljs-link">https://github.com/RubyMoney/money</span>)</a> — Contributor
+
+<h2><span class="hljs-section">## Professional profiles</span></h2>
+<span class="hljs-bullet">-</span> <a href="https://app.usebraintrust.com/talent/7111/" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Braintrust</span>](<span class="hljs-link">https://app.usebraintrust.com/talent/7111/</span>)</a>
+<span class="hljs-bullet">-</span> <a href="https://stackoverflow.com/users/1864315/sascha-mayr?tab=profile" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Stack Overflow</span>](<span class="hljs-link">https://stackoverflow.com/users/1864315/sascha-mayr?tab=profile</span>)</a>
+<span class="hljs-bullet">-</span> <a href="https://github.com/mayrsascha" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">GitHub</span>](<span class="hljs-link">https://github.com/mayrsascha</span>)</a>
+
+<h2><span class="hljs-section">## Personal profiles</span></h2>
+<span class="hljs-bullet">-</span> <a href="https://cutt.ly/IarVG4E" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Twitter</span>](<span class="hljs-link">https://cutt.ly/IarVG4E</span>)</a>
+<span class="hljs-bullet">-</span> <a href="https://www.instagram.com/sascha.lives" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Instagram</span>](<span class="hljs-link">https://www.instagram.com/sascha.lives</span>)</a>
+<span class="hljs-bullet">-</span> <a href="mailto:mayr.sascha@gmail.com">[<span class="hljs-string">Email</span>](<span class="hljs-link">mailto:mayr.sascha@gmail.com</span>)</a>
+</code></pre></div>
           <div class="profile">
             <picture>
               <source srcSet="/profile.webp" type="image/webp" />
@@ -95,71 +113,13 @@
         <footer class="Footer">
           <div>
             <p>Built with Netlify, Vite and React</p>
-            <p>© 2025 Sascha Mayr. All rights reserved.</p>
+            <p>© 2026 Sascha Mayr. All rights reserved.</p>
           </div>
           <button class="button">🌙</button>
           <a href="https://github.com/mayrsascha/homepage" target="_blank" rel="noopener noreferrer" class="github-link">
             <img src="/github.png" alt="github" />
           </a>
         </footer>
-      </div>
-      <div class="Intro">
-        <section class="featured-projects">
-          <h2>Featured Projects</h2>
-          <div class="project-grid">
-            <article class="project-card">
-              <h3><a href="https://shumi.ai/" target="_blank" rel="noopener noreferrer">Shumi</a></h3>
-              <p class="project-role">Co-founder & Lead Developer</p>
-              <p class="project-desc">Polished consumer product. Full-stack ownership: React, Node, PostgreSQL, AWS.</p>
-            </article>
-            <article class="project-card">
-              <h3><a href="https://coinrotator.app/" target="_blank" rel="noopener noreferrer">CoinRotator</a></h3>
-              <p class="project-role">Founder & Developer</p>
-              <p class="project-desc">Crypto trading automation. Exchange integrations, real-time data pipelines, algorithmic execution.</p>
-            </article>
-            <article class="project-card">
-              <h3><a href="https://cryptodesign.club/" target="_blank" rel="noopener noreferrer">Crypto Design Club</a></h3>
-              <p class="project-role">Co-founder & Developer</p>
-              <p class="project-desc">Design community & resources for crypto builders. Content platform, community tooling.</p>
-            </article>
-            <article class="project-card">
-              <h3><a href="https://www.theta.health/" target="_blank" rel="noopener noreferrer">Wayfinder Health</a></h3>
-              <p class="project-role">Lead Data Engineer</p>
-              <p class="project-desc">Therapist network data integrity, compliance-heavy pipelines, visualization. References on request.</p>
-            </article>
-            <article class="project-card">
-              <h3><a href="https://cutt.ly/1arVt8y" target="_blank" rel="noopener noreferrer">Aqua Scala</a></h3>
-              <p class="project-role">Founder & Developer</p>
-              <p class="project-desc">Water quality intelligence platform. Geospatial data, public health impact, educational tech.</p>
-            </article>
-            <article class="project-card">
-              <h3><a href="https://cutt.ly/1arVt8y" target="_blank" rel="noopener noreferrer">Is water safe to drink in...?</a></h3>
-              <p class="project-role">Founder & Developer</p>
-              <p class="project-desc">Public water safety lookup. Open data aggregation, geospatial visualization, consumer education.</p>
-            </article>
-            <article class="project-card">
-              <h3><a href="https://github.com/RubyMoney/money" target="_blank" rel="noopener noreferrer">Ruby Money</a></h3>
-              <p class="project-role">Contributor</p>
-              <p class="project-desc">Currency precision, locale-aware formatting, open financial data standards.</p>
-            </article>
-          </div>
-        </section>
-        <section class="professional-profiles">
-          <h2>Professional Profiles</h2>
-          <ul>
-            <li><a href="https://app.usebraintrust.com/talent/7111/" target="_blank" rel="noopener noreferrer">Braintrust</a></li>
-            <li><a href="https://stackoverflow.com/users/1864315/sascha-mayr?tab=profile" target="_blank" rel="noopener noreferrer">Stack Overflow</a></li>
-            <li><a href="https://github.com/mayrsascha" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-          </ul>
-        </section>
-        <section class="personal-profiles">
-          <h2>Personal Profiles</h2>
-          <ul>
-            <li><a href="https://cutt.ly/IarVG4E" target="_blank" rel="noopener noreferrer">Twitter</a></li>
-            <li><a href="https://www.instagram.com/sascha.lives" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-            <li><a href="mailto:mayr.sascha@gmail.com">Email</a></li>
-          </ul>
-        </section>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
