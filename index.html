@@ -17,7 +17,7 @@
     <title>Sascha Mayr | Software Engineer → Data Accuracy & Visualization</title>
     <link rel="preload" as="image" href="/profile.webp" type="image/webp" />
     <link rel="stylesheet" id="hljs-light" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.1/build/styles/solarized-light.min.css" />
-    <link rel="stylesheet" id="hljs-dark" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.1/build/styles/tomorrow-night.min.css" />
+    <link rel="stylesheet" id="hljs-dark" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.1/build/styles/tomorrow-night.min.css" disabled />
     <style>
       html,body,#root{height:100%;font-family:monospace;margin:0}
       *,*::before,*::after{box-sizing:border-box}
@@ -27,6 +27,9 @@
       .profile img{width:100%;max-width:500px;object-fit:cover}
       .Footer{width:100%;text-align:center;display:flex;justify-content:space-around;align-items:center;color:#657b83;background-color:#fdf6e3;padding:0 10px}
       .App.darkmode .Footer{color:#c5c8c6;background-color:#1d1f21}
+      html.js-dark .content{background-color:#1d1f21}
+      html.js-dark .Footer{color:#c5c8c6;background-color:#1d1f21}
+      html.js-dark body{background-color:#1d1f21}
       @media (min-width: 720px){
         .content{display:flex;align-items:center}
         .profile{width:50%;display:inline-flex;justify-content:center;align-items:flex-start}
@@ -34,6 +37,18 @@
         .Footer .button,.Footer .github-link img{width:30px;font-size:2.5em}
       }
     </style>
+    <script>
+      // Set theme before first paint: localStorage > OS preference
+      (function () {
+        var stored = localStorage.getItem('darkMode');
+        var dark = stored ? stored === 'true' : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark) {
+          document.getElementById('hljs-light').setAttribute('disabled', 'disabled');
+          document.getElementById('hljs-dark').removeAttribute('disabled');
+          document.documentElement.className = 'js-dark';
+        }
+      })();
+    </script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",

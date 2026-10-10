@@ -52,6 +52,15 @@ html, body, #root {
     object-fit: cover;
 }
 
+/* Fit above the fold: scale image down when the viewport is short.
+   Natural 500x750 needs ~836px page height; clamp keeps whole photo visible. */
+@media (min-width: 720px) {
+    .profile img {
+        max-height: calc(100vh - 110px);
+        width: auto;
+    }
+}
+
 footer {
     flex-shrink: 0;
 }
