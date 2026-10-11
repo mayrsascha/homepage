@@ -9,6 +9,7 @@
 
 .Hero pre {
     font-family: monospace;
+    line-height: 1.15;
 }
 
 .Hero pre a {
