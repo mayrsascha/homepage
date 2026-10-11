@@ -61,6 +61,12 @@ html, body, #root {
     }
 }
 
+/* Scale the text block with viewport height so the one-pager never scrolls.
+   At >=13px the page needs ~707px; below that shrink text proportionally. */
+.Hero pre {
+    font-size: clamp(10px, calc((100vh - 82px) / 48), 13px);
+}
+
 footer {
     flex-shrink: 0;
 }

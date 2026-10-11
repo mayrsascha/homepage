@@ -11,8 +11,8 @@ More about me at the links below.
 - <a href="https://coinrotator.app/" target="_blank" rel="noopener noreferrer">[CoinRotator](https://coinrotator.app/)</a> — Founder & Developer
 - <a href="https://cryptodesign.club/" target="_blank" rel="noopener noreferrer">[Crypto Design Club](https://cryptodesign.club/)</a> — Co-founder & Developer
 - <a href="https://www.theta.health/" target="_blank" rel="noopener noreferrer">[Wayfinder Health](https://www.theta.health/)</a> — Lead Data Engineer
-- <a href="https://aquascala.com/" target="_blank" rel="noopener noreferrer">[Aqua Scala](https://aquascala.com/)</a> — Founder & Developer
-- <a href="https://www.iswatersafetodrink.in/" target="_blank" rel="noopener noreferrer">[Is water safe to drink in...?](https://www.iswatersafetodrink.in/)</a> — Founder & Developer
+- <a href="https://aquascala.de/" target="_blank" rel="noopener noreferrer">[Aqua Scala](https://aquascala.de/)</a>
+- <a href="https://www.iswatersafetodrink.in/" target="_blank" rel="noopener noreferrer">[Is water safe to drink in...?](https://www.iswatersafetodrink.in/)</a>
 - <a href="https://github.com/RubyMoney/money" target="_blank" rel="noopener noreferrer">[Ruby Money](https://github.com/RubyMoney/money)</a> — Contributor
 
 <h2>## Professional profiles</h2>

@@ -19,6 +19,9 @@ function App() {
     const dark = document.getElementById('hljs-dark') as HTMLLinkElement | null;
     if (light) light.disabled = darkMode;
     if (dark) dark.disabled = !darkMode;
+    // The pre-paint script adds js-dark for OS-dark users; once React owns
+    // the theme (.App.darkmode), drop it so toggling back to light works.
+    document.documentElement.classList.remove('js-dark');
   }, [darkMode]);
 
   return (
