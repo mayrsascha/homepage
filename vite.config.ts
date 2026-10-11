@@ -5,15 +5,10 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'build',
-    minify: 'esbuild',
-    cssCodeSplit: true,
+    // Vite 8: Oxc minifier is the default (esbuild removed), single-chunk output
+    cssMinify: 'lightningcss',
     modulePreload: {
       polyfill: false,
-    },
-    rollupOptions: {
-      output: {
-        manualChunks: undefined,
-      },
     },
   },
   server: {
