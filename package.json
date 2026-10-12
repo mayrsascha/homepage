@@ -6,6 +6,7 @@
   "engines": {
     "node": ">=20.19.0"
   },
+  "packageManager": "pnpm@12.8.1",
   "scripts": {
     "dev": "vite",
     "generate": "node scripts/generate.mjs",
