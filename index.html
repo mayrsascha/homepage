@@ -16,6 +16,7 @@
     />
     <title>Sascha Mayr | Software Engineer → Data Accuracy & Visualization</title>
     <link rel="preload" as="image" href="/profile.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/github.png" />
     <style>
       html,body,#root{height:100%;font-family:monospace;margin:0}
       *,*::before,*::after{box-sizing:border-box}
@@ -23,15 +24,22 @@
       .content{flex:1 0 auto;padding:1em 1em 0;background-color:#fdf6e3}
       .App.darkmode .content{background-color:#1d1f21}
       html.js-dark body,html.js-dark .content{background-color:#1d1f21}
-      .profile img{width:100%;max-width:500px;object-fit:cover;aspect-ratio:500/750}
+      .profile img{width:100%;max-width:500px;object-fit:cover;aspect-ratio:500/750;background-color:#eee8d5}
+      html.js-dark .profile img{background-color:#282a2e}
       .Footer{width:100%;text-align:center;display:flex;justify-content:space-around;align-items:center;color:#657b83;background-color:#fdf6e3;padding:0 10px}
       .App.darkmode .Footer,html.js-dark .Footer{color:#c5c8c6;background-color:#1d1f21}
+      .Footer .button{background:inherit;border:none;cursor:pointer;outline:none;font-size:48px;margin-left:25px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;padding:0}
+      .Footer .button .icon-sun{display:none}
+      html.js-dark .Footer .button .icon-sun{display:inline}
+      html.js-dark .Footer .button .icon-moon{display:none}
+      .Footer .github-link img{width:48px;height:48px;margin-left:25px}
+      html.js-dark .Footer .github-link img{filter:invert(1)}
       @media (min-width: 720px){
         .content{display:flex;align-items:center}
         .profile{width:50%;display:inline-flex;justify-content:center;align-items:flex-start}
         .Hero{width:50%;display:inline-flex;align-items:center;justify-content:center}
         .Footer{justify-content:center;padding:0}
-        .Footer .button,.Footer .github-link img{width:30px;font-size:2.5em}
+        .Footer .button,.Footer .github-link img{width:30px;height:30px;font-size:2.5em}
       }
       /* Text block — same rules as bundled CSS so skeleton paint == final paint */
       .Hero pre{font-size:clamp(10px,calc((100vh - 82px)/48),13px);font-family:monospace;line-height:1.15}
@@ -141,9 +149,11 @@ More about me at the links below.
             <p>Built with Netlify, Vite and React</p>
             <p>© 2026 Sascha Mayr. All rights reserved.</p>
           </div>
-          <button class="button">🌙</button>
+          <button class="button" aria-label="Toggle dark mode">
+            <span class="icon-moon">🌙</span><span class="icon-sun">☀️</span>
+          </button>
           <a href="https://github.com/mayrsascha/homepage" target="_blank" rel="noopener noreferrer" class="github-link">
-            <img src="/github.png" alt="github" />
+            <img src="/github.png" alt="github" width="30" height="30" />
           </a>
         </footer>
       </div>

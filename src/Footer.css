@@ -9,7 +9,7 @@
     padding: 0 10px;
 }
 
-.App.darkmode .Footer {
+.App.darkmode .Footer, html.js-dark .Footer {
     color: #c5c8c6;
     background-color: #1d1f21;
 }
@@ -22,13 +22,29 @@
     font-size: 48px;
     margin-left: 25px;
     width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
 }
+
+/* Both icons exist in the DOM; CSS picks per theme.
+   No JS swap = no flash, no refetch. */
+.Footer .button .icon-sun { display: none; }
+html.js-dark .Footer .button .icon-sun { display: inline; }
+html.js-dark .Footer .button .icon-moon { display: none; }
 
 .Footer .github-link img {
     width: 48px;
+    height: 48px;
     margin-left: 25px;
 }
 
+/* One GitHub icon for both themes: invert in dark mode via CSS. */
+html.js-dark .Footer .github-link img {
+    filter: invert(1);
+}
 
 @media only screen and (min-width: 720px) {
     .Footer {
@@ -38,6 +54,7 @@
 
     .Footer .button, .Footer .github-link img {
         width: 30px;
+        height: 30px;
         font-size: 2.5em;
     }
 }
