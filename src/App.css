@@ -50,16 +50,6 @@ html, body, #root {
     width:100%; 
     max-width: 500px;
     object-fit: cover;
-    transition: filter 0.3s ease;
-}
-
-/* LQIP blur-up: the inline base64 thumbnail is 24px wide; blur it while
-   it's the active src (data-src present). Swapping in the real image
-   removes data-src, and the transition makes the sharpen smooth.
-   No scale() overscan: the soft blur edge fades into the page-colored
-   placeholder background behind the image. */
-.profile img[data-src] {
-    filter: blur(18px);
 }
 
 /* Fit above the fold: scale image down when the viewport is short.

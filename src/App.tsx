@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import useDarkMode from './usedarkmode';
 import Hero from './Hero';
 import Footer from './Footer';
-import ProfileLqip from './ProfileLqip';
 
 import './App.css';
 
@@ -30,10 +29,11 @@ function App() {
       <main className="content">
         <Hero />
         <div className="profile">
-          {/* LQIP blur-up: img starts as an inline base64 thumbnail, swaps to
-              the real WebP via data-src once downloaded. No <picture>/<source>:
-              the source would override the LQIP and defeat the placeholder. */}
-          <img src={ProfileLqip} data-src="/profile.webp" alt="Profile" width="500" height="750" />
+          {/* Mid-res placeholder (profile-lqip.webp, ~5KB, same composition as
+              the full image) paints first; swaps to the real WebP via data-src
+              once downloaded. No blur: the placeholder is close enough to the
+              final image that the swap is imperceptible. */}
+          <img src="/profile-lqip.webp" data-src="/profile.webp" alt="Profile" width="500" height="750" />
         </div>
       </main>
       <Footer darkMode={darkMode} setDarkMode={setDarkMode} />
