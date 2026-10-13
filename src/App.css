@@ -46,19 +46,55 @@ html, body, #root {
     }
 }
 
+/* Cross-fade stack: the stack itself carries an explicit aspect-ratio box
+   (width:100%/max-width:500px, 500:750) so it reserves the exact final
+   geometry before either image arrives. Both imgs absolutely fill the box.
+   Real image fades in over the placeholder when it loads. Neither src
+   changes after parse — no load-order race, no flash, no size change. */
+.profile-stack {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 500/750;
+    line-height: 0;
+}
+
+.profile-stack img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-real {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.profile-real.loaded {
+    opacity: 1;
+}
+
+/* Fit above the fold: clamp the stack box on short viewports.
+   max-height wins over the aspect-ratio; width shrinks with it. */
+@media (min-width: 720px) {
+    .profile-stack {
+        max-height: calc(100vh - 110px);
+    }
+}
+
 .profile img {
     width:100%; 
     max-width: 500px;
     object-fit: cover;
+    background-color: #fdf6e3;
 }
 
-/* Fit above the fold: scale image down when the viewport is short.
-   Natural 500x750 needs ~836px page height; clamp keeps whole photo visible. */
-@media (min-width: 720px) {
-    .profile img {
-        max-height: calc(100vh - 110px);
-        width: auto;
-    }
+.App.darkmode .profile img, html.js-dark .profile img {
+    background-color: #1d1f21;
 }
 
 /* Scale the text block with viewport height so the one-pager never scrolls.

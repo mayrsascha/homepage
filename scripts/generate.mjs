@@ -44,7 +44,6 @@ writeFileSync(
 // cwebp ships on dev machines (homebrew) but NOT in the Netlify build
 // image — when absent, the committed public/profile-lqip.webp is used.
 // After changing profile.png locally, commit the regenerated file.
-let placeholderSrc = '/profile-lqip.webp';
 const cwebpAvailable = (() => {
   try { execSync('cwebp -version', { stdio: 'ignore' }); return true; }
   catch { return false; }
@@ -73,24 +72,13 @@ const contentEnd = index.indexOf('</code></pre></div>', contentStart);
 if (contentEnd === -1) throw new Error('Skeleton end tag not found');
 index = index.slice(0, contentStart) + converged + index.slice(contentEnd);
 
-// 3b) profile img src -> placeholder file in the skeleton (real image via JS swap).
-//     Idempotent: matches the plain /profile.webp form, a previous base64 LQIP,
-//     or a previous placeholder-file run.
-let indexNew;
-const plainMarker = '<img src="/profile.webp" alt="Profile" width="500" height="750" />';
-const b64Re = /<img src="data:image\/webp;base64,[A-Za-z0-9+/=]+" alt="Profile" width="500" height="750" data-src="\/profile\.webp" \/>/;
-const fileRe = /<img src="\/profile-lqip\.webp" alt="Profile" width="500" height="750" data-src="\/profile\.webp" \/>/;
-const replacement = `<img src="${placeholderSrc}" alt="Profile" width="500" height="750" data-src="/profile.webp" />`;
-if (index.includes(plainMarker)) {
-  indexNew = index.replace(plainMarker, replacement);
-} else if (b64Re.test(index)) {
-  indexNew = index.replace(b64Re, replacement);
-} else if (fileRe.test(index)) {
-  indexNew = index; // already current
-} else {
-  throw new Error('Skeleton profile img not found');
+// 3b) profile skeleton img: verify the cross-fade stack is present and the
+//     placeholder src points at the generated file. The stack markup lives
+//     directly in index.html (kept in sync manually with App.tsx); this
+//     check guards against drift.
+if (!index.includes('<img class="profile-placeholder" src="/profile-lqip.webp"')) {
+  throw new Error('Skeleton profile placeholder img not found (expected /profile-lqip.webp stack)');
 }
-index = indexNew;
 
 writeFileSync('index.html', index);
 

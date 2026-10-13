@@ -10,7 +10,9 @@ function Footer({ darkMode, setDarkMode }: FooterProps) {
     <footer className="Footer">
       <div>
         <p>Built with Netlify, Vite and React</p>
-        <p>© {new Date().getFullYear()} Sascha Mayr. All rights reserved.</p>
+        {/* span#year mirrors the skeleton so hydrateRoot text matches;
+            the pre-paint script already sets it to the current year. */}
+        <p>© <span id="year">{new Date().getFullYear()}</span> Sascha Mayr. All rights reserved.</p>
       </div>
       {/* All icons are text/inline-SVG — nothing in the footer loads over the
           network, so nothing can flicker. Theme styling via currentColor + CSS. */}
