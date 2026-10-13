@@ -46,17 +46,14 @@ html, body, #root {
     }
 }
 
-/* Cross-fade stack: the stack itself carries an explicit aspect-ratio box
-   (width:100%/max-width:500px, 500:750) so it reserves the exact final
-   geometry before either image arrives. Both imgs absolutely fill the box.
-   Real image fades in over the placeholder when it loads. Neither src
-   changes after parse — no load-order race, no flash, no size change. */
+/* Cross-fade stack: explicit aspect-ratio box; width derives from the
+   viewport so width and height always scale TOGETHER (ratio locked at
+   500/750 — object-fit:cover never crops, it only scales).
+   Real image fades in over the placeholder on load. Neither src changes
+   after parse — no load-order race, no flash, no size change. */
 .profile-stack {
     position: relative;
     display: inline-block;
-    width: 100%;
-    max-width: 500px;
-    aspect-ratio: 500/750;
     line-height: 0;
 }
 
@@ -78,11 +75,21 @@ html, body, #root {
     opacity: 1;
 }
 
-/* Fit above the fold: clamp the stack box on short viewports.
-   max-height wins over the aspect-ratio; width shrinks with it. */
+/* Fit above the fold without cropping: on wide screens the box is
+   min(500px, viewport-derived) wide; height follows via aspect-ratio.
+   Short viewport => BOTH dimensions shrink proportionally. */
 @media (min-width: 720px) {
     .profile-stack {
-        max-height: calc(100vh - 110px);
+        width: min(500px, calc((100vh - 110px) * 500 / 750));
+        aspect-ratio: 500 / 750;
+    }
+}
+
+@media (max-width: 719px) {
+    .profile-stack {
+        width: 100%;
+        max-width: 500px;
+        aspect-ratio: 500 / 750;
     }
 }
 
