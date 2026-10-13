@@ -82,14 +82,14 @@ if (contentEnd === -1) throw new Error('Skeleton end tag not found');
 index = index.slice(0, contentStart) + converged + index.slice(contentEnd);
 
 // 3b) profile img src -> LQIP data URI in the skeleton (real image via JS swap).
-//     Idempotent: matches either the original /profile.png form or a previous
+//     Idempotent: matches either the original /profile.webp form or a previous
 //     LQIP run (src is regenerated either way).
 let indexNew;
-const plainMarker = '<img src="/profile.png" alt="Profile" width="500" height="750" />';
-const lqipRe = /<img src="data:image\/webp;base64,[A-Za-z0-9+/=]+" alt="Profile" width="500" height="750" data-src="\/profile\.png" \/>/;
+const plainMarker = '<img src="/profile.webp" alt="Profile" width="500" height="750" />';
+const lqipRe = /<img src="data:image\/webp;base64,[A-Za-z0-9+/=]+" alt="Profile" width="500" height="750" data-src="\/profile\.webp" \/>/;
 const plainIdx = index.indexOf(plainMarker);
 const lqipMatch = index.match(lqipRe);
-const replacement = `<img src="${lqip}" alt="Profile" width="500" height="750" data-src="/profile.png" />`;
+const replacement = `<img src="${lqip}" alt="Profile" width="500" height="750" data-src="/profile.webp" />`;
 if (plainIdx !== -1) {
   indexNew = index.slice(0, plainIdx) + replacement + index.slice(plainIdx + plainMarker.length);
 } else if (lqipMatch) {

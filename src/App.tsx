@@ -30,10 +30,10 @@ function App() {
       <main className="content">
         <Hero />
         <div className="profile">
-          <picture>
-            <source srcSet="/profile.webp" type="image/webp" />
-            <img src={ProfileLqip} data-src="/profile.png" alt="Profile" width="500" height="750" />
-          </picture>
+          {/* LQIP blur-up: img starts as an inline base64 thumbnail, swaps to
+              the real WebP via data-src once downloaded. No <picture>/<source>:
+              the source would override the LQIP and defeat the placeholder. */}
+          <img src={ProfileLqip} data-src="/profile.webp" alt="Profile" width="500" height="750" />
         </div>
       </main>
       <Footer darkMode={darkMode} setDarkMode={setDarkMode} />
