@@ -1,63 +1,44 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Homepage
 
-## Available Scripts
+Personal homepage of Sascha Mayr — [saschamayr.com](https://saschamayr.com)
 
-In the project directory, you can run:
+A one-page site styled as a markdown document rendered in a code block:
+solarized/tomorrow-night colors, monospace, dark-mode toggle, no scroll.
 
-### `yarn start`
+## Stack
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Vite 8 · React 19 · TypeScript 7 · pnpm
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+## Commands
 
-### `yarn build`
+| Command | Description |
+|---------|-------------|
+| `pnpm install` | Install dependencies |
+| `pnpm dev` | Dev server at localhost:3000 |
+| `pnpm build` | Production build to `build/` (runs `scripts/generate.mjs` first) |
+| `pnpm preview` | Preview the production build |
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## How the content pipeline works
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Most of the page is static by design — first paint must equal final paint
+(zero layout flash). `scripts/generate.mjs` (wired into `pnpm build`) keeps
+everything in sync:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Text block** — `src/Intro.converged.html` holds the pre-highlighted
+   markdown markup. The script writes it into both the React string
+   (`src/Intro.highlighted.ts`) and the pre-hydration skeleton in
+   `index.html`, byte-identical. Edit `Intro.converged.html` to change
+   site content, then run `pnpm generate`.
+2. **Profile photo** — the script generates a ~400-byte blurred WebP
+   thumbnail (LQIP) from `public/profile.png` and inlines it as base64
+   in the `<img>`, so a blurry version of the photo paints with the HTML.
+   A tiny script swaps in the real image once it has downloaded.
 
-### `yarn eject`
+Theme (light/dark) is resolved by an inline pre-paint script
+(localStorage → OS preference) driving CSS variables — no flash, no
+runtime theme switching.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Deploy
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+Netlify, auto-deploys from `master`. Config in `netlify.toml`
+(Node 20, `pnpm run build`, publish `build/`).

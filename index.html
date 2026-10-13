@@ -26,6 +26,9 @@
       html.js-dark body,html.js-dark .content{background-color:#1d1f21}
       .profile img{width:100%;max-width:500px;object-fit:cover;aspect-ratio:500/750;background-color:#fdf6e3}
       html.js-dark .profile img{background-color:#1d1f21}
+      .profile picture{display:block;overflow:hidden}
+      .profile img[data-src]{filter:blur(24px);transform:scale(1.06)}
+      .profile img:not([data-src]){filter:none;transform:none}
       .Footer{width:100%;text-align:center;display:flex;justify-content:space-around;align-items:center;color:#657b83;background-color:#fdf6e3;padding:0 10px}
       .App.darkmode .Footer,html.js-dark .Footer{color:#c5c8c6;background-color:#1d1f21}
       .Footer .button{background:inherit;border:none;cursor:pointer;outline:none;font-size:48px;margin-left:25px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;padding:0}
@@ -66,6 +69,20 @@
         var stored = localStorage.getItem('darkMode');
         var dark = stored ? stored === 'true' : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         if (dark) document.documentElement.className = 'js-dark';
+      })();
+      // LQIP -> real image swap. The img starts as an inline blurry thumbnail
+      // (base64, paints with the HTML); this promotes it to the real WebP the
+      // moment the real file is cached, so the photo sharpens without a flash.
+      (function () {
+        var swap = function () {
+          var img = document.querySelector('.profile img[data-src]');
+          if (!img) return;
+          var real = new Image();
+          real.onload = function () { img.src = img.getAttribute('data-src'); img.removeAttribute('data-src'); };
+          real.src = img.getAttribute('data-src');
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', swap);
+        else swap();
       })();
     </script>
     <script type="application/ld+json">
@@ -140,7 +157,7 @@ More about me at the links below.
           <div class="profile">
             <picture>
               <source srcSet="/profile.webp" type="image/webp" />
-              <img src="/profile.png" alt="Profile" width="500" height="750" />
+              <img src="data:image/webp;base64,UklGRpABAABXRUJQVlA4WAoAAAAQAAAAFwAAIwAAQUxQSM0AAAABgGrbtrLl/u7/j7s3twadQSQ5ZJ6A5F4ZJIfkzgNYdneXCH/CfaP7O4MniIgJUP/SY5ApP367yJOIA4CPZIGEH6gU0F39aBbw//gxJqC7BvBcIKDKABwqScMCcJsjocYB7IYIpLwDwE2FTYNv2xN+3wynLOsgV0xMLuhspo5rYVq5XqaTm2b6uDlmjNtghrlLZpw7Zea5bSL8jbskMiAVp2GdiNeQRyRwU24ijctUZBa1oNgCaokqpl7NTCkFN1NIfVDR1LuFUV7Ga/4BAFZQOCCcAAAAMAUAnQEqGAAkAD8RbrJQLCYkorAaqqmAIgljAMPoFg2a3JAjn5lj/KRQPCroePKiRAAA/vDLNkgGxTUCfMuoHxuhzVDuYjEXF7qGmv+9lPbrovvUnN2OubvS8v/Emw3GKBYU9EFPFPm7di0zvCG8Q6Vv2a29L2fvLm6s8pjziFEzuYLjQ/VjU24rBdlIAVCql0Sa8TIE6owz8AAA" alt="Profile" width="500" height="750" data-src="/profile.png" />
             </picture>
           </div>
         </main>

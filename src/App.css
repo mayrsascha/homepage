@@ -46,10 +46,29 @@ html, body, #root {
     }
 }
 
+.profile picture {
+    display: block;
+    overflow: hidden;
+}
+
 .profile img {
     width:100%; 
     max-width: 500px;
     object-fit: cover;
+}
+
+/* LQIP blur-up: the inline base64 thumbnail is 24px wide, so blur it
+   while it's the active src (data-src present). Swapping in the real
+   image removes data-src and the blur. scale + overflow:hidden clips
+   blur edge bleeding without changing the visible box. */
+.profile img[data-src] {
+    filter: blur(24px);
+    transform: scale(1.06);
+}
+
+.profile img:not([data-src]) {
+    filter: none;
+    transform: none;
 }
 
 /* Fit above the fold: scale image down when the viewport is short.
