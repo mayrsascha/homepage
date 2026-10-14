@@ -1,9 +1,9 @@
 /* Formerly the inline critical CSS. Imported FIRST in main.ts so the cascade
    order is unchanged (it used to precede the bundled CSS). The whole bundle
    is inlined into index.html at build time, so this paints with the HTML. */
-html,body,#root{height:100%;font-family:monospace;margin:0}
+html,body{height:100%;font-family:monospace;margin:0}
 *,*::before,*::after{box-sizing:border-box}
-.App{height:100%;width:100%;display:flex;flex-direction:column}
+body{display:flex;flex-direction:column}
 .content{flex:1 0 auto;padding:1em 1em 0;background-color:#fdf6e3}
 html.js-dark body,html.js-dark .content{background-color:#1d1f21}
 .profile img{width:100%;max-width:500px;object-fit:cover;aspect-ratio:500/750}
@@ -39,16 +39,17 @@ html.js-dark .Footer .button .icon-moon{display:none}
 .Hero pre h2{font-size:1.25em}
 .profile img{max-height:calc(100vh - 110px);width:auto}
 /* highlight.js themes inlined as CSS variables (solarized-light / tomorrow-night) */
-:root{--hl-bg:#fdf6e3;--hl-fg:#657b83;--hl-section:#268bd2;--hl-string:#2aa198;--hl-link:#cb4b16;--hl-bullet:#cb4b16;--hl-comment:#93a1a1}
-html.js-dark{--hl-bg:#1d1f21;--hl-fg:#c5c8c6;--hl-section:#81a2be;--hl-string:#b5bd68;--hl-link:#de935f;--hl-bullet:#b5bd68;--hl-comment:#969896}
-.hljs{display:block;overflow-x:auto;padding:.5em;background:var(--hl-bg);color:var(--hl-fg)}
-.hljs-section,.hljs-title{color:var(--hl-section)}
-.hljs-string{color:var(--hl-string)}
-.hljs-link{color:var(--hl-link)}
-.hljs-bullet{color:var(--hl-bullet)}
-.hljs-comment,.hljs-quote{color:var(--hl-comment)}
-.hljs-emphasis{font-style:italic}
-.hljs-strong{font-weight:700}
+:root{--hl-bg:#fdf6e3;--hl-fg:#657b83;--hl-section:#268bd2;--hl-string:#2aa198;--hl-link:#cb4b16;--hl-bullet:#cb4b16}
+html.js-dark{--hl-bg:#1d1f21;--hl-fg:#c5c8c6;--hl-section:#81a2be;--hl-string:#b5bd68;--hl-link:#de935f;--hl-bullet:#b5bd68}
+/* Markdown highlighting, highlight.js-style but with short class names:
+   h=section, s=string (link text), l=link (URL), b=bullet, e=emphasis, w=strong */
+.md{display:block;overflow-x:auto;padding:.5em;background:var(--hl-bg);color:var(--hl-fg)}
+.h{color:var(--hl-section)}
+.s{color:var(--hl-string)}
+.l{color:var(--hl-link)}
+.b{color:var(--hl-bullet)}
+.e{font-style:italic}
+.w{font-weight:700}
 
 /* The parts of normalize.css this page actually uses (the rest targets
    forms, tables, hr, sub/sup etc. that don't exist here). */

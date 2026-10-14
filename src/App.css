@@ -10,14 +10,13 @@ pre {
     margin: 0;
 }
 
-html, body, #root {
+html, body {
     height: 100%;
     font-family: monospace;
 }
 
-.App {
-    height: 100%;
-    width: 100%;
+/* body is the page's flex column: main grows, footer sits at the bottom. */
+body {
     display: flex;
     flex-direction: column;
 }

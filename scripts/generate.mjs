@@ -1,11 +1,11 @@
 /* Build-time sync for the homepage's static content:
-   1. Converged hljs markup -> the code block in index.html (byte-identical)
+   1. Converged markdown markup -> the code block in index.html (byte-identical)
    2. Profile photo files from public/profile.png: the sharp AVIF and the
       placeholder (AVIF + WebP fallback)
 
-   The converged markup is the exact hljs output the old runtime produced
-   (extracted once from the live DOM). To change site content, edit
-   src/Intro.converged.html directly (or re-derive via browser + hljs).
+   The converged markup started as the highlight.js output of the old React
+   runtime; its class names are now shortened (h, s, l, b, e, w; styled in
+   src/base.css). To change site content, edit src/Intro.converged.html.
 
    Run: node scripts/generate.mjs */
 import { readFileSync, writeFileSync, existsSync } from 'fs';
@@ -13,11 +13,11 @@ import { execSync } from 'child_process';
 import { tmpdir } from 'os';
 import { join } from 'path';
 
-// ---------- 1) Converged hljs markup ----------
+// ---------- 1) Converged markdown markup ----------
 const converged = readFileSync('src/Intro.converged.html', 'utf8');
 
-if (!converged.includes('hljs-section') || !converged.includes('<h1')) {
-  throw new Error('src/Intro.converged.html does not look like converged hljs markup');
+if (!converged.includes('class="h"') || !converged.includes('<h1')) {
+  throw new Error('src/Intro.converged.html does not look like the converged markdown markup');
 }
 
 
@@ -69,7 +69,7 @@ const placeholderBytes = readFileSync('public/profile-lqip.avif').length;
 let index = readFileSync('index.html', 'utf8');
 
 // 3a) text block
-const openTag = '<div class="Hero"><pre class="markdown hljs"><code class="markdown hljs">';
+const openTag = '<div class="Hero"><pre class="md"><code class="md">';
 const skeletonStart = index.indexOf(openTag);
 if (skeletonStart === -1) throw new Error('Skeleton block not found in index.html');
 const contentStart = skeletonStart + openTag.length;

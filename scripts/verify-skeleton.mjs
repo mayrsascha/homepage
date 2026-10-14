@@ -3,7 +3,7 @@
 import { readFileSync } from 'fs';
 
 const html = readFileSync('index.html', 'utf8');
-const start = html.indexOf('<code class="markdown hljs">') + '<code class="markdown hljs">'.length;
+const start = html.indexOf('<code class="md">') + '<code class="md">'.length;
 const end = html.indexOf('</code></pre></div>', start);
 const skeleton = html.slice(start, end);
 // No trimming: generate.mjs writes the file verbatim (incl. trailing newline).
