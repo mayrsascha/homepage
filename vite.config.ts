@@ -132,6 +132,11 @@ export default defineConfig({
     },
     // Vite 8: Oxc minifier is the default (esbuild removed), single-chunk output
     cssMinify: 'lightningcss',
+    // Vite's default CSS target (Safari 16.4) writes media queries in range
+    // syntax (width>=45em), which iOS 15 and Chrome < 104 ignore: no layout
+    // at all, an invisible photo. Target older browsers so they get
+    // min-/max-width (costs ~7 bytes).
+    cssTarget: ['safari15', 'ios15', 'chrome100', 'firefox100'],
     modulePreload: {
       polyfill: false,
     },

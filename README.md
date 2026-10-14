@@ -3,7 +3,8 @@
 Personal homepage of Sascha Mayr — [saschamayr.com](https://saschamayr.com)
 
 A one-page site styled as a markdown document rendered in a code block:
-solarized/tomorrow-night colors, monospace, dark-mode toggle, no scroll.
+solarized/tomorrow-night colors, monospace, dark-mode toggle; on desktop it
+fits the screen without scrolling (down to ~700 px of height).
 
 ## Stack
 
@@ -82,7 +83,7 @@ so text and photo always appear in the same frame and a reload never
 blinks the photo.
 
 `generate.mjs` builds these from `src/assets/profile.png` (the 1280×1920
-source photo; not published):
+source photo; in the repo, but not deployed with the site):
 
 - `src/assets/profile-{500,800,1280}.avif`: the real photo, ~20 / 48 /
   120 KB, picked by `srcset`/`sizes` (and the matching preload) so phones

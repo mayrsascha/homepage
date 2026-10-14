@@ -7,7 +7,7 @@ const open = '<div class="md md-code">';
 const start = html.indexOf(open) + open.length;
 const end = html.indexOf('</div></div></div><div class="profile">', start);
 const skeleton = html.slice(start, end);
-// No trimming: generate.mjs writes the file verbatim (incl. trailing newline).
+// No trimming: generate.mjs copies the file verbatim, whitespace included.
 const converged = readFileSync('src/Intro.converged.html', 'utf8');
 
 if (skeleton === converged) {

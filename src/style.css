@@ -139,8 +139,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
 
    The text block measures 49.5em wide with full links (one more em of slack:
    Safari's monospace is slightly wider) and 24.5em + 19.5rem tall (the
-   link rows are 1.5rem), plus ~100px of footer and padding: --fs is capped
-   so it doesn't scroll down to 12px text. Sizes are in rem: they follow the browser's font-size
+   link rows are 1.5rem; above ~21px text the rows are 1.15em instead, so
+   39.5em), plus ~100px of footer and padding: --fs is capped by both, so
+   the page doesn't scroll down to 12px text. Sizes are in rem: they follow the browser's font-size
    setting where the layout leaves room. The breakpoints are in em (16px
    at the default setting: 45em = 720px, 56.5em = 904px), so larger text
    switches to the stacked layouts sooner instead of squeezing the photo. */
@@ -201,7 +202,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        13px only above 1440px, so big screens aren't a small island. */
     .content {
         --pw: min((100vh - 116px) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 48px - .75rem * 50.5);
-        --fs: clamp(.75rem, min((100vh - 100px - 19.5rem) / 24.5, (100vw - 48px - var(--pw)) / 50.5, .8125rem + max(0px, (100vw - 1440px) / 64)), 1.75rem);
+        --fs: clamp(.75rem, min((100vh - 100px - 19.5rem) / 24.5, (100vh - 100px) / 39.5, (100vw - 48px - var(--pw)) / 50.5, .8125rem + max(0px, (100vw - 1440px) / 64)), 1.75rem);
         display: flex; align-items: center;
     }
     /* Each column centres its content; the text column is at least half
