@@ -169,6 +169,9 @@ importers:
       '@lhci/cli':
         specifier: 0.15.1
         version: 0.15.1(supports-color@5.5.0)
+      lightningcss:
+        specifier: 1.33.0
+        version: 1.33.0
       typescript:
         specifier: ^7
         version: 7.0.2

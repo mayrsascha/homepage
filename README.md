@@ -44,6 +44,8 @@ No framework, no analytics script: the built page is a single ~10 kB
   run, together with the immutable caching of each hashed photo; and fail
   the build over the size budget (see Checks). The other headers are
   static, in `netlify.toml`.
+- **Printing** always uses the light colours (printers skip the dark
+  background).
 - **Without JavaScript** the page still works: a `<noscript>` style shows the
   real photo directly, hides the theme toggle and follows the OS dark mode.
 
@@ -60,7 +62,8 @@ of sync.
 
 Layouts (`src/style.css`):
 
-- **Phones** (< 720 px): the text fills the first screen; the whole photo
+- **Phones** (< 720 px): the text (12–14 px, growing with the screen
+  height) fills the first screen; the whole photo
   and the footer follow on scrolling (never cut in half by the screen
   edge). Links render reference-style (`[Shumi]`): each link's `(https://…)` part sits in a `span.u` that the
   CSS hides. A row that wraps stays visibly one item (hanging indent), and
@@ -132,7 +135,8 @@ the photo or tagline changes.
   the hand-written inline scripts and strips HTML comments.
 - **CSP:** `scripts/verify-csp.mjs` (part of `pnpm build`) fails if any
   inline script or style in the built pages lacks its hash in
-  `build/_headers`. Local previews and Lighthouse CI don't send the policy,
+  `build/_headers`, or if a stylesheet or script is still external (the
+  build itself also fails when it can't inline one). Local previews and Lighthouse CI don't send the policy,
   so nothing else would notice before production.
 - **CI** (`.github/workflows/check.yml`, on every push and PR; actions
   pinned by commit, kept current by Dependabot): the content in

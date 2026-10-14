@@ -1,3 +1,4 @@
+import { Features } from 'lightningcss'
 import { defineConfig, minify, type Plugin } from 'vite'
 
 // Inline the (tiny) CSS and JS bundles into index.html: zero render-blocking
@@ -14,12 +15,12 @@ function inlineAssets(): Plugin {
       for (const [name, chunk] of Object.entries(bundle)) {
         if (name.endsWith('.css') && chunk.type === 'asset') {
           const re = new RegExp(`<link rel="stylesheet"[^>]*href="/${name}"[^>]*>`)
-          if (!re.test(html)) continue
+          if (!re.test(html)) this.error(`could not inline ${name}: the CSP would block it as an external stylesheet`)
           html = html.replace(re, () => `<style>${chunk.source}</style>`)
           delete bundle[name]
         } else if (name.endsWith('.js') && chunk.type === 'chunk' && chunk.isEntry) {
           const re = new RegExp(`<script type="module"[^>]*src="/${name}"[^>]*></script>`)
-          if (!re.test(html)) continue
+          if (!re.test(html)) this.error(`could not inline ${name}: the CSP would block it as an external script`)
           html = html.replace(re, () => `<script type="module">${chunk.code.replace(/<\/script/gi, '<\\/script')}</script>`)
           delete bundle[name]
         }
@@ -125,6 +126,11 @@ function cspHeaders(): Plugin {
 export default defineConfig({
   // Order matters: the CSP hashes cover the inlined and minified code.
   plugins: [inlineAssets(), minifyInline(), cspHeaders(), sizeBudget()],
+  css: {
+    // The CSS target below makes Lightning CSS emit light-dark() polyfill
+    // variables; the page doesn't use light-dark(), so they're dead bytes.
+    lightningcss: { exclude: Features.LightDark },
+  },
   build: {
     outDir: 'build',
     rollupOptions: {

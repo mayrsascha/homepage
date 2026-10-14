@@ -21,11 +21,13 @@ button { font-family: inherit; font-size: 100%; line-height: 1.15; margin: 0; }
     --bg: #fdf6e3; --fg: #5f747c;
     --hl-section: #2076b3; --hl-string: #217e77; --hl-link: #c44815; --hl-bullet: #c44815;
 }
-html.js-dark {
+/* Screens only: printers skip the background, and the dark text would
+   land on white paper. */
+@media screen { html.js-dark {
     --bg: #1d1f21; --fg: #c5c8c6;
     --hl-section: #81a2be; --hl-string: #b5bd68; --hl-link: #de935f; --hl-bullet: #b5bd68;
-}
-html.js-dark { color-scheme: dark; }
+    color-scheme: dark;
+} }
 /* The canvas carries the theme colour too, so the page shows it while the
    text is held (html.ph-wait, set in index.html). */
 html { background-color: var(--bg); }
@@ -105,7 +107,7 @@ footer { flex-shrink: 0; }
     font-size: .8125rem;
 }
 /* Three short lines: tight spacing keeps the footer short (the layouts
-   reserve 100-116px for it and the page padding). */
+   reserve 6.25-7.25rem for it and the page padding). */
 .Footer p { margin: .35em 0; }
 .Footer .button {
     background: inherit; border: none; padding: 0; color: inherit;
@@ -140,7 +142,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
    The text block measures 49.5em wide with full links (one more em of slack:
    Safari's monospace is slightly wider) and 24.5em + 19.5rem tall (the
    link rows are 1.5rem; above ~21px text the rows are 1.15em instead, so
-   39.5em), plus ~100px of footer and padding: --fs is capped by both, so
+   39.5em), plus ~6.25rem of footer and padding (rem: the footer grows with the font setting): --fs is capped by both, so
    the page doesn't scroll down to 12px text. Sizes are in rem: they follow the browser's font-size
    setting where the layout leaves room. The breakpoints are in em (16px
    at the default setting: 45em = 720px, 56.5em = 904px), so larger text
@@ -152,7 +154,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        part is hidden, so each entry fits on one line. Remaining long lines
        wrap instead of being clipped. The inner code padding is dropped to
        give the text the width. */
-    .content { --fs: .75rem; }
+    /* 12px on small phones, up to 14px where the screen is tall enough
+       (vh, not svh: iOS < 15.4 would drop the whole value). */
+    .content { --fs: clamp(.75rem, (100vh - 21.5rem) / 24, .875rem); }
     /* The text fills the first screen (centred), so the photo is never cut
        by its bottom edge: it arrives whole, with the footer, on scrolling.
        svh is the screen with the browser bars shown; vh is the fallback
@@ -209,8 +213,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        the rest of the width (no wrapping), fits the height, and grows past
        13px only above 1440px, so big screens aren't a small island. */
     .content {
-        --pw: min((100vh - 116px) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 48px - .75rem * 50.5);
-        --fs: clamp(.75rem, min((100vh - 100px - 19.5rem) / 24.5, (100vh - 100px) / 39.5, (100vw - 48px - var(--pw)) / 50.5, .8125rem + max(0px, (100vw - 1440px) / 64)), 1.75rem);
+        --pw: min((100vh - 7.25rem) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 48px - .75rem * 50.5);
+        --fs: clamp(.75rem, min((100vh - 6.25rem - 19.5rem) / 24.5, (100vh - 6.25rem) / 39.5, (100vw - 48px - var(--pw)) / 50.5, .8125rem + max(0px, (100vw - 1440px) / 64)), 1.75rem);
         display: flex; align-items: center;
     }
     /* Each column centres its content; the text column is at least half

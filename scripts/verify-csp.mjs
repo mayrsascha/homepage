@@ -18,6 +18,11 @@ const missing = [];
 for (const file of readdirSync('build').filter((f) => f.endsWith('.html'))) {
   const html = readFileSync(`build/${file}`, 'utf8');
   if (/\sstyle="/.test(html)) missing.push(`${file}: style="" attribute (needs 'unsafe-hashes')`);
+  // The policy allows no external CSS or JS (all of it is inlined), and only
+  // bare <style> tags are hashed below.
+  if (/<link[^>]+rel="?stylesheet/.test(html)) missing.push(`${file}: external stylesheet (not inlined)`);
+  for (const [tag] of html.matchAll(/<script[^>]*\ssrc=[^>]*>/g)) missing.push(`${file}: external script ${tag}`);
+  for (const [tag] of html.matchAll(/<style\s[^>]*>/g)) missing.push(`${file}: <style> with attributes ${tag}`);
   for (const [, attrs, code] of html.matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script>/g)) {
     if (/\ssrc=|application\/ld\+json/.test(attrs ?? '')) continue;
     checked++;
