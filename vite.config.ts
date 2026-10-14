@@ -134,6 +134,10 @@ function netlifyHeaders(): Plugin {
         "base-uri 'none'",
         "form-action 'none'",
         "frame-ancestors 'none'",
+        // Trusted Types: no script can reach the DOM's HTML/script sinks
+        // (innerHTML, eval, script.src...); this page uses none.
+        "require-trusted-types-for 'script'",
+        "trusted-types 'none'",
       ].join('; ');
       // Content-hashed assets (the photos) are immutable: a new file means a
       // new URL.
