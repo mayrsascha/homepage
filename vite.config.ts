@@ -60,6 +60,9 @@ function cspHeaders(): Plugin {
         `script-src ${[...scripts].join(' ')}`,
         `style-src ${[...styles].join(' ')}`,
         "img-src 'self' data:",
+        // The page itself makes no requests; 'self' lets tools like
+        // Lighthouse fetch /robots.txt from the page context.
+        "connect-src 'self'",
         "base-uri 'none'",
         "form-action 'none'",
         "frame-ancestors 'none'",
