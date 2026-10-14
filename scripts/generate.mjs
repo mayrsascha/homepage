@@ -1,6 +1,6 @@
 /* Build-time sync for the homepage's static content:
    1. Converged hljs markup -> the code block in index.html (byte-identical)
-   2. Half-res placeholder for the profile photo (public/profile-lqip.webp)
+   2. Placeholder for the profile photo (public/profile-lqip.avif + .webp fallback)
 
    The converged markup is the exact hljs output the old runtime produced
    (extracted once from the live DOM). To change site content, edit
@@ -27,7 +27,7 @@ if (!converged.includes('hljs-section') || !converged.includes('<h1>')) {
 }
 
 
-// ---------- 2) Profile placeholder (mid-res WebP, no blur) ----------
+// ---------- 2) Profile placeholder (full-res AVIF + half-res WebP, no blur) ----------
 // A 24px blurred thumbnail looked like a "ghost" next to the final image —
 // too different, so the swap read as a flash. Instead: a HALF-RESOLUTION,
 // decent-quality WebP (250px, q10, ~5KB). Same composition as the real
@@ -35,24 +35,36 @@ if (!converged.includes('hljs-section') || !converged.includes('<h1>')) {
 // imperceptible. No blur filter at all. Served as a normal file (tiny
 // enough to arrive in the first burst with the HTML).
 //
-// cwebp ships on dev machines (homebrew) but NOT in the Netlify build
-// image — when absent, the committed public/profile-lqip.webp is used.
-// After changing profile.png locally, commit the regenerated file.
-const cwebpAvailable = (() => {
-  try { execSync('cwebp -version', { stdio: 'ignore' }); return true; }
+// Primary placeholder is AVIF at FULL resolution (500px, q18, 10-bit, ~4.7KB):
+// at the same byte budget AVIF keeps edges and texture that the 250px WebP
+// smears (SSIM vs profile.webp: 0.88 vs 0.77). The WebP stays as the
+// <picture> fallback for browsers without AVIF (Safari < 16.4).
+//
+// cwebp/avifenc ship on dev machines (homebrew: webp, libavif) but NOT in the
+// Netlify build image — when absent, the committed files are used.
+// After changing profile.png locally, commit the regenerated files.
+const has = (cmd) => {
+  try { execSync(cmd, { stdio: 'ignore' }); return true; }
   catch { return false; }
-})();
-
-if (cwebpAvailable) {
-  execSync('cwebp -quiet -resize 250 0 -q 10 public/profile.png -o public/profile-lqip.webp');
-  console.log('placeholder: regenerated public/profile-lqip.webp from profile.png');
-} else if (existsSync('public/profile-lqip.webp')) {
-  console.log('NOTE: cwebp not available — using committed public/profile-lqip.webp.',
-    'Regenerate locally (brew install webp) after changing profile.png.');
-} else {
-  throw new Error('No placeholder available: cwebp missing and public/profile-lqip.webp not found');
+};
+const placeholders = [
+  { out: 'public/profile-lqip.avif', probe: 'avifenc --version', pkg: 'libavif',
+    cmd: 'avifenc -q 18 -s 0 -d 10 --yuv 420 -j 8 public/profile.png public/profile-lqip.avif' },
+  { out: 'public/profile-lqip.webp', probe: 'cwebp -version', pkg: 'webp',
+    cmd: 'cwebp -quiet -resize 250 0 -q 10 public/profile.png -o public/profile-lqip.webp' },
+];
+for (const p of placeholders) {
+  if (has(p.probe)) {
+    execSync(p.cmd, { stdio: 'ignore' });
+    console.log(`placeholder: regenerated ${p.out} from profile.png`);
+  } else if (existsSync(p.out)) {
+    console.log(`NOTE: ${p.probe.split(' ')[0]} not available — using committed ${p.out}.`,
+      `Regenerate locally (brew install ${p.pkg}) after changing profile.png.`);
+  } else {
+    throw new Error(`No placeholder available: ${p.probe.split(' ')[0]} missing and ${p.out} not found`);
+  }
 }
-const placeholderBytes = readFileSync('public/profile-lqip.webp').length;
+const placeholderBytes = readFileSync('public/profile-lqip.avif').length;
 
 // ---------- 3) Sync skeleton in index.html ----------
 let index = readFileSync('index.html', 'utf8');
@@ -77,5 +89,5 @@ writeFileSync('index.html', index);
 
 console.log('generate.mjs:',
   'converged', converged.length, 'chars;',
-  'placeholder', placeholderBytes, 'bytes (profile-lqip.webp);',
+  'placeholder', placeholderBytes, 'bytes (profile-lqip.avif);',
   'index.html synced');
