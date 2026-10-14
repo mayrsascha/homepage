@@ -1,0 +1,64 @@
+/* Formerly the inline critical CSS. Imported FIRST in main.ts so the cascade
+   order is unchanged (it used to precede the bundled CSS). The whole bundle
+   is inlined into index.html at build time, so this paints with the HTML. */
+html,body,#root{height:100%;font-family:monospace;margin:0}
+*,*::before,*::after{box-sizing:border-box}
+.App{height:100%;width:100%;display:flex;flex-direction:column}
+.content{flex:1 0 auto;padding:1em 1em 0;background-color:#fdf6e3}
+html.js-dark body,html.js-dark .content{background-color:#1d1f21}
+.profile img{width:100%;max-width:500px;object-fit:cover;aspect-ratio:500/750}
+.profile-placeholder{background-color:#fdf6e3}
+html.js-dark .profile-placeholder{background-color:#1d1f21}
+.profile-stack{position:relative;display:inline-block;line-height:0}
+.profile-stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.profile-real{opacity:0;transition:opacity .2s ease}
+.profile-loaded .profile-real{opacity:1}
+.profile-loaded .profile-placeholder{visibility:hidden;transition:visibility 0s .2s}
+@media (min-width:720px){.profile-stack{width:min(500px,calc((100vh - 110px)*500/750));aspect-ratio:500/750}}
+@media (max-width:719px){.profile-stack{width:100%;max-width:500px;aspect-ratio:500/750}}
+.Footer{width:100%;text-align:center;display:flex;justify-content:space-around;align-items:center;color:#657b83;background-color:#fdf6e3;padding:0 10px}
+html.js-dark .Footer{color:#c5c8c6;background-color:#1d1f21}
+.Footer .button{background:inherit;border:none;cursor:pointer;outline:none;font-size:48px;margin-left:25px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;padding:0}
+.Footer .button .icon-sun{display:none}
+html.js-dark .Footer .button .icon-sun{display:inline}
+html.js-dark .Footer .button .icon-moon{display:none}
+.Footer .github-link{color:inherit}
+.Footer .github-link svg{width:48px;height:48px;margin-left:25px;color:inherit}
+@media (min-width: 720px){
+  .content{display:flex;align-items:center}
+  .profile{width:50%;display:inline-flex;justify-content:center;align-items:flex-start}
+  .Hero{width:50%;display:inline-flex;align-items:center;justify-content:center}
+  .Footer{justify-content:center;padding:0}
+  .Footer .button,.Footer .github-link svg{width:30px;height:30px;font-size:2.5em}
+}
+/* Text block — same rules as bundled CSS so skeleton paint == final paint */
+.Hero pre{font-size:clamp(10px,calc((100vh - 82px)/48),13px);font-family:monospace;line-height:1.15}
+.Hero pre a{color:unset;text-decoration:none;white-space:pre-wrap}
+.Hero pre h1,.Hero pre h2{margin:0}
+.Hero pre h1{font-size:1.5em}
+.Hero pre h2{font-size:1.25em}
+.profile img{max-height:calc(100vh - 110px);width:auto}
+/* highlight.js themes inlined as CSS variables (solarized-light / tomorrow-night) */
+:root{--hl-bg:#fdf6e3;--hl-fg:#657b83;--hl-section:#268bd2;--hl-string:#2aa198;--hl-link:#cb4b16;--hl-bullet:#cb4b16;--hl-comment:#93a1a1}
+html.js-dark{--hl-bg:#1d1f21;--hl-fg:#c5c8c6;--hl-section:#81a2be;--hl-string:#b5bd68;--hl-link:#de935f;--hl-bullet:#b5bd68;--hl-comment:#969896}
+.hljs{display:block;overflow-x:auto;padding:.5em;background:var(--hl-bg);color:var(--hl-fg)}
+.hljs-section,.hljs-title{color:var(--hl-section)}
+.hljs-string{color:var(--hl-string)}
+.hljs-link{color:var(--hl-link)}
+.hljs-bullet{color:var(--hl-bullet)}
+.hljs-comment,.hljs-quote{color:var(--hl-comment)}
+.hljs-emphasis{font-style:italic}
+.hljs-strong{font-weight:700}
+
+/* The parts of normalize.css this page actually uses (the rest targets
+   forms, tables, hr, sub/sup etc. that don't exist here). */
+html{line-height:1.15;-webkit-text-size-adjust:100%}
+body{margin:0}
+main{display:block}
+h1{font-size:2em;margin:.67em 0}
+pre,code{font-family:monospace,monospace;font-size:1em}
+b{font-weight:bolder}
+img{border-style:none}
+button{font-family:inherit;font-size:100%;line-height:1.15;margin:0;overflow:visible;text-transform:none;-webkit-appearance:button}
+button::-moz-focus-inner{border-style:none;padding:0}
+button:-moz-focusring{outline:1px dotted ButtonText}

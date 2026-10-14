@@ -77,7 +77,16 @@ const contentEnd = index.indexOf('</code></pre></div>', contentStart);
 if (contentEnd === -1) throw new Error('Skeleton end tag not found');
 index = index.slice(0, contentStart) + converged + index.slice(contentEnd);
 
-// 3b) profile skeleton img: verify the cross-fade stack is present and the
+// 3b) embed the AVIF placeholder as a data URI: it paints with the first
+//     HTML bytes (it's the desktop LCP element), no extra request. Base64
+//     doesn't gzip, so this adds ~6.3KB; the page stays inside the first
+//     network round trip (~14KB).
+const lqip = readFileSync('public/profile-lqip.avif').toString('base64');
+const lqipRe = /<source srcset="[^"]*" type="image\/avif" \/><img class="profile-placeholder"/;
+if (!lqipRe.test(index)) throw new Error('Placeholder <source> not found in index.html');
+index = index.replace(lqipRe, () => `<source srcset="data:image/avif;base64,${lqip}" type="image/avif" /><img class="profile-placeholder"`);
+
+// 3c) profile skeleton img: verify the cross-fade stack is present and the
 //     placeholder src points at the generated file. The stack markup lives
 //     directly in index.html; this check guards against drift.
 if (!index.includes('<img class="profile-placeholder" src="/profile-lqip.webp"')) {

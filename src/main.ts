@@ -1,4 +1,4 @@
-import 'normalize.css';
+import './base.css';
 import './App.css';
 import './Hero.css';
 import './Footer.css';

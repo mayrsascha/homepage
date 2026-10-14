@@ -29,56 +29,6 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@_sidehacker" />
     <link rel="preload" as="image" href="/profile.avif" type="image/avif" fetchpriority="high" />
-    <style>
-      html,body,#root{height:100%;font-family:monospace;margin:0}
-      *,*::before,*::after{box-sizing:border-box}
-      .App{height:100%;width:100%;display:flex;flex-direction:column}
-      .content{flex:1 0 auto;padding:1em 1em 0;background-color:#fdf6e3}
-      html.js-dark body,html.js-dark .content{background-color:#1d1f21}
-      .profile img{width:100%;max-width:500px;object-fit:cover;aspect-ratio:500/750}
-      .profile-placeholder{background-color:#fdf6e3}
-      html.js-dark .profile-placeholder{background-color:#1d1f21}
-      .profile-stack{position:relative;display:inline-block;line-height:0}
-      .profile-stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-      .profile-real{opacity:0;transition:opacity .2s ease}
-      .profile-loaded .profile-real{opacity:1}
-      .profile-loaded .profile-placeholder{visibility:hidden;transition:visibility 0s .2s}
-      @media (min-width:720px){.profile-stack{width:min(500px,calc((100vh - 110px)*500/750));aspect-ratio:500/750}}
-      @media (max-width:719px){.profile-stack{width:100%;max-width:500px;aspect-ratio:500/750}}
-      .Footer{width:100%;text-align:center;display:flex;justify-content:space-around;align-items:center;color:#657b83;background-color:#fdf6e3;padding:0 10px}
-      html.js-dark .Footer{color:#c5c8c6;background-color:#1d1f21}
-      .Footer .button{background:inherit;border:none;cursor:pointer;outline:none;font-size:48px;margin-left:25px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;padding:0}
-      .Footer .button .icon-sun{display:none}
-      html.js-dark .Footer .button .icon-sun{display:inline}
-      html.js-dark .Footer .button .icon-moon{display:none}
-      .Footer .github-link{color:inherit}
-      .Footer .github-link svg{width:48px;height:48px;margin-left:25px;color:inherit}
-      @media (min-width: 720px){
-        .content{display:flex;align-items:center}
-        .profile{width:50%;display:inline-flex;justify-content:center;align-items:flex-start}
-        .Hero{width:50%;display:inline-flex;align-items:center;justify-content:center}
-        .Footer{justify-content:center;padding:0}
-        .Footer .button,.Footer .github-link svg{width:30px;height:30px;font-size:2.5em}
-      }
-      /* Text block — same rules as bundled CSS so skeleton paint == final paint */
-      .Hero pre{font-size:clamp(10px,calc((100vh - 82px)/48),13px);font-family:monospace;line-height:1.15}
-      .Hero pre a{color:unset;text-decoration:none;white-space:pre-wrap}
-      .Hero pre h1,.Hero pre h2{margin:0}
-      .Hero pre h1{font-size:1.5em}
-      .Hero pre h2{font-size:1.25em}
-      .profile img{max-height:calc(100vh - 110px);width:auto}
-      /* highlight.js themes inlined as CSS variables (solarized-light / tomorrow-night) */
-      :root{--hl-bg:#fdf6e3;--hl-fg:#657b83;--hl-section:#268bd2;--hl-string:#2aa198;--hl-link:#cb4b16;--hl-bullet:#cb4b16;--hl-comment:#93a1a1}
-      html.js-dark{--hl-bg:#1d1f21;--hl-fg:#c5c8c6;--hl-section:#81a2be;--hl-string:#b5bd68;--hl-link:#de935f;--hl-bullet:#b5bd68;--hl-comment:#969896}
-      .hljs{display:block;overflow-x:auto;padding:.5em;background:var(--hl-bg);color:var(--hl-fg)}
-      .hljs-section,.hljs-title{color:var(--hl-section)}
-      .hljs-string{color:var(--hl-string)}
-      .hljs-link{color:var(--hl-link)}
-      .hljs-bullet{color:var(--hl-bullet)}
-      .hljs-comment,.hljs-quote{color:var(--hl-comment)}
-      .hljs-emphasis{font-style:italic}
-      .hljs-strong{font-weight:700}
-    </style>
     <script>
       // Theme before first paint: localStorage > OS preference. src/main.ts
       // owns the toggle afterwards.
@@ -119,25 +69,6 @@
       "description": "Software Engineer specializing in data accuracy, visualization, and open data standards. Contributor to Ruby Money. Creator of Aquascala. Co-founder of Shumi."
     }
     </script>
-    <!-- Google tag (gtag.js): fetched only after the load event (+ idle), so
-         it never competes with the page's own resources. The queue is set up
-         immediately; gtag.js replays it when it arrives. -->
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-H4E5L0QS0V');
-      window.addEventListener('load', function () {
-        var inject = function () {
-          var s = document.createElement('script');
-          s.async = true;
-          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-H4E5L0QS0V';
-          document.head.appendChild(s);
-        };
-        if ('requestIdleCallback' in window) requestIdleCallback(inject, { timeout: 3000 });
-        else setTimeout(inject, 0);
-      });
-    </script>
   </head>
   <body>
     <div id="root"><div class="App"><main class="content"><div class="Hero"><pre class="markdown hljs"><code class="markdown hljs">
@@ -166,7 +97,7 @@ More about me at the links below.
 <span class="hljs-bullet" aria-hidden="true">-</span> <a href="https://x.com/_sidehacker" target="_blank" rel="noopener noreferrer" aria-label="X">[<span class="hljs-string">X</span>](<span class="hljs-link">https://x.com/_sidehacker</span>)</a>
 <span class="hljs-bullet" aria-hidden="true">-</span> <a href="https://www.instagram.com/sascha.lives" target="_blank" rel="noopener noreferrer" aria-label="Instagram">[<span class="hljs-string">Instagram</span>](<span class="hljs-link">https://www.instagram.com/sascha.lives</span>)</a>
 <span class="hljs-bullet" aria-hidden="true">-</span> <a href="mailto:mayr.sascha@gmail.com" aria-label="Email">[<span class="hljs-string">Email</span>](<span class="hljs-link">mailto:mayr.sascha@gmail.com</span>)</a>
-</code></pre></div><div class="profile"><div class="profile-stack"><picture><source srcset="/profile-lqip.avif" type="image/avif" /><img class="profile-placeholder" src="/profile-lqip.webp" alt="" aria-hidden="true" width="500" height="750" decoding="async" /></picture><picture><source srcset="/profile.avif" type="image/avif" /><img class="profile-real" src="/profile.webp" alt="Sascha Mayr" width="500" height="750" decoding="async" /></picture></div></div></main><footer class="Footer"><div><p>Built with Netlify, Vite and zero frameworks — 5 kB</p><p>© <span id="year">2026</span> Sascha Mayr. View source, it's all there.</p></div><button class="button" aria-label="Toggle dark mode"><span class="icon-moon">🌙</span><span class="icon-sun">☀️</span></button><a href="https://github.com/mayrsascha/homepage" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub"><svg viewBox="0 0 16 16" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a></footer></div></div>
+</code></pre></div><div class="profile"><div class="profile-stack"><picture><source srcset="data:image/avif;base64,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" type="image/avif" /><img class="profile-placeholder" src="/profile-lqip.webp" alt="" aria-hidden="true" width="500" height="750" decoding="async" /></picture><picture><source srcset="/profile.avif" type="image/avif" /><img class="profile-real" src="/profile.webp" alt="Sascha Mayr" width="500" height="750" decoding="async" /></picture></div></div></main><footer class="Footer"><div><p>Built with Netlify, Vite and zero frameworks — 10 kB, photo included</p><p>© <span id="year">2026</span> Sascha Mayr. View source, it's all there.</p></div><button class="button" aria-label="Toggle dark mode"><span class="icon-moon">🌙</span><span class="icon-sun">☀️</span></button><a href="https://github.com/mayrsascha/homepage" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub"><svg viewBox="0 0 16 16" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a></footer></div></div>
     <script>
       // Runs at parse time, right after the image tags: wire the real image's
       // fade-in now so the load event can't be missed (also covers an image

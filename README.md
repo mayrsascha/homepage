@@ -8,8 +8,8 @@ solarized/tomorrow-night colors, monospace, dark-mode toggle, no scroll.
 ## Stack
 
 Static HTML · ~20 lines of TypeScript · Vite 8 · Lightning CSS · pnpm.
-No framework: the built page is a single ~5 kB (gzipped) `index.html` with
-the CSS and JS inlined.
+No framework, no analytics script: the built page is a single ~10 kB
+(gzipped) `index.html` with the CSS, JS and photo placeholder inlined.
 
 ## Commands
 
@@ -53,7 +53,8 @@ decoded**. The placeholder is then hidden.
 
 - `profile.avif`: the real photo, ~23 KB (`profile.webp`, 54 KB, is the
   hand-made fallback for browsers without AVIF)
-- `profile-lqip.avif`: placeholder, full resolution, ~4.7 KB
+- `profile-lqip.avif`: placeholder, full resolution, ~4.7 KB, embedded in
+  `index.html` as a data URI so it paints with the first response
 - `profile-lqip.webp`: placeholder fallback, half resolution, ~5 KB
 
 Photos and icons are cached for a week (`netlify.toml`); the HTML is always
