@@ -21,7 +21,6 @@
       *,*::before,*::after{box-sizing:border-box}
       .App{height:100%;width:100%;display:flex;flex-direction:column}
       .content{flex:1 0 auto;padding:1em 1em 0;background-color:#fdf6e3}
-      .App.darkmode .content{background-color:#1d1f21}
       html.js-dark body,html.js-dark .content{background-color:#1d1f21}
       .profile img{width:100%;max-width:500px;object-fit:cover;aspect-ratio:500/750;background-color:#fdf6e3}
       html.js-dark .profile img{background-color:#1d1f21}
@@ -32,7 +31,7 @@
       @media (min-width:720px){.profile-stack{width:min(500px,calc((100vh - 110px)*500/750));aspect-ratio:500/750}}
       @media (max-width:719px){.profile-stack{width:100%;max-width:500px;aspect-ratio:500/750}}
       .Footer{width:100%;text-align:center;display:flex;justify-content:space-around;align-items:center;color:#657b83;background-color:#fdf6e3;padding:0 10px}
-      .App.darkmode .Footer,html.js-dark .Footer{color:#c5c8c6;background-color:#1d1f21}
+      html.js-dark .Footer{color:#c5c8c6;background-color:#1d1f21}
       .Footer .button{background:inherit;border:none;cursor:pointer;outline:none;font-size:48px;margin-left:25px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;padding:0}
       .Footer .button .icon-sun{display:none}
       html.js-dark .Footer .button .icon-sun{display:inline}
@@ -66,18 +65,12 @@
       .hljs-strong{font-weight:700}
     </style>
     <script>
-      // Theme before first paint (html element only — #root isn't parsed yet).
-      // MUST mirror React's first render (usedarkmode) or hydration fails (#418).
+      // Theme before first paint: localStorage > OS preference. src/main.ts
+      // owns the toggle afterwards.
       (function () {
         var stored = localStorage.getItem('darkMode');
         var dark = stored ? stored === 'true' : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         if (dark) document.documentElement.className = 'js-dark';
-      })();
-      // Footer year: keep the skeleton in sync with React's getFullYear() so
-      // hydrateRoot finds matching text (no mismatch on New Year's Eve deploys).
-      (function () {
-        var y = document.getElementById('year');
-        if (y) y.textContent = String(new Date().getFullYear());
       })();
     </script>
     <script type="application/ld+json">
@@ -108,17 +101,27 @@
       "description": "Software Engineer specializing in data accuracy, visualization, and open data standards. Contributor to Ruby Money. Founder of Aquascala and Shumi."
     }
     </script>
-    <!-- Google tag (gtag.js) - deferred -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H4E5L0QS0V"></script>
+    <!-- Google tag (gtag.js): fetched only after the load event (+ idle), so
+         it never competes with the page's own resources. The queue is set up
+         immediately; gtag.js replays it when it arrives. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-H4E5L0QS0V');
+      window.addEventListener('load', function () {
+        var inject = function () {
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-H4E5L0QS0V';
+          document.head.appendChild(s);
+        };
+        if ('requestIdleCallback' in window) requestIdleCallback(inject, { timeout: 3000 });
+        else setTimeout(inject, 0);
+      });
     </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"><div class="App"><main class="content"><div class="Hero"><pre class="markdown hljs"><code class="markdown hljs">
 <h1><span class="hljs-section"># Hello `{visitorName}`</span></h1>
 My name is <b><span class="hljs-strong">**Sascha Mayr**</span></b>.
@@ -145,29 +148,19 @@ More about me at the links below.
 <span class="hljs-bullet">-</span> <a href="https://cutt.ly/IarVG4E" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Twitter</span>](<span class="hljs-link">https://cutt.ly/IarVG4E</span>)</a>
 <span class="hljs-bullet">-</span> <a href="https://www.instagram.com/sascha.lives" target="_blank" rel="noopener noreferrer">[<span class="hljs-string">Instagram</span>](<span class="hljs-link">https://www.instagram.com/sascha.lives</span>)</a>
 <span class="hljs-bullet">-</span> <a href="mailto:mayr.sascha@gmail.com">[<span class="hljs-string">Email</span>](<span class="hljs-link">mailto:mayr.sascha@gmail.com</span>)</a>
-</code></pre></div><div class="profile"><div class="profile-stack"><img class="profile-placeholder" src="/profile-lqip.webp" alt="" aria-hidden="true" width="500" height="750" decoding="async" /><img class="profile-real" src="/profile.webp" alt="Profile" width="500" height="750" decoding="async" /></div></div></main><footer class="Footer"><div><p>Built with Netlify, Vite and React</p><p>© <span id="year">2026</span> Sascha Mayr. All rights reserved.</p></div><button class="button" aria-label="Toggle dark mode"><span class="icon-moon">🌙</span><span class="icon-sun">☀️</span></button><a href="https://github.com/mayrsascha/homepage" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub"><svg viewBox="0 0 16 16" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a></footer></div></div>
+</code></pre></div><div class="profile"><div class="profile-stack"><img class="profile-placeholder" src="/profile-lqip.webp" alt="" aria-hidden="true" width="500" height="750" decoding="async" /><img class="profile-real" src="/profile.webp" alt="Profile" width="500" height="750" decoding="async" /></div></div></main><footer class="Footer"><div><p>Built with Netlify, Vite and zero frameworks — 5 kB</p><p>© <span id="year">2026</span> Sascha Mayr. All rights reserved.</p></div><button class="button" aria-label="Toggle dark mode"><span class="icon-moon">🌙</span><span class="icon-sun">☀️</span></button><a href="https://github.com/mayrsascha/homepage" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub"><svg viewBox="0 0 16 16" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a></footer></div></div>
     <script>
-      // Runs at parse time (after #root, before React's module). Two jobs:
-      // 1) Skeleton DOM must equal React's first render or hydration fails (#418).
-      //    For dark users React renders class="App darkmode" — set it here too.
-      // 2) Wire the real image's load BEFORE React: an addEventListener survives
-      //    hydration and fires even if the image completes mid-parse. The flag
-      //    goes on <html>, not the img — React would diff the img's class.
+      // Runs at parse time, right after the image tags: wire the real image's
+      // fade-in now so the load event can't be missed (also covers an image
+      // that already finished during parse).
       (function () {
-        var stored = localStorage.getItem('darkMode');
-        var dark = stored ? stored === 'true' : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (dark) {
-          var app = document.querySelector('#root > .App');
-          if (app) app.className = 'App darkmode';
-        }
         var real = document.querySelector('.profile-real');
-        if (real) {
-          var mark = function () { document.documentElement.classList.add('profile-loaded'); };
-          if (real.complete) mark(); // already finished during parse
-          else real.addEventListener('load', mark);
-        }
+        if (!real) return;
+        var mark = function () { document.documentElement.classList.add('profile-loaded'); };
+        if (real.complete) mark();
+        else real.addEventListener('load', mark);
       })();
     </script>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

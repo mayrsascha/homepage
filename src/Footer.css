@@ -9,7 +9,7 @@
     padding: 0 10px;
 }
 
-.App.darkmode .Footer, html.js-dark .Footer {
+html.js-dark .Footer {
     color: #c5c8c6;
     background-color: #1d1f21;
 }

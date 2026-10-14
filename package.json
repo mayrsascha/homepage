@@ -14,14 +14,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "normalize.css": "^8.0.1",
-    "react": "^19",
-    "react-dom": "^19"
+    "normalize.css": "^8.0.1"
   },
   "devDependencies": {
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "^6",
     "typescript": "^7",
     "vite": "^8"
   }

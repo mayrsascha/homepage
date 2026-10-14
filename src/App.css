@@ -28,7 +28,7 @@ html, body, #root {
     background-color: #fdf6e3;
 }
 
-.App.darkmode .content {
+html.js-dark .content {
     background-color: #1d1f21;
 }
 
@@ -71,7 +71,7 @@ html, body, #root {
     transition: opacity 0.2s ease;
 }
 
-/* Flag lives on <html> (outside #root) so hydrateRoot never diffs it. */
+/* Flag set on <html> by the inline script in index.html once the image loads. */
 .profile-loaded .profile-real {
     opacity: 1;
 }
@@ -101,7 +101,7 @@ html, body, #root {
     background-color: #fdf6e3;
 }
 
-.App.darkmode .profile img, html.js-dark .profile img {
+html.js-dark .profile img {
     background-color: #1d1f21;
 }
 

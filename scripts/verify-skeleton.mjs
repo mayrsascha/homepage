@@ -6,7 +6,7 @@ const html = readFileSync('index.html', 'utf8');
 const start = html.indexOf('<code class="markdown hljs">') + '<code class="markdown hljs">'.length;
 const end = html.indexOf('</code></pre></div>', start);
 const skeleton = html.slice(start, end);
-// No trimming: React renders the file verbatim (incl. trailing newline).
+// No trimming: generate.mjs writes the file verbatim (incl. trailing newline).
 const converged = readFileSync('src/Intro.converged.html', 'utf8');
 
 if (skeleton === converged) {
