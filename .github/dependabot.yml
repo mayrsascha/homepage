@@ -1,4 +1,4 @@
-# Dependency updates for the build tooling (vite, typescript, lhci), monthly and
+# Dependency updates for the build tooling (vite, typescript, biome), monthly and
 # grouped into a single PR. The site has no runtime dependencies.
 version: 2
 updates:

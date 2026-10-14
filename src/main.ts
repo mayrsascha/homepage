@@ -9,7 +9,11 @@ const KEY = 'darkMode';
 // localStorage can throw (blocked storage, some private modes): the theme
 // then simply isn't remembered.
 const stored = (): string | null => {
-  try { return localStorage.getItem(KEY); } catch { return null; }
+  try {
+    return localStorage.getItem(KEY);
+  } catch {
+    return null;
+  }
 };
 
 const button = document.querySelector('.Footer .button');
@@ -35,7 +39,9 @@ button?.addEventListener('click', () => {
   try {
     if (dark === os.matches) localStorage.removeItem(KEY);
     else localStorage.setItem(KEY, String(dark));
-  } catch { /* not remembered */ }
+  } catch {
+    /* not remembered */
+  }
 });
 
 // OS theme changes only apply while the visitor hasn't chosen one.

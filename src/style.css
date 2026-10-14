@@ -143,7 +143,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
    link rows are 1.5rem; above ~21px text the rows are 1.15em instead, so
    49.9em), plus ~6.25rem of footer and padding (rem: the footer grows
    with the font setting): --fs is capped by both, so the page doesn't
-   scroll down to 12px text. scripts/generate.mjs derives the photo's
+   scroll down to 12px text. scripts/generate.ts derives the photo's
    sizes attribute from the same numbers. Sizes are in rem: they follow
    the browser's font-size setting where the layout leaves room. The breakpoints are in em (16px
    at the default setting: 45em = 720px, 56.5em = 904px), so larger text
@@ -166,6 +166,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        (iOS < 15.4), which errs towards hiding the photo, not cutting it. */
     .Hero {
         display: flex; flex-direction: column; justify-content: center;
+        /* biome-ignore lint/suspicious/noDuplicateProperties: vh is the fallback for svh */
         min-height: calc(100vh - 1em); min-height: calc(100svh - 1em);
     }
     /* Rows may wrap; the hanging indent keeps each one visibly one item. */
@@ -181,6 +182,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     /* Never taller than the screen (phones in landscape). */
     .profile-stack {
         width: 60%; max-width: min(300px, (100vh - 2em) * 2 / 3);
+        /* biome-ignore lint/suspicious/noDuplicateProperties: vh is the fallback for svh */
         max-width: min(300px, (100svh - 2em) * 2 / 3);
     }
     /* Footer: text gets the full width (no mid-line breaks), icons sit in a

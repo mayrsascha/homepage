@@ -7,18 +7,19 @@
    2. Theme copies: the colours and the storage key, written by hand where
       src/style.css can't reach (the noscript style, the inline scripts, the
       theme-color tags, src/main.ts, 404.html), must match src/style.css. */
-import { readFileSync, readdirSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 
-const problems = [];
+import { createHash } from 'node:crypto';
+import { readdirSync, readFileSync } from 'node:fs';
+
+const problems: string[] = [];
 
 // ---------- 1) CSP ----------
 const policy = readFileSync('build/_headers', 'utf8').match(/Content-Security-Policy: (.*)/)?.[1];
 if (!policy) throw new Error('No Content-Security-Policy in build/_headers');
-const allowed = (directive) => new Set(policy.match(new RegExp(`${directive} ([^;]*)`))?.[1].split(' ') ?? []);
+const allowed = (directive: string) => new Set(policy.match(new RegExp(`${directive} ([^;]*)`))?.[1].split(' ') ?? []);
 const scripts = allowed('script-src');
 const styles = allowed('style-src');
-const hash = (code) => `'sha256-${createHash('sha256').update(code).digest('base64')}'`;
+const hash = (code: string) => `'sha256-${createHash('sha256').update(code).digest('base64')}'`;
 
 let checked = 0;
 for (const file of readdirSync('build').filter((f) => f.endsWith('.html'))) {
@@ -40,19 +41,26 @@ for (const file of readdirSync('build').filter((f) => f.endsWith('.html'))) {
 
 // ---------- 2) Theme copies ----------
 const css = readFileSync('src/style.css', 'utf8');
-const palette = (block) => Object.fromEntries([...block.matchAll(/--([\w-]+):\s*(#[0-9a-f]{6})/g)].map((m) => [m[1], m[2]]));
-const light = palette(css.match(/:root \{([^}]*)\}/)[1]);
-const dark = palette(css.match(/html\.js-dark \{([^}]*)\}/)[1]);
+const palette = (block = ''): Record<string, string> =>
+  Object.fromEntries([...block.matchAll(/--([\w-]+):\s*(#[0-9a-f]{6})/g)].map((m) => [m[1], m[2]]));
+const light = palette(css.match(/:root \{([^}]*)\}/)?.[1]);
+const dark = palette(css.match(/html\.js-dark \{([^}]*)\}/)?.[1]);
 if (!light.bg || !dark.bg) throw new Error('Theme palettes not found in src/style.css');
-const sources = { 'index.html': readFileSync('index.html', 'utf8'), '404.html': readFileSync('404.html', 'utf8'), 'src/main.ts': readFileSync('src/main.ts', 'utf8') };
+const sources: Record<string, string> = {
+  'index.html': readFileSync('index.html', 'utf8'),
+  '404.html': readFileSync('404.html', 'utf8'),
+  'src/main.ts': readFileSync('src/main.ts', 'utf8'),
+};
 for (const [file, text] of Object.entries(sources)) {
   // Every theme variable written elsewhere carries the light or dark value.
   for (const [, name, value] of text.matchAll(/--([\w-]+):\s*(#[0-9a-f]{6})/g)) {
-    if (value !== light[name] && value !== dark[name]) problems.push(`${file}: --${name}:${value} matches neither theme in src/style.css`);
+    if (value !== light[name] && value !== dark[name])
+      problems.push(`${file}: --${name}:${value} matches neither theme in src/style.css`);
   }
   // Bare colours (theme-color tags and scripts) are one of the backgrounds.
   for (const [, value] of text.replace(/--[\w-]+:\s*#[0-9a-f]{6}/g, '').matchAll(/(#[0-9a-f]{6})\b/g)) {
-    if (value !== light.bg && value !== dark.bg) problems.push(`${file}: colour ${value} is neither theme's background`);
+    if (value !== light.bg && value !== dark.bg)
+      problems.push(`${file}: colour ${value} is neither theme's background`);
   }
 }
 const KEY = sources['src/main.ts'].match(/const KEY = '([^']+)'/)?.[1];
@@ -63,7 +71,7 @@ for (const file of ['index.html', '404.html']) {
 }
 
 if (problems.length) {
-  console.error('verify-build failed:\n  ' + problems.join('\n  '));
+  console.error(`verify-build failed:\n  ${problems.join('\n  ')}`);
   process.exit(1);
 }
 console.log(`verify-build: ${checked} inline scripts/styles allowed by the CSP; theme copies match src/style.css`);

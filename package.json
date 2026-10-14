@@ -9,13 +9,15 @@
   "packageManager": "pnpm@12.8.1",
   "scripts": {
     "dev": "vite",
-    "generate": "node scripts/generate.mjs",
-    "build": "node scripts/generate.mjs && tsc -b && vite build && node scripts/verify-build.mjs",
+    "generate": "node scripts/generate.ts",
+    "build": "node scripts/generate.ts && tsc -b && vite build && node scripts/verify-build.ts",
     "preview": "vite preview",
-    "check": "pnpm run build && git diff --exit-code -- index.html src/assets public"
+    "check": "pnpm run build && git diff --exit-code -- index.html src/assets public",
+    "lint": "biome check .",
+    "format": "biome check --write ."
   },
   "devDependencies": {
-    "@lhci/cli": "0.15.1",
+    "@biomejs/biome": "2.5.15",
     "@types/node": "26.6.5",
     "lightningcss": "1.33.0",
     "typescript": "^7",

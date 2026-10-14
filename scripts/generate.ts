@@ -9,10 +9,11 @@
    runtime; its class names are now shortened (h, s, l, b, e, w; styled in
    src/style.css). To change site content, edit src/Intro.converged.html.
 
-   Run: node scripts/generate.mjs */
-import { readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+   Run: node scripts/generate.ts */
+
+import { execFileSync, type StdioOptions } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -35,10 +36,16 @@ if (!converged.includes('class="h"') || !converged.includes('<h1')) {
 // cwebp/avifenc ship on dev machines (homebrew: webp, libavif) but NOT in the
 // Netlify build image — when absent, the committed files are used.
 // After changing profile.png locally, commit the regenerated files.
-const run = ([bin, ...args], stdio) => execFileSync(bin, args, { stdio });
-const has = (steps) => {
-  try { steps.forEach((step) => run(step, 'ignore')); return true; }
-  catch { return false; }
+type Command = [bin: string, ...args: string[]];
+type Image = { out: string; probe: Command[]; pkg: string; steps: Command[]; tmp?: string };
+const run = ([bin, ...args]: Command, stdio: StdioOptions) => execFileSync(bin, args, { stdio });
+const has = (steps: Command[]) => {
+  try {
+    for (const step of steps) run(step, 'ignore');
+    return true;
+  } catch {
+    return false;
+  }
 };
 // The source photo is 1280x1920. The real photo ships at three widths
 // (srcset in index.html) so big and high-DPI screens get a sharp image and
@@ -46,28 +53,43 @@ const has = (steps) => {
 // source first. q50 4:4:4 AVIF: ~20 / 48 / 120 KB.
 // Each image is a list of commands (argument arrays, no shell); `tmp` is a
 // scaled copy that avifenc encodes and that is deleted afterwards.
-const tmp = (w) => join(tmpdir(), `homepage-profile-${w}.png`);
-const AVIF_PROBE = [['avifenc', '--version'], ['sips', '--help']];
-const WEBP_PROBE = [['cwebp', '-version']];
-const avif = (w, h, quality, out) => ({ out, probe: AVIF_PROBE, pkg: 'libavif', tmp: tmp(w), steps: [
-  ['sips', '-Z', String(h), 'src/assets/profile.png', '--out', tmp(w)],
-  ['avifenc', ...quality, '-s', '0', '-d', '10', '-j', '8', tmp(w), out]] });
-const webp = (args, out) => ({ out, probe: WEBP_PROBE, pkg: 'webp',
-  steps: [['cwebp', '-quiet', ...args, 'src/assets/profile.png', '-o', out]] });
+const tmp = (w: number) => join(tmpdir(), `homepage-profile-${w}.png`);
+const AVIF_PROBE: Command[] = [
+  ['avifenc', '--version'],
+  ['sips', '--help'],
+];
+const WEBP_PROBE: Command[] = [['cwebp', '-version']];
+const avif = (w: number, h: number, quality: string[], out: string): Image => ({
+  out,
+  probe: AVIF_PROBE,
+  pkg: 'libavif',
+  tmp: tmp(w),
+  steps: [
+    ['sips', '-Z', String(h), 'src/assets/profile.png', '--out', tmp(w)],
+    ['avifenc', ...quality, '-s', '0', '-d', '10', '-j', '8', tmp(w), out],
+  ],
+});
+const webp = (args: string[], out: string): Image => ({
+  out,
+  probe: WEBP_PROBE,
+  pkg: 'webp',
+  steps: [['cwebp', '-quiet', ...args, 'src/assets/profile.png', '-o', out]],
+});
 const images = [
   ...[500, 800, 1280].flatMap((w) => [
-    avif(w, w * 3 / 2, ['-q', '50', '--qalpha', '60', '--yuv', '444'], `src/assets/profile-${w}.avif`),
-    webp(['-resize', String(w), '0', '-q', '75', '-alpha_q', '80'], `src/assets/profile-${w}.webp`)]),
+    avif(w, (w * 3) / 2, ['-q', '50', '--qalpha', '60', '--yuv', '444'], `src/assets/profile-${w}.avif`),
+    webp(['-resize', String(w), '0', '-q', '75', '-alpha_q', '80'], `src/assets/profile-${w}.webp`),
+  ]),
   // Placeholders: from the 500px scale, the size the photo shows at on a
   // typical laptop.
   avif(500, 750, ['-q', '18', '--qalpha', '25', '--yuv', '420'], 'src/assets/profile-lqip.avif'),
   webp(['-resize', '250', '0', '-q', '10'], 'public/profile-lqip.webp'),
 ];
 // The commands as one string each, for the stamp below.
-const describe = (p) => p.steps.map((step) => step.join(' ')).join(' && ');
+const describe = (p: Image) => p.steps.map((step) => step.join(' ')).join(' && ');
 // Encoding all of them takes ~15s, so skip it when neither profile.png nor
 // the commands changed since the committed files were made (the stamp file
-// records both). `node scripts/generate.mjs --force` re-encodes anyway.
+// records both). `node scripts/generate.ts --force` re-encodes anyway.
 const STAMP = 'src/assets/profile.stamp';
 const stamp = createHash('sha256')
   .update(readFileSync('src/assets/profile.png'))
@@ -75,33 +97,42 @@ const stamp = createHash('sha256')
   // without it, or the stamp never matches anywhere else.
   .update(JSON.stringify(images.map((p) => describe(p).replaceAll(tmpdir(), '<tmp>'))))
   .digest('hex');
-const upToDate = !process.argv.includes('--force')
-  && existsSync(STAMP) && readFileSync(STAMP, 'utf8').trim() === stamp
-  && images.every((p) => existsSync(p.out));
+const upToDate =
+  !process.argv.includes('--force') &&
+  existsSync(STAMP) &&
+  readFileSync(STAMP, 'utf8').trim() === stamp &&
+  images.every((p) => existsSync(p.out));
 if (upToDate) console.log('images: up to date with profile.png (stamp matches), not re-encoded');
 let encodedAll = !upToDate;
 for (const p of upToDate ? [] : images) {
   const tool = p.probe[0][0];
   if (has(p.probe)) {
     // stderr stays visible: a failing encoder says why.
-    try { p.steps.forEach((step) => run(step, ['ignore', 'ignore', 'inherit'])); }
-    finally { if (p.tmp) rmSync(p.tmp, { force: true }); }
+    try {
+      for (const step of p.steps) run(step, ['ignore', 'ignore', 'inherit']);
+    } finally {
+      if (p.tmp) rmSync(p.tmp, { force: true });
+    }
     console.log(`image: regenerated ${p.out} from profile.png`);
   } else if (existsSync(p.out)) {
     encodedAll = false;
-    console.log(`NOTE: ${tool} not available — using committed ${p.out}.`,
-      `Regenerate locally (brew install ${p.pkg}) after changing profile.png.`);
+    console.log(
+      `NOTE: ${tool} not available — using committed ${p.out}.`,
+      `Regenerate locally (brew install ${p.pkg}) after changing profile.png.`,
+    );
   } else {
     throw new Error(`Image not available: ${tool} missing and ${p.out} not found`);
   }
 }
 // Only a complete re-encode may vouch for every file: with one tool missing,
 // some outputs are stale.
-if (encodedAll) writeFileSync(STAMP, stamp + '\n');
+if (encodedAll) writeFileSync(STAMP, `${stamp}\n`);
 // On Netlify and CI the tools are missing: a changed profile.png would
 // deploy the old photos without a word.
 if (!upToDate && !encodedAll && (process.env.CI || process.env.NETLIFY))
-  throw new Error('The images were not re-encoded (profile.png changed, or --force): run pnpm generate locally and commit the results');
+  throw new Error(
+    'The images were not re-encoded (profile.png changed, or --force): run pnpm generate locally and commit the results',
+  );
 const placeholderBytes = readFileSync('src/assets/profile-lqip.avif').length;
 
 // ---------- 3) Sync skeleton in index.html ----------
@@ -123,7 +154,10 @@ index = index.slice(0, contentStart) + converged + index.slice(contentEnd);
 const lqip = readFileSync('src/assets/profile-lqip.avif').toString('base64');
 const lqipRe = /<source srcset="[^"]*" type="image\/avif" \/><img class="profile-placeholder"/;
 if (!lqipRe.test(index)) throw new Error('Placeholder <source> not found in index.html');
-index = index.replace(lqipRe, () => `<source srcset="data:image/avif;base64,${lqip}" type="image/avif" /><img class="profile-placeholder"`);
+index = index.replace(
+  lqipRe,
+  () => `<source srcset="data:image/avif;base64,${lqip}" type="image/avif" /><img class="profile-placeholder"`,
+);
 
 // 3c) profile skeleton img: verify the cross-fade stack is present and the
 //     placeholder src points at the generated file. The stack markup lives
@@ -136,12 +170,14 @@ if (!index.includes('<img class="profile-placeholder" src="/profile-lqip.webp"')
 //     AVIF <source> (the WebP <img> gets the same sizes): if the preload's
 //     drifted, the browser would fetch the photo twice. The sizes mirror
 //     the CSS layouts in src/style.css, from the same measurements:
-const TEXT_EM = 33.7, TEXT_REM = 21; // text block height: 33.7em + 21rem
+const TEXT_EM = 33.7,
+  TEXT_REM = 21; // text block height: 33.7em + 21rem
 const RESERVE = 116; // footer and padding below the stacked photo (px)
 const MIN_H = 280; // the stacked photo's minimum height
-const MIN_W = Math.round(MIN_H * 2 / 3);
+const MIN_W = Math.round((MIN_H * 2) / 3);
 // Stacked layouts: the height the photo leaves at a given text size.
-const stacked = (fs) => `clamp(${MIN_W}px, (100vh - ${Math.round(fs * TEXT_EM + TEXT_REM * 16 + RESERVE)}px) / 1.5, 500px)`;
+const stacked = (fs: number) =>
+  `clamp(${MIN_W}px, (100vh - ${Math.round(fs * TEXT_EM + TEXT_REM * 16 + RESERVE)}px) / 1.5, 500px)`;
 const SRCSET = [500, 800, 1280].map((w) => `/src/assets/profile-${w}.avif ${w}w`).join(', ');
 const SIZES = [
   '(max-width: 499px) 60vw', // phones: 60% wide,
@@ -163,7 +199,13 @@ index = index.replace(srcsetRe, (_m, attr) => `${attr}="${SRCSET}"`);
 
 writeFileSync('index.html', index);
 
-console.log('generate.mjs:',
-  'converged', converged.length, 'chars;',
-  'placeholder', placeholderBytes, 'bytes (profile-lqip.avif);',
-  'index.html synced');
+console.log(
+  'generate.ts:',
+  'converged',
+  converged.length,
+  'chars;',
+  'placeholder',
+  placeholderBytes,
+  'bytes (profile-lqip.avif);',
+  'index.html synced',
+);

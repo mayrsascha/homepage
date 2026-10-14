@@ -1,7 +1,7 @@
 # Keeps the footer honest: the build fails over the 10.5 kB budget
 # (vite.config.ts) or if the CSP would block an inline script/style or the
-# theme copies drifted (scripts/verify-build.mjs), and Lighthouse CI, run
-# against the build served with its real headers (scripts/serve.mjs), must
+# theme copies drifted (scripts/verify-build.ts), and Lighthouse CI, run
+# against the build served with its real headers (scripts/serve.ts), must
 # score 100 for accessibility, best practices and SEO, and at least 98 for
 # performance (2 points of slack for CI timing noise; it scores 100
 # locally).
@@ -33,6 +33,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Lint and formatting (biome.json).
+      - run: pnpm exec biome ci .
       # Builds, then fails if that changed a committed file: index.html must
       # already match src/Intro.converged.html and the photos (run
       # `pnpm generate` after editing either).
@@ -40,4 +42,10 @@ jobs:
       # Without the encoders (as on Netlify) the committed photos are used
       # locally, and a stale photo stops the build on CI.
       - run: bash scripts/test-netlify-fallback.sh
-      - run: pnpm exec lhci autorun
+      # Lighthouse CI from the action (it bundles @lhci/cli), so the repo
+      # doesn't install it. lighthouserc.json starts scripts/serve.ts and
+      # holds the score assertions; a failed one fails the job.
+      - uses: treosh/lighthouse-ci-action@3e7e23fb74242897f95c0ba9cabad3d0227b9b18 # 12.6.2
+        with:
+          configPath: ./lighthouserc.json
+          runs: 3
