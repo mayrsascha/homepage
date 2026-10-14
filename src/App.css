@@ -71,7 +71,8 @@ html, body, #root {
     transition: opacity 0.2s ease;
 }
 
-.profile-real.loaded {
+/* Flag lives on <html> (outside #root) so hydrateRoot never diffs it. */
+.profile-loaded .profile-real {
     opacity: 1;
 }
 

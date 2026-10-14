@@ -14,35 +14,23 @@ function App() {
     document.documentElement.classList.toggle('js-dark', darkMode);
   }, [darkMode]);
 
-  useEffect(() => {
-    // hydrateRoot: if the real image finished loading before hydration
-    // attached React's onLoad, catch up here so the fade-in still happens.
-    const real = document.querySelector<HTMLImageElement>('.profile-real');
-    if (real && real.complete && !real.classList.contains('loaded')) {
-      real.classList.add('loaded');
-    }
-  }, []);
+  // NOTE: the real image's fade-in (html.profile-loaded) is wired by an inline script in
+  // index.html (runs before React), NOT by React's onLoad. A single owner
+  // avoids the skeleton/React handler divergence that broke hydration, and
+  // addEventListener survives hydrateRoot adoption.
 
   return (
-    <div className={`App ${darkMode ? 'darkmode' : ''}`}>
+    <div className={darkMode ? 'App darkmode' : 'App'}>
       <main className="content">
         <Hero />
         <div className="profile">
           {/* Cross-fade stack: placeholder paints underneath; the real image
-              overlays at opacity:0 and fades in on load. Neither src changes
-              after parse, so no load-order race can flash. Survives the React
-              remount because the onload handler is on the img itself. */}
+              overlays at opacity:0 and fades in on load (wired by the inline
+              pre-React script). Neither src changes after parse — no
+              load-order race can flash. */}
           <div className="profile-stack">
             <img className="profile-placeholder" src="/profile-lqip.webp" alt="" aria-hidden="true" width="500" height="750" decoding="async" />
-            <img
-              className="profile-real"
-              src="/profile.webp"
-              alt="Profile"
-              width="500"
-              height="750"
-              decoding="async"
-              onLoad={(e) => e.currentTarget.classList.add('loaded')}
-            />
+            <img className="profile-real" src="/profile.webp" alt="Profile" width="500" height="750" decoding="async" />
           </div>
         </div>
       </main>

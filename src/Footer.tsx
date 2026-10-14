@@ -15,11 +15,13 @@ function Footer({ darkMode, setDarkMode }: FooterProps) {
         <p>© <span id="year">{new Date().getFullYear()}</span> Sascha Mayr. All rights reserved.</p>
       </div>
       {/* All icons are text/inline-SVG — nothing in the footer loads over the
-          network, so nothing can flicker. Theme styling via currentColor + CSS. */}
+          network, so nothing can flicker. Theme styling via currentColor + CSS.
+          aria-label is STATIC on purpose: the skeleton ships one fixed value,
+          and a theme-dependent label would fail hydration (React #418). */}
       <button
         className="button"
         onClick={() => { darkMode ? setDarkMode(false) : setDarkMode(true) }}
-        aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        aria-label="Toggle dark mode"
       >
         <span className="icon-moon">🌙</span>
         <span className="icon-sun">☀️</span>
