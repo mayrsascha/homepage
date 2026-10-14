@@ -5,20 +5,28 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Photos and icons aren't content-hashed, so no "immutable": cache for a week,
-# then revalidate in the background. HTML keeps Netlify's default (always
-# revalidated) so deploys show up immediately.
+# Content-hashed build assets (the photos): a new file means a new URL, so
+# cache forever.
 [[headers]]
-  for = "/profile*"
+  for = "/assets/*"
   [headers.values]
-    Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Unhashed static files (icons, the WebP placeholder fallback) can't change
+# URL when their content changes: 30 days, revalidated in the background.
+# HTML keeps Netlify's default (always revalidated) so deploys show up
+# immediately.
+[[headers]]
+  for = "/profile-lqip.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
 
 [[headers]]
   for = "/*.png"
   [headers.values]
-    Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
 
 [[headers]]
   for = "/favicon.ico"
   [headers.values]
-    Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"

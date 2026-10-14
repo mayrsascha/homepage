@@ -58,3 +58,8 @@ html.js-dark .Footer .button .icon-moon { display: none; }
         font-size: 2.5em;
     }
 }
+/* Three short lines: tight spacing keeps the footer as tall as the old
+   two-line one (the photo and text sizes assume ~70px). */
+.Footer p {
+    margin: 0.35em 0;
+}

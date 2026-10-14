@@ -51,14 +51,15 @@ decoded**. The placeholder is then hidden.
 
 `generate.mjs` builds these from `public/profile.png`:
 
-- `profile.avif`: the real photo, ~23 KB (`profile.webp`, 54 KB, is the
+- `src/assets/profile.avif`: the real photo, ~23 KB (`src/assets/profile.webp`, 54 KB, is the
   hand-made fallback for browsers without AVIF)
 - `profile-lqip.avif`: placeholder, full resolution, ~4.7 KB, embedded in
   `index.html` as a data URI so it paints with the first response
 - `profile-lqip.webp`: placeholder fallback, half resolution, ~5 KB
 
-Photos and icons are cached for a week (`netlify.toml`); the HTML is always
-revalidated.
+The real photo goes through Vite, so it ships with a content hash in its
+name (`/assets/profile-<hash>.avif`) and is cached for a year as immutable.
+Unhashed icons get 30 days; the HTML is always revalidated (`netlify.toml`).
 
 The tools (`avifenc`, `cwebp`; `brew install libavif webp`) aren't on
 Netlify, so the build there uses the committed files. After changing

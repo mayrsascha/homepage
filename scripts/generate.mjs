@@ -43,10 +43,10 @@ const has = (cmd) => {
 };
 const images = [
   // Real photo: q50 4:4:4 is visually identical to the old 54KB WebP at
-  // retina zoom (SSIM 0.975) for 23KB. public/profile.webp (hand-made) stays
+  // retina zoom (SSIM 0.975) for 23KB. src/assets/profile.webp (hand-made) stays
   // as the <picture> fallback.
-  { out: 'public/profile.avif', probe: 'avifenc --version', pkg: 'libavif',
-    cmd: 'avifenc -q 50 --qalpha 60 -s 0 -d 10 --yuv 444 -j 8 public/profile.png public/profile.avif' },
+  { out: 'src/assets/profile.avif', probe: 'avifenc --version', pkg: 'libavif',
+    cmd: 'avifenc -q 50 --qalpha 60 -s 0 -d 10 --yuv 444 -j 8 public/profile.png src/assets/profile.avif' },
   { out: 'public/profile-lqip.avif', probe: 'avifenc --version', pkg: 'libavif',
     cmd: 'avifenc -q 18 -s 0 -d 10 --yuv 420 -j 8 public/profile.png public/profile-lqip.avif' },
   { out: 'public/profile-lqip.webp', probe: 'cwebp -version', pkg: 'webp',
