@@ -7,7 +7,9 @@ solarized/tomorrow-night colors, monospace, dark-mode toggle, no scroll.
 
 ## Stack
 
-Vite 8 · React 19 · TypeScript 7 · pnpm
+Static HTML · ~20 lines of TypeScript · Vite 8 · Lightning CSS · pnpm.
+No framework: the built page is a single ~5 kB (gzipped) `index.html` with
+the CSS and JS inlined.
 
 ## Commands
 
@@ -17,28 +19,52 @@ Vite 8 · React 19 · TypeScript 7 · pnpm
 | `pnpm dev` | Dev server at localhost:3000 |
 | `pnpm build` | Production build to `build/` (runs `scripts/generate.mjs` first) |
 | `pnpm preview` | Preview the production build |
+| `pnpm generate` | Sync content and placeholders into `index.html` |
+| `node scripts/verify-skeleton.mjs` | Check the text block in `index.html` matches `src/Intro.converged.html` |
+| `bash scripts/test-netlify-fallback.mjs` | Run `generate` with `cwebp`/`avifenc` hidden, as on Netlify |
 
-## How the content pipeline works
+## How it fits together
 
-Most of the page is static by design — first paint must equal final paint
-(zero layout flash). `scripts/generate.mjs` (wired into `pnpm build`) keeps
-everything in sync:
+- **`index.html`** is the page. All markup lives there; nothing is rendered
+  by JavaScript.
+- **`src/main.ts`** imports the CSS and owns the theme toggle, following OS
+  theme changes, the `theme-color` meta tag and the footer year.
+- **Inline scripts in `index.html`** set the theme before first paint
+  (localStorage → OS preference) and wire the photo fade-in as early as
+  possible.
+- **`vite.config.ts`** has a small `inline-assets` plugin that embeds the
+  built CSS and JS into `index.html`, so the page needs no follow-up
+  requests besides images.
 
-1. **Text block** — `src/Intro.converged.html` holds the pre-highlighted
-   markdown markup. The script writes it into both the React string
-   (`src/Intro.highlighted.ts`) and the pre-hydration skeleton in
-   `index.html`, byte-identical. Edit `Intro.converged.html` to change
-   site content, then run `pnpm generate`.
-2. **Profile photo** — the script generates a ~400-byte blurred WebP
-   thumbnail (LQIP) from `public/profile.png` and inlines it as base64
-   in the `<img>`, so a blurry version of the photo paints with the HTML.
-   A tiny script swaps in the real image once it has downloaded.
+### Editing content
 
-Theme (light/dark) is resolved by an inline pre-paint script
-(localStorage → OS preference) driving CSS variables — no flash, no
-runtime theme switching.
+`src/Intro.converged.html` holds the pre-highlighted markdown markup
+(highlight.js classes, plus `aria-label`s on links and headings so screen
+readers skip the markdown syntax). Edit it, then run `pnpm generate` to copy
+it into `index.html`. `pnpm build` does this automatically.
+
+### Profile photo
+
+The photo is a cross-fade stack: a placeholder paints underneath, the real
+`public/profile.webp` sits on top at `opacity: 0` and fades in once it has
+loaded **and decoded**. The placeholder is then hidden.
+
+`generate.mjs` builds two placeholders from `public/profile.png`:
+
+- `profile-lqip.avif`: full resolution, ~4.7 KB (primary)
+- `profile-lqip.webp`: half resolution, ~5 KB (fallback for browsers without AVIF)
+
+The tools (`avifenc`, `cwebp`; `brew install libavif webp`) aren't on
+Netlify, so the build there uses the committed files. After changing
+`profile.png`, run `pnpm generate` locally and commit the regenerated
+placeholders.
+
+`public/og.png` (the 1200×630 link-preview image) was generated once and is
+not part of the pipeline. Regenerate it by hand if the photo or tagline
+changes.
 
 ## Deploy
 
 Netlify, auto-deploys from `master`. Config in `netlify.toml`
-(Node 20, `pnpm run build`, publish `build/`).
+(Node 20, `pnpm run build`, publish `build/`). Unknown URLs get
+`public/404.html` with a real 404 status.
