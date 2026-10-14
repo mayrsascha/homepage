@@ -134,8 +134,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
 }
 
 /* ---------- Layouts ----------
-   Phones (< 720px): text, then the photo; links reference-style.
-   Portrait tablets, short or narrow (< 900px) landscape: the same stack,
+   Phones (< 720px; in landscape < 640px): text, then the photo; links
+   reference-style.
+   Portrait tablets, short or narrow (< 904px) landscape: the same stack,
    full links.
    Everything else: text and photo side by side, scaled to fit the screen.
 
@@ -148,8 +149,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
    at the default setting: 45em = 720px, 56.5em = 904px), so larger text
    switches to the stacked layouts sooner instead of squeezing the photo. */
 
-/* ---------- Phones: photo below the text ---------- */
-@media (max-width: 44.99em) {
+/* ---------- Phones: photo below the text ----------
+   Portrait phones, and landscape ones too narrow for full links at 12px
+   (< 640px). */
+@media (max-width: 44.99em) and (orientation: portrait), (max-width: 39.99em) {
     /* Links become reference-style Markdown ("[Shumi]"): the "(https://…)"
        part is hidden, so each entry fits on one line. Remaining long lines
        wrap instead of being clipped. The inner code padding is dropped to
@@ -180,7 +183,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     /* Photo after the links, smaller and centred: keeps the page short
        without cropping the full-body shot. */
     .profile { text-align: center; padding: 1em 0 .5em; }
-    .profile-stack { width: 60%; max-width: 300px; }
+    /* Never taller than the screen (phones in landscape). */
+    .profile-stack {
+        width: 60%; max-width: min(300px, (100vh - 2em) * 2 / 3);
+        max-width: min(300px, (100svh - 2em) * 2 / 3);
+    }
     /* Footer: text gets the full width (no mid-line breaks), icons sit in a
        row below at the desktop size. */
     .Footer { flex-wrap: wrap; justify-content: center; padding: .5em 10px 1em; }
@@ -189,7 +196,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
 }
 
-@media (min-width: 45em) {
+@media (min-width: 45em), (min-width: 40em) and (orientation: landscape) {
     .Footer { justify-content: center; padding: 0; }
     .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
 }
@@ -197,12 +204,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
 /* ---------- Portrait tablets, phones in landscape, narrow windows: stacked ----------
    Side by side, the links would need text under 12px. The photo takes the
    height the text and footer leave (it scrolls only below 280px). */
-@media (min-width: 45em) and (orientation: portrait), (min-width: 45em) and (max-height: 499px), (min-width: 45em) and (max-width: 56.49em) {
+@media (min-width: 45em) and (orientation: portrait), (min-width: 45em) and (max-height: 499px), (min-width: 45em) and (max-width: 56.49em), (min-width: 40em) and (max-width: 44.99em) and (orientation: landscape) {
     .content { --fs: clamp(.8125rem, (100vw - 32px) / 60, 1rem); }
     .Hero { display: flex; justify-content: center; }
     .profile { text-align: center; padding: 1em 0; }
     .profile-stack { height: clamp(280px, 100vh - var(--fs) * 24.5 - 19.5rem - 116px, 750px); }
     .Footer { padding-bottom: 10px; }
+}
+
+/* Phones in landscape (640-719px): full links fit only at 12px. */
+@media (min-width: 40em) and (max-width: 44.99em) and (orientation: landscape) {
+    .content { --fs: .75rem; }
 }
 
 /* ---------- Landscape: text and photo side by side ---------- */
@@ -226,4 +238,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     /* Footer: grows at half the text's rate, with room below its last line. */
     .Footer { padding-bottom: 10px; }
     .Footer > div { font-size: clamp(.8125rem, .8125rem + (100vw - 1440px) / 128, 1.125rem); }
+}
+
+/* Printing, last so it wins over the layouts: paper narrower than 720px
+   would get the phone layout. One page, with the URLs, the photo smaller. */
+@media print {
+    .Hero { min-height: 0; }
+    .Hero .u { display: inline; }
+    .profile-stack { height: 240px; width: auto; }
 }

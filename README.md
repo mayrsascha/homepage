@@ -45,7 +45,7 @@ No framework, no analytics script: the built page is a single ~10 kB
   the build over the size budget (see Checks). The other headers are
   static, in `netlify.toml`.
 - **Printing** always uses the light colours (printers skip the dark
-  background).
+  background) and fits one page with the URLs, whatever the paper.
 - **Without JavaScript** the page still works: a `<noscript>` style shows the
   real photo directly, hides the theme toggle and follows the OS dark mode.
 
@@ -54,7 +54,8 @@ No framework, no analytics script: the built page is a single ~10 kB
 `src/Intro.converged.html` holds the pre-highlighted markdown markup
 (highlight.js-style, with short class names styled in `src/style.css`), plus
 the accessibility layer: `aria-label`s on links and headings so screen
-readers skip the markdown syntax, and list roles on the `- ` lines. It goes
+readers skip the markdown syntax (and hear "opens in a new tab"), and list
+roles on the `- ` lines. It goes
 into divs styled like `<pre><code>` (headings aren't allowed inside those).
 Edit it, then run `pnpm generate` to copy it into `index.html`; `pnpm build`
 does this automatically, and CI fails if the committed `index.html` is out
@@ -62,14 +63,15 @@ of sync.
 
 Layouts (`src/style.css`):
 
-- **Phones** (< 720 px): the text (12–14 px, growing with the screen
+- **Phones** (< 720 px, or < 640 px in landscape): the text (12–14 px, growing with the screen
   height) fills the first screen; the whole photo
   and the footer follow on scrolling (never cut in half by the screen
   edge). Links render reference-style (`[Shumi]`): each link's `(https://…)` part sits in a `span.u` that the
   CSS hides. A row that wraps stays visibly one item (hanging indent), and
   the email address stays visible.
 - **Portrait tablets, phones in landscape, landscape windows under 904 px**:
-  the same stack with full links; the photo takes the height that's left.
+  the same stack with full links (12 px under 720 px wide); the photo
+  takes the height that's left.
 - **Landscape** (≥ 904 px wide, ≥ 500 px tall): text and photo side by side,
   scaled to fit the screen. Links always show in full. Where width is
   short, the photo gives way first, so the text never drops below 12 px;
@@ -121,7 +123,8 @@ committed files. After changing
 files.
 
 `generate.mjs` skips the encoding when `src/assets/profile.stamp` (a hash of
-`profile.png` and the encoder commands) matches; `--force` re-encodes.
+`profile.png` and the encoder commands) matches; `--force` re-encodes. On
+Netlify and CI a mismatch fails the build rather than deploy stale photos.
 
 `public/og.png` (the 1200×630 link-preview image) and `public/sascha-mayr.jpg`
 (800×1200 on the page background, the stable photo URL in the JSON-LD) were

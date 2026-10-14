@@ -91,6 +91,10 @@ for (const p of upToDate ? [] : images) {
 // Only a complete re-encode may vouch for every file: with one tool missing,
 // some outputs are stale.
 if (encodedAll) writeFileSync(STAMP, stamp + '\n');
+// On Netlify and CI the tools are missing: a changed profile.png would
+// deploy the old photos without a word.
+if (!upToDate && !encodedAll && (process.env.CI || process.env.NETLIFY))
+  throw new Error('profile.png changed, but the images were not re-encoded: run pnpm generate locally and commit the results');
 const placeholderBytes = readFileSync('src/assets/profile-lqip.avif').length;
 
 // ---------- 3) Sync skeleton in index.html ----------
