@@ -4,7 +4,7 @@ Personal homepage of Sascha Mayr — [saschamayr.com](https://saschamayr.com)
 
 A one-page site styled as a markdown document rendered in a code block:
 solarized/tomorrow-night colors, monospace, dark-mode toggle; on desktop it
-fits the screen without scrolling (down to ~700 px of height).
+fits the screen without scrolling (down to ~800 px of height).
 
 ## Stack
 
@@ -64,7 +64,7 @@ of sync.
 Layouts (`src/style.css`):
 
 - **Phones** (< 720 px, or < 640 px in landscape): the text (12–14 px, growing with the screen
-  height) fills the first screen; the whole photo
+  height) fills at least the first screen; the whole photo
   and the footer follow on scrolling (never cut in half by the screen
   edge). Links render reference-style (`[Shumi]`): each link's `(https://…)` part sits in a `span.u` that the
   CSS hides. A row that wraps stays visibly one item (hanging indent), and
@@ -77,7 +77,7 @@ Layouts (`src/style.css`):
   scaled to fit the screen. Links always show in full. Where width is
   short, the photo gives way first, so the text never drops below 12 px;
   the text is at most 13 px up to 1440 px wide and grows beyond that, and
-  the photo grows with it. Below ~700 px of height the page scrolls a
+  the photo grows with it. Below ~800 px of height the page scrolls a
   little rather than shrink the text further.
 
 Link rows are at least 24 px apart on every layout, for tapping and

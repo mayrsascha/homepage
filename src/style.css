@@ -51,9 +51,9 @@ footer { flex-shrink: 0; }
 }
 .Hero .md-pre a { color: unset; text-decoration: none; white-space: pre-wrap; }
 /* Link rows at least 24px apart on every layout (WCAG 2.5.8 target
-   spacing), so a tap or click can't land on the neighbour. 13 rows: the
-   text block is 24.5em + 19.5rem tall. */
-.Hero [role="listitem"] { line-height: 1.5rem; }
+   spacing), so a tap or click can't land on the neighbour. The line-height
+   sits on the link, so a project's context line below it stays tight. */
+.Hero [role="listitem"] a { line-height: 1.5rem; }
 /* Hover/focus underlines the link text, as rendered Markdown would. */
 .Hero .md-pre a:hover .s, .Hero .md-pre a:focus-visible .s { text-decoration: underline; text-underline-offset: .2em; }
 .Hero .md-pre h1, .Hero .md-pre h2 { margin: 0; }
@@ -136,9 +136,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
    Everything else: text and photo side by side, scaled to fit the screen.
 
    The text block measures 49.5em wide with full links (one more em of slack:
-   Safari's monospace is slightly wider) and 24.5em + 19.5rem tall (the
+   Safari's monospace is slightly wider) and 33.7em + 21rem tall (the 14
    link rows are 1.5rem; above ~21px text the rows are 1.15em instead, so
-   39.5em), plus ~6.25rem of footer and padding (rem: the footer grows with the font setting): --fs is capped by both, so
+   49.9em), plus ~6.25rem of footer and padding (rem: the footer grows with the font setting): --fs is capped by both, so
    the page doesn't scroll down to 12px text. Sizes are in rem: they follow the browser's font-size
    setting where the layout leaves room. The breakpoints are in em (16px
    at the default setting: 45em = 720px, 56.5em = 904px), so larger text
@@ -152,10 +152,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        part is hidden, so each entry fits on one line. Remaining long lines
        wrap instead of being clipped. The inner code padding is dropped to
        give the text the width. */
-    /* 12px on small phones, up to 14px where the screen is tall enough
-       (vh, not svh: iOS < 15.4 would drop the whole value). */
+    /* 12px on small phones, up to 14px on tall ones (vh, not svh: iOS
+       < 15.4 would drop the whole value). */
     .content { --fs: clamp(.75rem, (100vh - 21.5rem) / 24, .875rem); }
-    /* The text fills the first screen (centred), so the photo is never cut
+    /* The text fills at least the first screen, so the photo is never cut
        by its bottom edge: it arrives whole, with the footer, on scrolling.
        svh is the screen with the browser bars shown; vh is the fallback
        (iOS < 15.4), which errs towards hiding the photo, not cutting it. */
@@ -170,6 +170,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
         display: block; white-space: pre-wrap; line-height: 1.15;
         padding: calc((1.5rem - 1.15em) / 2) 0 calc((1.5rem - 1.15em) / 2) 2ch; text-indent: -2ch;
     }
+    /* The context line starts under the link text, not 2ch further in. */
+    .Hero [role="listitem"] a { line-height: inherit; }
+    .Hero .i { display: none; }
     /* The email address stays readable (and copyable) on phones. */
     .Hero a[href^="mailto:"] .u { display: inline; }
     .Hero .md-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -198,9 +201,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     /* Where the photo can't fit whole under the text (at its 280px floor),
        the text fills the first screen and the photo follows on scrolling,
        as on phones. The *1e5 makes the min-height a step: 0 or the screen. */
-    .Hero { display: flex; justify-content: center; align-items: center; min-height: clamp(0px, (var(--fs) * 24.5 + 21.5rem + 280px - 100vh) * 1e5, 100vh - 1em); }
+    .Hero { display: flex; justify-content: center; align-items: center; min-height: clamp(0px, (var(--fs) * 33.7 + 23rem + 280px - 100vh) * 1e5, 100vh - 1em); }
     .profile { text-align: center; padding: 1em 0; }
-    .profile-stack { height: clamp(280px, 100vh - var(--fs) * 24.5 - 19.5rem - 116px, 750px); }
+    .profile-stack { height: clamp(280px, 100vh - var(--fs) * 33.7 - 21rem - 116px, 750px); }
 }
 
 /* Phones in landscape (640-719px): full links fit only at 12px. */
@@ -217,7 +220,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        13px only above 1440px, so big screens aren't a small island. */
     .content {
         --pw: min((100vh - 7.25rem) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 48px - .75rem * 50.5);
-        --fs: clamp(.75rem, min((100vh - 6.25rem - 19.5rem) / 24.5, (100vh - 6.25rem) / 39.5, (100vw - 48px - var(--pw)) / 50.5, .8125rem + max(0px, (100vw - 1440px) / 64)), 1.75rem);
+        --fs: clamp(.75rem, min((100vh - 6.25rem - 21rem) / 33.7, (100vh - 6.25rem) / 49.9, (100vw - 48px - var(--pw)) / 50.5, .8125rem + max(0px, (100vw - 1440px) / 64)), 1.75rem);
         display: flex; align-items: center;
     }
     /* Each column centres its content; the text column is at least half
@@ -231,9 +234,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
 }
 
 /* Printing, last so it wins over the layouts: paper narrower than 720px
-   would get the phone layout. One page, with the URLs, the photo smaller. */
+   would get the phone layout. One page, with the URLs, at 12px, the photo
+   smaller. */
 @media print {
+    .content { --fs: .75rem; }
     .Hero { min-height: 0; }
+    /* Paper needs no tap spacing. */
+    .Hero [role="listitem"] { padding-top: 0; padding-bottom: 0; }
+    .Hero [role="listitem"] a { line-height: inherit; }
     .Hero .u { display: inline; }
     .profile-stack { height: 240px; width: auto; }
 }
