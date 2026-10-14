@@ -98,10 +98,15 @@ html.js-dark .content {
     width:100%; 
     max-width: 500px;
     object-fit: cover;
+}
+
+/* Only the bottom layer gets a backdrop: the real img must stay transparent
+   until it paints, or it covers the placeholder with a blank box. */
+.profile-placeholder {
     background-color: #fdf6e3;
 }
 
-html.js-dark .profile img {
+html.js-dark .profile-placeholder {
     background-color: #1d1f21;
 }
 

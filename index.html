@@ -22,8 +22,9 @@
       .App{height:100%;width:100%;display:flex;flex-direction:column}
       .content{flex:1 0 auto;padding:1em 1em 0;background-color:#fdf6e3}
       html.js-dark body,html.js-dark .content{background-color:#1d1f21}
-      .profile img{width:100%;max-width:500px;object-fit:cover;aspect-ratio:500/750;background-color:#fdf6e3}
-      html.js-dark .profile img{background-color:#1d1f21}
+      .profile img{width:100%;max-width:500px;object-fit:cover;aspect-ratio:500/750}
+      .profile-placeholder{background-color:#fdf6e3}
+      html.js-dark .profile-placeholder{background-color:#1d1f21}
       .profile-stack{position:relative;display:inline-block;line-height:0}
       .profile-stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
       .profile-real{opacity:0;transition:opacity .2s ease}
@@ -152,13 +153,19 @@ More about me at the links below.
     <script>
       // Runs at parse time, right after the image tags: wire the real image's
       // fade-in now so the load event can't be missed (also covers an image
-      // that already finished during parse).
+      // that already finished during parse). Fade in only once DECODED: with
+      // decoding="async", load can fire before the pixels are ready, and an
+      // undecoded img fading in paints as an empty box over the placeholder.
       (function () {
         var real = document.querySelector('.profile-real');
         if (!real) return;
         var mark = function () { document.documentElement.classList.add('profile-loaded'); };
-        if (real.complete) mark();
-        else real.addEventListener('load', mark);
+        var reveal = function () {
+          if (!real.naturalWidth) return; // failed load: keep the placeholder
+          if (real.decode) real.decode().then(mark, mark); else mark();
+        };
+        if (real.complete) reveal();
+        else real.addEventListener('load', reveal);
       })();
     </script>
     <script type="module" src="/src/main.ts"></script>
