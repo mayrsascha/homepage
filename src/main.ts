@@ -12,13 +12,21 @@ const stored = (): string | null => {
   try { return localStorage.getItem(KEY); } catch { return null; }
 };
 
+const button = document.querySelector('.Footer .button');
+
 const applyTheme = (dark: boolean) => {
   root.classList.toggle('js-dark', dark);
-  document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')!.content = dark ? '#1d1f21' : '#fdf6e3';
+  button?.setAttribute('aria-pressed', String(dark));
+  document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => {
+    m.content = dark ? '#1d1f21' : '#fdf6e3';
+  });
 };
 
+// The button is a toggle: "Dark mode", pressed or not.
+button?.setAttribute('aria-pressed', String(root.classList.contains('js-dark')));
+
 // A click is an explicit choice: apply and remember it.
-document.querySelector('.Footer .button')?.addEventListener('click', () => {
+button?.addEventListener('click', () => {
   const dark = !root.classList.contains('js-dark');
   applyTheme(dark);
   try { localStorage.setItem(KEY, String(dark)); } catch { /* not remembered */ }

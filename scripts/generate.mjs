@@ -10,6 +10,7 @@
    Run: node scripts/generate.mjs */
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
+import { createHash } from 'crypto';
 import { tmpdir } from 'os';
 import { join } from 'path';
 
@@ -59,8 +60,22 @@ const images = [
   { out: 'public/profile-lqip.webp', probe: 'cwebp -version', pkg: 'webp',
     cmd: 'cwebp -quiet -resize 250 0 -q 10 src/assets/profile.png -o public/profile-lqip.webp' },
 ];
-for (const p of images) {
+// Encoding all of them takes ~15s, so skip it when neither profile.png nor
+// the commands changed since the committed files were made (the stamp file
+// records both). `node scripts/generate.mjs --force` re-encodes anyway.
+const STAMP = 'src/assets/profile.stamp';
+const stamp = createHash('sha256')
+  .update(readFileSync('src/assets/profile.png'))
+  .update(JSON.stringify(images.map((p) => p.cmd)))
+  .digest('hex');
+const upToDate = !process.argv.includes('--force')
+  && existsSync(STAMP) && readFileSync(STAMP, 'utf8').trim() === stamp
+  && images.every((p) => existsSync(p.out));
+if (upToDate) console.log('images: up to date with profile.png (stamp matches), not re-encoded');
+let encoded = false;
+for (const p of upToDate ? [] : images) {
   if (has(p.probe)) {
+    encoded = true;
     execSync(p.cmd, { stdio: 'ignore' });
     console.log(`image: regenerated ${p.out} from profile.png`);
   } else if (existsSync(p.out)) {
@@ -70,17 +85,18 @@ for (const p of images) {
     throw new Error(`Image not available: ${p.probe.split(' ')[0]} missing and ${p.out} not found`);
   }
 }
+if (encoded) writeFileSync(STAMP, stamp + '\n');
 const placeholderBytes = readFileSync('src/assets/profile-lqip.avif').length;
 
 // ---------- 3) Sync skeleton in index.html ----------
 let index = readFileSync('index.html', 'utf8');
 
 // 3a) text block
-const openTag = '<div class="Hero"><pre class="md"><code class="md">';
+const openTag = '<div class="Hero"><div class="md md-pre"><div class="md md-code">';
 const skeletonStart = index.indexOf(openTag);
 if (skeletonStart === -1) throw new Error('Skeleton block not found in index.html');
 const contentStart = skeletonStart + openTag.length;
-const contentEnd = index.indexOf('</code></pre></div>', contentStart);
+const contentEnd = index.indexOf('</div></div></div><div class="profile">', contentStart);
 if (contentEnd === -1) throw new Error('Skeleton end tag not found');
 index = index.slice(0, contentStart) + converged + index.slice(contentEnd);
 

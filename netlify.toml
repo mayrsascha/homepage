@@ -24,6 +24,10 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), browsing-topics=()"
     Cross-Origin-Opener-Policy = "same-origin"
     X-Frame-Options = "DENY"
+    # Two years, all subdomains, eligible for the browsers' preload list
+    # (hstspreload.org): browsers never try plain HTTP, not even on the first
+    # visit. Every future subdomain must serve HTTPS.
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
 
 # Content-hashed build assets (the photos): a new file means a new URL, so
 # cache forever.
@@ -43,6 +47,11 @@
 
 [[headers]]
   for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
+
+[[headers]]
+  for = "/sascha-mayr.jpg"
   [headers.values]
     Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
 

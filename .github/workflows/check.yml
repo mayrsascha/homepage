@@ -1,0 +1,28 @@
+# Keeps the footer honest: the build fails over the 10 kB budget
+# (vite.config.ts), and Lighthouse must stay at 100 in every category.
+name: Check
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # The committed index.html must match src/Intro.converged.html
+      # (run `pnpm generate` after editing the content).
+      - run: node scripts/verify-skeleton.mjs
+      - run: pnpm run build
+      - run: npx --yes @lhci/cli@0.15.1 autorun

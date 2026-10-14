@@ -7,8 +7,6 @@
 html { line-height: 1.15; -webkit-text-size-adjust: 100%; }
 html, body { height: 100%; margin: 0; font-family: monospace; }
 main { display: block; }
-pre { margin: 0; }
-pre, code { font-family: monospace, monospace; font-size: 1em; }
 b { font-weight: bolder; }
 img { border-style: none; }
 button {
@@ -43,19 +41,22 @@ body { display: flex; flex-direction: column; }
 footer { flex-shrink: 0; }
 
 /* ---------- Text block: markdown in a code block ---------- */
+/* Divs styled like <pre><code>: the block holds headings, which <pre> and
+   <code> (phrasing content only) may not. */
 /* --fs is the text size; each layout below sets it, and the photo sizes
    itself from it so the two stay in proportion. */
-.Hero pre {
+.Hero .md-pre {
     font-size: var(--fs);
     font-family: monospace;
     line-height: 1.15;
+    white-space: pre;
 }
-.Hero pre a { color: unset; text-decoration: none; white-space: pre-wrap; }
+.Hero .md-pre a { color: unset; text-decoration: none; white-space: pre-wrap; }
 /* Hover/focus underlines the link text, as rendered Markdown would. */
-.Hero pre a:hover .s, .Hero pre a:focus-visible .s { text-decoration: underline; text-underline-offset: .2em; }
-.Hero pre h1, .Hero pre h2 { margin: 0; }
-.Hero pre h1 { font-size: 1.5em; }
-.Hero pre h2 { font-size: 1.25em; }
+.Hero .md-pre a:hover .s, .Hero .md-pre a:focus-visible .s { text-decoration: underline; text-underline-offset: .2em; }
+.Hero .md-pre h1, .Hero .md-pre h2 { margin: 0; }
+.Hero .md-pre h1 { font-size: 1.5em; }
+.Hero .md-pre h2 { font-size: 1.25em; }
 
 /* highlight.js-style classes, shortened: h=section, s=string (link text),
    l=link (URL), b=bullet, e=emphasis, w=strong */
@@ -119,12 +120,20 @@ html.js-dark .Footer .button .icon-moon { display: none; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outline-offset: 2px; border-radius: 2px; }
 .Footer .github-link svg { width: 48px; height: 48px; color: inherit; }
 
+/* Screen-reader-only text. */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Printing: no controls, just the card. */
+@media print {
+    .Footer .button, .Footer .github-link { display: none; }
+}
+
 /* ---------- Layouts ----------
    Phones (< 720px): text, then the photo; links reference-style.
    Portrait tablets and short landscape screens: the same stack, full links.
    Everything else: text and photo side by side, scaled to fit the screen.
 
-   The text block measures 47em wide with full links (one more em of slack:
+   The text block measures 49.5em wide with full links (one more em of slack:
    Safari's monospace is slightly wider) and 38em tall (plus the 82px of footer and
    padding: --fs is capped at (100vh - 82px) / 48 so it never scrolls). */
 
@@ -135,8 +144,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        wrap instead of being clipped. The inner code padding is dropped to
        give the text the width. */
     .content { --fs: 12px; }
-    .Hero pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-    .Hero code.md { padding: 0; }
+    .Hero .md-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .Hero .md-code { padding: 0; }
     .Hero .u { display: none; }
     /* Photo after the links, smaller and centred: keeps the page short
        without cropping the full-body shot. */
@@ -174,14 +183,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        no wrapping), fits the height, and grows past 13px only above 1440px,
        so big screens aren't a small island in the middle. */
     .content {
-        --pw: min((100vh - 116px) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 528px);
-        --fs: clamp(10px, min((100vh - 82px) / 48, (100vw - 48px - var(--pw)) / 48, 13px + max(0px, (100vw - 1440px) / 64)), 28px);
+        --pw: min((100vh - 116px) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 553px);
+        --fs: clamp(10px, min((100vh - 82px) / 48, (100vw - 48px - var(--pw)) / 50.5, 13px + max(0px, (100vw - 1440px) / 64)), 28px);
         display: flex; align-items: center;
     }
     /* Each column centres its content; the text column is at least half
        the width, more when the links need it. */
     .Hero, .profile { display: flex; justify-content: center; }
-    .Hero { flex: 0 0 max(50%, var(--fs) * 48); align-items: center; }
+    .Hero { flex: 0 0 max(50%, var(--fs) * 50.5); align-items: center; }
     .profile { flex: 1 1 0; min-width: 0; align-items: flex-start; }
     .profile-stack { width: var(--pw); }
     /* Footer: grows at half the text's rate, with room below its last line. */

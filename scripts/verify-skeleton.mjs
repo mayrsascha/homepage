@@ -1,16 +1,17 @@
-/* Verify skeleton pre content matches Intro.converged.html byte-for-byte.
+/* Verify the skeleton's text block matches Intro.converged.html byte-for-byte.
    Run: node scripts/verify-skeleton.mjs */
 import { readFileSync } from 'fs';
 
 const html = readFileSync('index.html', 'utf8');
-const start = html.indexOf('<code class="md">') + '<code class="md">'.length;
-const end = html.indexOf('</code></pre></div>', start);
+const open = '<div class="md md-code">';
+const start = html.indexOf(open) + open.length;
+const end = html.indexOf('</div></div></div><div class="profile">', start);
 const skeleton = html.slice(start, end);
 // No trimming: generate.mjs writes the file verbatim (incl. trailing newline).
 const converged = readFileSync('src/Intro.converged.html', 'utf8');
 
 if (skeleton === converged) {
-  console.log('OK: skeleton pre content is byte-identical to converged markup');
+  console.log('OK: skeleton text block is byte-identical to converged markup');
   process.exit(0);
 } else {
   console.error('MISMATCH: skeleton', skeleton.length, 'chars vs converged', converged.length, 'chars');

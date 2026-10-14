@@ -22,6 +22,7 @@ No framework, no analytics script: the built page is a single ~10 kB
 | `pnpm generate` | Sync content and placeholders into `index.html` |
 | `node scripts/verify-skeleton.mjs` | Check the text block in `index.html` matches `src/Intro.converged.html` |
 | `scripts/test-netlify-fallback.sh` | Run `generate` with `cwebp`/`avifenc` hidden, as on Netlify |
+| `node scripts/generate.mjs --force` | Re-encode the photos even though `profile.png` didn't change |
 
 ## How it fits together
 
@@ -93,13 +94,33 @@ Netlify, so the build there uses the committed files. After changing
 `profile.png`, run `pnpm generate` locally and commit the regenerated
 files.
 
-`public/og.png` (the 1200×630 link-preview image) was generated once and is
-not part of the pipeline. Regenerate it by hand if the photo or tagline
+`generate.mjs` skips the encoding when `src/assets/profile.stamp` (a hash of
+`profile.png` and the encoder commands) matches; `--force` re-encodes.
+
+`public/og.png` (the 1200×630 link-preview image) and `public/sascha-mayr.jpg`
+(800×1200 on the page background, the stable photo URL in the JSON-LD) were
+generated once and are not part of the pipeline. Regenerate it by hand if the photo or tagline
 changes.
+
+## Checks
+
+- **Size budget:** `vite.config.ts` fails the build if the page is over
+  10.5 kB gzipped, so the footer's "10 kB" stays true. It also minifies
+  the hand-written inline scripts and strips HTML comments.
+- **CI** (`.github/workflows/check.yml`, on every push and PR): the
+  content in `index.html` is in sync, the build passes the budget, and
+  Lighthouse CI (`lighthouserc.json`, 3 mobile runs) scores 100 for
+  accessibility, best practices and SEO, and at least 98 for performance.
 
 ## Deploy
 
-Netlify, auto-deploys from `master`. Config in `netlify.toml`
+Netlify, auto-deploys from `master`. Config in `netlify.toml` (including
+HSTS with `includeSubDomains; preload`)
 (Node 24, `pnpm run build`, publish `build/`). Unknown URLs get
 `404.html` (built by Vite, so it's covered by the CSP) with a real 404
 status; it follows the same remembered light/dark choice.
+
+## License
+
+The code is MIT (see `LICENSE`). The photos and the personal content are
+not: © Sascha Mayr, all rights reserved.

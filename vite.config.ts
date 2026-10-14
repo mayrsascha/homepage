@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, minify, type Plugin } from 'vite'
 
 // Inline the (tiny) CSS and JS bundles into index.html: zero render-blocking
 // requests and no request chain after the document itself.
@@ -25,6 +25,51 @@ function inlineAssets(): Plugin {
         }
       }
       page.source = html
+    },
+  }
+}
+
+// The hand-written parts of the HTML ship as written unless minified here:
+// strip HTML comments, minify the classic inline scripts (Vite leaves them
+// alone) and compact the JSON-LD. Runs on every built page, before the CSP
+// hashes are taken.
+function minifyInline(): Plugin {
+  return {
+    name: 'minify-inline',
+    apply: 'build',
+    enforce: 'post',
+    async generateBundle(_, bundle) {
+      for (const page of Object.values(bundle)) {
+        if (page.type !== 'asset' || !page.fileName.endsWith('.html')) continue
+        let html = String(page.source).replace(/<!--[\s\S]*?-->\s*/g, '')
+        const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+        for (const [whole, code] of scripts) {
+          const { code: min } = await minify('inline.js', code)
+          html = html.replace(whole, () => `<script>${min.trim()}</script>`)
+        }
+        html = html.replace(/(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/,
+          (_m, open, json, close) => open + JSON.stringify(JSON.parse(json)) + close)
+        page.source = html
+      }
+    },
+  }
+}
+
+// The footer says "10 kB": fail the build before that stops being true
+// (the page gzipped, everything but the photos included).
+const PAGE_BUDGET = 10_500
+function sizeBudget(): Plugin {
+  return {
+    name: 'size-budget',
+    apply: 'build',
+    enforce: 'post',
+    async generateBundle(_, bundle) {
+      const page = bundle['index.html']
+      if (!page || page.type !== 'asset') return
+      const gz = new Blob([String(page.source)]).stream().pipeThrough(new CompressionStream('gzip'))
+      const size = (await new Response(gz).arrayBuffer()).byteLength
+      if (size > PAGE_BUDGET) this.error(`index.html is ${size} B gzipped, over the ${PAGE_BUDGET} B budget the footer's "10 kB" promises`)
+      console.log(`size-budget: index.html ${size} B gzipped (budget ${PAGE_BUDGET} B)`)
     },
   }
 }
@@ -73,8 +118,8 @@ function cspHeaders(): Plugin {
 }
 
 export default defineConfig({
-  // inlineAssets must run first: the CSP hashes cover the inlined CSS/JS.
-  plugins: [inlineAssets(), cspHeaders()],
+  // Order matters: the CSP hashes cover the inlined and minified code.
+  plugins: [inlineAssets(), minifyInline(), cspHeaders(), sizeBudget()],
   build: {
     outDir: 'build',
     rollupOptions: {
