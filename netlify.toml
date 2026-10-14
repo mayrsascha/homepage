@@ -5,6 +5,15 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Netlify's edge keeps every response until the next deploy (deploys purge
+# it automatically). Without this, the HTML's browser policy (max-age=0,
+# must-revalidate) also applied at the edge: every visit went back to the
+# origin ("fwd=stale"), adding 100-250 ms of TTFB. Browsers still revalidate.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Netlify-CDN-Cache-Control = "public, durable, s-maxage=31536000"
+
 # Content-hashed build assets (the photos): a new file means a new URL, so
 # cache forever.
 [[headers]]
