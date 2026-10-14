@@ -57,8 +57,9 @@ Layouts (`src/style.css`):
   the photo takes the height that's left.
 - **Landscape** (≥ 720 px wide, ≥ 500 px tall): text and photo side by side,
   scaled to fit the screen with no scrolling. Text is 13 px up to 1440 px
-  wide and grows beyond that; the photo grows with it. Below 1160 px wide,
-  links switch to reference-style so they fit half the width.
+  wide and grows beyond that; the photo grows with it. Links always show
+  in full: on narrower screens the text column takes more than half the
+  width and the text shrinks to fit.
 
 ### Profile photo
 

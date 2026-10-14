@@ -118,9 +118,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
    Portrait tablets and short landscape screens: the same stack, full links.
    Everything else: text and photo side by side, scaled to fit the screen.
 
-   The text block measures 47em wide with full links, 40em with
-   reference-style links (one more em of slack each: Safari's monospace is
-   slightly wider), and 38em tall (plus the 82px of footer and
+   The text block measures 47em wide with full links (one more em of slack:
+   Safari's monospace is slightly wider) and 38em tall (plus the 82px of footer and
    padding: --fs is capped at (100vh - 82px) / 48 so it never scrolls). */
 
 /* ---------- Phones: photo below the text ---------- */
@@ -157,31 +156,29 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     .content { --fs: clamp(13px, (100vw - 32px) / 60, 16px); }
     .Hero { display: flex; justify-content: center; }
     .profile { text-align: center; padding: 1em 0; }
-    .profile-stack { height: clamp(280px, 100vh - var(--fs) * 38 - 106px, 750px); }
+    .profile-stack { height: clamp(280px, 100vh - var(--fs) * 38 - 116px, 750px); }
+    .Footer { padding-bottom: 10px; }
 }
 
 /* ---------- Landscape: text and photo side by side ---------- */
 @media (min-width: 720px) and (orientation: landscape) and (min-height: 500px) {
-    /* The text fits the screen height and its half of the width, and grows
-       past 13px only above 1440px wide, so big screens aren't a small
-       island in the middle. */
+    /* --pw is the photo width: it fits above the fold without cropping,
+       grows past 500px only above 1440px wide, and always leaves the text
+       room for 10px. The text then takes the rest of the width (full links,
+       no wrapping), fits the height, and grows past 13px only above 1440px,
+       so big screens aren't a small island in the middle. */
     .content {
-        --fs: clamp(10px, min((100vh - 82px) / 48, (50vw - 16px) / 48, 13px + max(0px, (100vw - 1440px) / 64)), 28px);
+        --pw: min((100vh - 116px) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 528px);
+        --fs: clamp(10px, min((100vh - 82px) / 48, (100vw - 48px - var(--pw)) / 48, 13px + max(0px, (100vw - 1440px) / 64)), 28px);
         display: flex; align-items: center;
     }
-    .Hero, .profile { width: 50%; display: inline-flex; justify-content: center; }
-    .Hero { align-items: center; }
-    .profile { align-items: flex-start; }
-    /* The photo grows with the text (500px at 13px) and fits above the fold
-       without cropping. */
-    .profile-stack { width: min(var(--fs) * 500 / 13, (100vh - 110px) * 2 / 3, 50vw - 16px); }
-    /* The footer grows at half the text's rate (it has ~94px under the photo). */
+    /* Each column centres its content; the text column is at least half
+       the width, more when the links need it. */
+    .Hero, .profile { display: flex; justify-content: center; }
+    .Hero { flex: 0 0 max(50%, var(--fs) * 48); align-items: center; }
+    .profile { flex: 1 1 0; min-width: 0; align-items: flex-start; }
+    .profile-stack { width: var(--pw); }
+    /* Footer: grows at half the text's rate, with room below its last line. */
+    .Footer { padding-bottom: 10px; }
     .Footer > div { font-size: clamp(13px, 13px + (100vw - 1440px) / 128, 18px); }
-}
-/* Half the width is too narrow for full links below 1160px (they'd need
-   under 12px text): switch to reference-style links, which fit at 13px. */
-@media (min-width: 720px) and (max-width: 1159px) and (orientation: landscape) and (min-height: 500px) {
-    .content { --fs: clamp(10px, min((100vh - 82px) / 48, (50vw - 16px) / 41), 13px); }
-    .Hero pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-    .Hero .u { display: none; }
 }
