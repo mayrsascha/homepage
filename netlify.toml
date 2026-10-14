@@ -5,14 +5,9 @@
 [build.environment]
   NODE_VERSION = "24"
 
-# Netlify's edge keeps every response until the next deploy (deploys purge
-# it automatically). Without this, the HTML's browser policy (max-age=0,
-# must-revalidate) also applied at the edge: every visit went back to the
-# origin ("fwd=stale"), adding 100-250 ms of TTFB. Browsers still revalidate.
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Netlify-CDN-Cache-Control = "public, durable, s-maxage=31536000"
+# Edge caching needs no config: Netlify caches static deploy files at the
+# edge for a year and purges them on every deploy (docs: "Caching overview").
+# Cache hits vary because requests land on different cache instances.
 
 # Security headers. Content-Security-Policy (with per-build hashes of the
 # inline scripts/styles) is generated into build/_headers by vite.config.ts.
@@ -29,12 +24,9 @@
     # visit. Every future subdomain must serve HTTPS.
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
 
-# Content-hashed build assets (the photos): a new file means a new URL, so
-# cache forever.
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+# Content-hashed build assets (the photos) are cached as immutable via
+# build/_headers, file by file (vite.config.ts): a wildcard here would also
+# cache a 404 for a missing asset for a year.
 
 # Unhashed static files (icons, the WebP placeholder fallback) can't change
 # URL when their content changes: 30 days, revalidated in the background.

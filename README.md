@@ -55,17 +55,19 @@ Layouts (`src/style.css`):
 
 - **Phones** (< 720 px): text, then the photo. Links render reference-style
   (`[Shumi]`): each link's `(https://…)` part sits in a `span.u` that the
-  CSS hides. Link rows are 24 px apart, for tapping.
+  CSS hides. A row that wraps stays visibly one item (hanging indent), and
+  the email address stays visible.
 - **Portrait tablets, phones in landscape, landscape windows under 900 px**:
   the same stack with full links; the photo takes the height that's left.
 - **Landscape** (≥ 900 px wide, ≥ 500 px tall): text and photo side by side,
   scaled to fit the screen. Links always show in full. Where width is
   short, the photo gives way first, so the text never drops below 12 px;
   the text is at most 13 px up to 1440 px wide and grows beyond that, and
-  the photo grows with it. Below ~590 px of height the page scrolls a
+  the photo grows with it. Below ~700 px of height the page scrolls a
   little rather than shrink the text further.
 
-Sizes are in `rem` and breakpoints in `em` (720 and 904 px at the default
+Link rows are at least 24 px apart on every layout, for tapping and
+clicking. Sizes are in `rem` and breakpoints in `em` (720 and 904 px at the default
 16 px), so both follow the browser's font-size setting: larger text gets
 the stacked layouts sooner.
 
@@ -87,12 +89,14 @@ source photo; not published):
   get the small one and big or high-DPI screens a sharp one. The
   `profile-{500,800,1280}.webp` files are the fallback for browsers without
   AVIF.
-- `src/assets/profile-lqip.avif`: placeholder, 500 px, ~4.2 KB, embedded in
+- `src/assets/profile-lqip.avif`: placeholder, 500 px, ~4.4 KB (alpha at a higher quality than the colour,
+  for cleaner edges), embedded in
   `index.html` as a data URI so it paints with the first response
 - `profile-lqip.webp`: placeholder fallback, half resolution, ~4.4 KB
 
 The real photo goes through Vite, so it ships with a content hash in its
-name (`/assets/profile-500-<hash>.avif`) and is cached for a year as immutable.
+name (`/assets/profile-500-<hash>.avif`) and is cached for a year as immutable
+(`build/_headers`, file by file, so a 404 under `/assets/` isn't).
 Unhashed icons get 30 days; the HTML is always revalidated (`netlify.toml`).
 
 The tools (`avifenc`, `cwebp`; `brew install libavif webp`; plus macOS

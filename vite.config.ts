@@ -112,7 +112,12 @@ function cspHeaders(): Plugin {
         "form-action 'none'",
         "frame-ancestors 'none'",
       ].join('; ')
-      this.emitFile({ type: 'asset', fileName: '_headers', source: `/*\n  Content-Security-Policy: ${policy}\n` })
+      // Content-hashed assets (the photos) are immutable: a new file means a
+      // new URL. Listed one by one rather than as /assets/*, which would also
+      // cache a 404 for a missing asset for a year.
+      const assets = Object.keys(bundle).filter((f) => f.startsWith('assets/'))
+        .map((f) => `/${f}\n  Cache-Control: public, max-age=31536000, immutable\n`).join('')
+      this.emitFile({ type: 'asset', fileName: '_headers', source: `/*\n  Content-Security-Policy: ${policy}\n${assets}` })
     },
   }
 }

@@ -11,15 +11,8 @@ html { line-height: 1.15; -webkit-text-size-adjust: 100%; }
    setting. (The "monospace, monospace" trick doesn't survive minification.) */
 html, body { height: 100%; margin: 0; }
 body { font-family: monospace; }
-main { display: block; }
 b { font-weight: bolder; }
-img { border-style: none; }
-button {
-    font-family: inherit; font-size: 100%; line-height: 1.15; margin: 0;
-    overflow: visible; text-transform: none; -webkit-appearance: button;
-}
-button::-moz-focus-inner { border-style: none; padding: 0; }
-button:-moz-focusring { outline: 1px dotted ButtonText; }
+button { font-family: inherit; font-size: 100%; line-height: 1.15; margin: 0; }
 
 /* ---------- Theme: solarized-light / tomorrow-night ---------- */
 /* The light accents are Solarized's, darkened just enough (same hue and
@@ -33,7 +26,6 @@ html.js-dark {
     --hl-section: #81a2be; --hl-string: #b5bd68; --hl-link: #de935f; --hl-bullet: #b5bd68;
 }
 html.js-dark { color-scheme: dark; }
-html.js-dark body { background-color: var(--bg); }
 /* The canvas carries the theme colour too, so the page shows it while the
    text is held (html.ph-wait, set in index.html). */
 html { background-color: var(--bg); }
@@ -58,6 +50,10 @@ footer { flex-shrink: 0; }
     white-space: pre;
 }
 .Hero .md-pre a { color: unset; text-decoration: none; white-space: pre-wrap; }
+/* Link rows at least 24px apart on every layout (WCAG 2.5.8 target
+   spacing), so a tap or click can't land on the neighbour. 13 rows: the
+   text block is 24.5em + 19.5rem tall. */
+.Hero [role="listitem"] { line-height: 1.5rem; }
 /* Hover/focus underlines the link text, as rendered Markdown would. */
 .Hero .md-pre a:hover .s, .Hero .md-pre a:focus-visible .s { text-decoration: underline; text-underline-offset: .2em; }
 .Hero .md-pre h1, .Hero .md-pre h2 { margin: 0; }
@@ -108,8 +104,8 @@ footer { flex-shrink: 0; }
     padding: 0 10px;
     font-size: .8125rem;
 }
-/* Three short lines: tight spacing keeps the footer short (the photo and
-   text sizes assume ~70px). */
+/* Three short lines: tight spacing keeps the footer short (the layouts
+   reserve 100-116px for it and the page padding). */
 .Footer p { margin: .35em 0; }
 .Footer .button {
     background: inherit; border: none; padding: 0; color: inherit;
@@ -142,9 +138,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
    Everything else: text and photo side by side, scaled to fit the screen.
 
    The text block measures 49.5em wide with full links (one more em of slack:
-   Safari's monospace is slightly wider) and 39em tall (plus ~100px of footer
-   and padding: --fs is capped at (100vh - 100px) / 40.5 so it doesn't scroll
-   down to 12px text). Sizes are in rem: they follow the browser's font-size
+   Safari's monospace is slightly wider) and 24.5em + 19.5rem tall (the
+   link rows are 1.5rem), plus ~100px of footer and padding: --fs is capped
+   so it doesn't scroll down to 12px text. Sizes are in rem: they follow the browser's font-size
    setting where the layout leaves room. The breakpoints are in em (16px
    at the default setting: 45em = 720px, 56.5em = 904px), so larger text
    switches to the stacked layouts sooner instead of squeezing the photo. */
@@ -156,9 +152,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        wrap instead of being clipped. The inner code padding is dropped to
        give the text the width. */
     .content { --fs: .75rem; }
-    /* Link rows 24px apart (WCAG 2.5.8 target spacing) so a tap on one
-       can't land on its neighbour. */
-    .Hero [role="listitem"] { line-height: 2; }
+    /* A row that wraps stays one item: lines within it are tight and
+       indented under the text, the 24px spacing goes between items. */
+    .Hero [role="list"] { display: block; white-space: normal; }
+    .Hero [role="listitem"] {
+        display: block; white-space: pre-wrap; line-height: 1.15;
+        padding: calc((1.5rem - 1.15em) / 2) 0 calc((1.5rem - 1.15em) / 2) 2ch; text-indent: -2ch;
+    }
+    /* The email address stays readable (and copyable) on phones. */
+    .Hero a[href^="mailto:"] .u { display: inline; }
     .Hero .md-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
     .Hero .md-code { padding: 0; }
     .Hero .u { display: none; }
@@ -186,7 +188,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     .content { --fs: clamp(.8125rem, (100vw - 32px) / 60, 1rem); }
     .Hero { display: flex; justify-content: center; }
     .profile { text-align: center; padding: 1em 0; }
-    .profile-stack { height: clamp(280px, 100vh - var(--fs) * 38 - 116px, 750px); }
+    .profile-stack { height: clamp(280px, 100vh - var(--fs) * 24.5 - 19.5rem - 116px, 750px); }
     .Footer { padding-bottom: 10px; }
 }
 
@@ -199,7 +201,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        13px only above 1440px, so big screens aren't a small island. */
     .content {
         --pw: min((100vh - 116px) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 48px - .75rem * 50.5);
-        --fs: clamp(.75rem, min((100vh - 100px) / 40.5, (100vw - 48px - var(--pw)) / 50.5, .8125rem + max(0px, (100vw - 1440px) / 64)), 1.75rem);
+        --fs: clamp(.75rem, min((100vh - 100px - 19.5rem) / 24.5, (100vw - 48px - var(--pw)) / 50.5, .8125rem + max(0px, (100vw - 1440px) / 64)), 1.75rem);
         display: flex; align-items: center;
     }
     /* Each column centres its content; the text column is at least half

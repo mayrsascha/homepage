@@ -30,7 +30,8 @@ if (!converged.includes('class="h"') || !converged.includes('<h1')) {
 // imperceptible. No blur filter at all. Served as a normal file (tiny
 // enough to arrive in the first burst with the HTML).
 //
-// Primary placeholder is AVIF at the base resolution (500px, q18, 10-bit, ~4.7KB):
+// Primary placeholder is AVIF at the base resolution (500px, q18, 10-bit, ~4.4KB;
+// alpha at q25, not q18: fewer faint blocks around the edges for ~180 bytes):
 // at the same byte budget AVIF keeps edges and texture that the 250px WebP
 // smears (SSIM vs the real photo: 0.88 vs 0.77). The WebP stays as the
 // <picture> fallback for browsers without AVIF (Safari < 16.4).
@@ -56,7 +57,7 @@ const images = [
   // Placeholders: from the 500px scale, the size the photo shows at on a
   // typical laptop.
   { out: 'src/assets/profile-lqip.avif', probe: 'avifenc --version && sips --help', pkg: 'libavif',
-    cmd: `sips -Z 750 src/assets/profile.png --out ${tmp(500)} && avifenc -q 18 -s 0 -d 10 --yuv 420 -j 8 ${tmp(500)} src/assets/profile-lqip.avif` },
+    cmd: `sips -Z 750 src/assets/profile.png --out ${tmp(500)} && avifenc -q 18 --qalpha 25 -s 0 -d 10 --yuv 420 -j 8 ${tmp(500)} src/assets/profile-lqip.avif` },
   { out: 'public/profile-lqip.webp', probe: 'cwebp -version', pkg: 'webp',
     cmd: 'cwebp -quiet -resize 250 0 -q 10 src/assets/profile.png -o public/profile-lqip.webp' },
 ];
