@@ -30,6 +30,12 @@ html.js-dark {
     --hl-section: #81a2be; --hl-string: #b5bd68; --hl-link: #de935f; --hl-bullet: #b5bd68;
 }
 html.js-dark body { background-color: var(--bg); }
+/* The canvas carries the theme colour too, so the page shows it while the
+   text is held (html.ph-wait, set in index.html). */
+html { background-color: var(--bg); }
+/* Only the text waits: hiding the photo's ancestors would also hide the
+   placeholder and break its cross-fade. */
+.ph-wait .Hero, .ph-wait .Footer { visibility: hidden; }
 
 /* ---------- Layout: body is the flex column, main grows ---------- */
 body { display: flex; flex-direction: column; }

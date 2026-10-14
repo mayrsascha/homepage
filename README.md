@@ -65,7 +65,11 @@ Layouts (`src/style.css`):
 
 The photo is a cross-fade stack: a placeholder paints underneath, the real
 photo sits on top at `opacity: 0` and fades in once it has loaded **and
-decoded**. The placeholder is then hidden.
+decoded**. The placeholder is then hidden. It is decoded synchronously,
+and where it still isn't loaded when the page is parsed (Safari loads even
+data URIs after the first paint), the text waits for it (at most 300 ms),
+so text and photo always appear in the same frame and a reload never
+blinks the photo.
 
 `generate.mjs` builds these from `src/assets/profile.png` (the 1280×1920
 source photo; not published):
