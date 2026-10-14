@@ -46,18 +46,23 @@ it into `index.html`. `pnpm build` does this automatically.
 ### Profile photo
 
 The photo is a cross-fade stack: a placeholder paints underneath, the real
-`public/profile.webp` sits on top at `opacity: 0` and fades in once it has
-loaded **and decoded**. The placeholder is then hidden.
+photo sits on top at `opacity: 0` and fades in once it has loaded **and
+decoded**. The placeholder is then hidden.
 
-`generate.mjs` builds two placeholders from `public/profile.png`:
+`generate.mjs` builds these from `public/profile.png`:
 
-- `profile-lqip.avif`: full resolution, ~4.7 KB (primary)
-- `profile-lqip.webp`: half resolution, ~5 KB (fallback for browsers without AVIF)
+- `profile.avif`: the real photo, ~23 KB (`profile.webp`, 54 KB, is the
+  hand-made fallback for browsers without AVIF)
+- `profile-lqip.avif`: placeholder, full resolution, ~4.7 KB
+- `profile-lqip.webp`: placeholder fallback, half resolution, ~5 KB
+
+Photos and icons are cached for a week (`netlify.toml`); the HTML is always
+revalidated.
 
 The tools (`avifenc`, `cwebp`; `brew install libavif webp`) aren't on
 Netlify, so the build there uses the committed files. After changing
 `profile.png`, run `pnpm generate` locally and commit the regenerated
-placeholders.
+files.
 
 `public/og.png` (the 1200×630 link-preview image) was generated once and is
 not part of the pipeline. Regenerate it by hand if the photo or tagline

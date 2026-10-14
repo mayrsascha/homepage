@@ -1,17 +1,11 @@
 /* Build-time sync for the homepage's static content:
    1. Converged hljs markup -> the code block in index.html (byte-identical)
-   2. Placeholder for the profile photo (public/profile-lqip.avif + .webp fallback)
+   2. Profile photo files from public/profile.png: the sharp AVIF and the
+      placeholder (AVIF + WebP fallback)
 
    The converged markup is the exact hljs output the old runtime produced
    (extracted once from the live DOM). To change site content, edit
    src/Intro.converged.html directly (or re-derive via browser + hljs).
-
-   The LQIP is a ~25px blurred WebP of public/profile.png, base64-inlined
-   (<1KB) so first paint shows a blurry version of the real photo instead
-   of an empty box. Regenerates automatically from the source image when
-   cwebp is available (local dev); on CI without cwebp (Netlify) it reuses
-   the committed src/ProfileLqip.b64 so the build never breaks.
-   After changing profile.png locally, commit the updated ProfileLqip.b64.
 
    Run: node scripts/generate.mjs */
 import { readFileSync, writeFileSync, existsSync } from 'fs';
@@ -47,21 +41,26 @@ const has = (cmd) => {
   try { execSync(cmd, { stdio: 'ignore' }); return true; }
   catch { return false; }
 };
-const placeholders = [
+const images = [
+  // Real photo: q50 4:4:4 is visually identical to the old 54KB WebP at
+  // retina zoom (SSIM 0.975) for 23KB. public/profile.webp (hand-made) stays
+  // as the <picture> fallback.
+  { out: 'public/profile.avif', probe: 'avifenc --version', pkg: 'libavif',
+    cmd: 'avifenc -q 50 --qalpha 60 -s 0 -d 10 --yuv 444 -j 8 public/profile.png public/profile.avif' },
   { out: 'public/profile-lqip.avif', probe: 'avifenc --version', pkg: 'libavif',
     cmd: 'avifenc -q 18 -s 0 -d 10 --yuv 420 -j 8 public/profile.png public/profile-lqip.avif' },
   { out: 'public/profile-lqip.webp', probe: 'cwebp -version', pkg: 'webp',
     cmd: 'cwebp -quiet -resize 250 0 -q 10 public/profile.png -o public/profile-lqip.webp' },
 ];
-for (const p of placeholders) {
+for (const p of images) {
   if (has(p.probe)) {
     execSync(p.cmd, { stdio: 'ignore' });
-    console.log(`placeholder: regenerated ${p.out} from profile.png`);
+    console.log(`image: regenerated ${p.out} from profile.png`);
   } else if (existsSync(p.out)) {
     console.log(`NOTE: ${p.probe.split(' ')[0]} not available — using committed ${p.out}.`,
       `Regenerate locally (brew install ${p.pkg}) after changing profile.png.`);
   } else {
-    throw new Error(`No placeholder available: ${p.probe.split(' ')[0]} missing and ${p.out} not found`);
+    throw new Error(`Image not available: ${p.probe.split(' ')[0]} missing and ${p.out} not found`);
   }
 }
 const placeholderBytes = readFileSync('public/profile-lqip.avif').length;
