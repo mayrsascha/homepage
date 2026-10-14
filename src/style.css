@@ -19,9 +19,11 @@ button::-moz-focus-inner { border-style: none; padding: 0; }
 button:-moz-focusring { outline: 1px dotted ButtonText; }
 
 /* ---------- Theme: solarized-light / tomorrow-night ---------- */
+/* The light accents are Solarized's, darkened just enough (same hue and
+   saturation) to reach WCAG AA 4.5:1 on the cream background. */
 :root {
-    --bg: #fdf6e3; --fg: #657b83;
-    --hl-section: #268bd2; --hl-string: #2aa198; --hl-link: #cb4b16; --hl-bullet: #cb4b16;
+    --bg: #fdf6e3; --fg: #5f747c;
+    --hl-section: #2076b3; --hl-string: #217e77; --hl-link: #c44815; --hl-bullet: #c44815;
 }
 html.js-dark {
     --bg: #1d1f21; --fg: #c5c8c6;
@@ -35,14 +37,16 @@ body { display: flex; flex-direction: column; }
 footer { flex-shrink: 0; }
 
 /* ---------- Text block: markdown in a code block ---------- */
-/* Scales with viewport height so the one-pager never scrolls.
-   At >=13px the page needs ~707px; below that text shrinks proportionally. */
+/* --fs is the text size; each layout below sets it, and the photo sizes
+   itself from it so the two stay in proportion. */
 .Hero pre {
-    font-size: clamp(10px, calc((100vh - 82px) / 48), 13px);
+    font-size: var(--fs);
     font-family: monospace;
     line-height: 1.15;
 }
 .Hero pre a { color: unset; text-decoration: none; white-space: pre-wrap; }
+/* Hover/focus underlines the link text, as rendered Markdown would. */
+.Hero pre a:hover .s, .Hero pre a:focus-visible .s { text-decoration: underline; text-underline-offset: .2em; }
 .Hero pre h1, .Hero pre h2 { margin: 0; }
 .Hero pre h1 { font-size: 1.5em; }
 .Hero pre h2 { font-size: 1.25em; }
@@ -63,14 +67,7 @@ footer { flex-shrink: 0; }
    script sets html.profile-loaded). Neither src changes after parse: no
    load-order race, no flash. The box has a locked 500/750 aspect ratio, so
    object-fit: cover only ever scales, never crops. */
-.profile img {
-    width: 100%;
-    max-width: 500px;
-    max-height: calc(100vh - 110px);
-    object-fit: cover;
-    aspect-ratio: 500 / 750;
-}
-.profile-stack { position: relative; display: inline-block; line-height: 0; }
+.profile-stack { position: relative; display: inline-block; line-height: 0; aspect-ratio: 2 / 3; }
 .profile-stack img {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
@@ -101,7 +98,7 @@ footer { flex-shrink: 0; }
    text sizes assume ~70px). */
 .Footer p { margin: .35em 0; }
 .Footer .button {
-    background: inherit; border: none; outline: none; padding: 0;
+    background: inherit; border: none; padding: 0; color: inherit;
     cursor: pointer;
     font-size: 48px; margin-left: 25px; width: 48px; height: 48px;
     display: flex; align-items: center; justify-content: center;
@@ -110,22 +107,36 @@ footer { flex-shrink: 0; }
 .Footer .button .icon-sun { display: none; }
 html.js-dark .Footer .button .icon-sun { display: inline; }
 html.js-dark .Footer .button .icon-moon { display: none; }
-.Footer .github-link { color: inherit; }
-.Footer .github-link svg { width: 48px; height: 48px; margin-left: 25px; color: inherit; }
+.Footer .github-link { color: inherit; display: flex; margin-left: 25px; }
+.Footer .github-link:hover { color: var(--hl-link); }
+/* One visible focus ring for every control (WCAG 2.4.7). */
+a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outline-offset: 2px; border-radius: 2px; }
+.Footer .github-link svg { width: 48px; height: 48px; color: inherit; }
 
-/* ---------- Mobile: photo below the text ---------- */
+/* ---------- Layouts ----------
+   Phones (< 720px): text, then the photo; links reference-style.
+   Portrait tablets and short landscape screens: the same stack, full links.
+   Everything else: text and photo side by side, scaled to fit the screen.
+
+   The text block measures 47em wide with full links, 40em with
+   reference-style links (one more em of slack each: Safari's monospace is
+   slightly wider), and 38em tall (plus the 82px of footer and
+   padding: --fs is capped at (100vh - 82px) / 48 so it never scrolls). */
+
+/* ---------- Phones: photo below the text ---------- */
 @media (max-width: 719px) {
     /* Links become reference-style Markdown ("[Shumi]"): the "(https://…)"
        part is hidden, so each entry fits on one line. Remaining long lines
        wrap instead of being clipped. The inner code padding is dropped to
        give the text the width. */
-    .Hero pre { font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .content { --fs: 12px; }
+    .Hero pre { white-space: pre-wrap; overflow-wrap: anywhere; }
     .Hero code.md { padding: 0; }
     .Hero .u { display: none; }
     /* Photo after the links, smaller and centred: keeps the page short
        without cropping the full-body shot. */
     .profile { text-align: center; padding: 1em 0 .5em; }
-    .profile-stack { width: 60%; max-width: 300px; aspect-ratio: 500 / 750; }
+    .profile-stack { width: 60%; max-width: 300px; }
     /* Footer: text gets the full width (no mid-line breaks), icons sit in a
        row below at the desktop size. */
     .Footer { flex-wrap: wrap; justify-content: center; padding: .5em 10px 1em; }
@@ -134,15 +145,43 @@ html.js-dark .Footer .button .icon-moon { display: none; }
     .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
 }
 
-/* ---------- Desktop: text and photo side by side ---------- */
 @media (min-width: 720px) {
-    .content { display: flex; align-items: center; }
+    .Footer { justify-content: center; padding: 0; }
+    .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
+}
+
+/* ---------- Portrait tablets, phones in landscape: stacked, full links ----------
+   Side by side, each column would be too narrow for the links. The photo
+   takes the height the text and footer leave (it scrolls only below 280px). */
+@media (min-width: 720px) and (orientation: portrait), (min-width: 720px) and (max-height: 499px) {
+    .content { --fs: clamp(13px, (100vw - 32px) / 60, 16px); }
+    .Hero { display: flex; justify-content: center; }
+    .profile { text-align: center; padding: 1em 0; }
+    .profile-stack { height: clamp(280px, 100vh - var(--fs) * 38 - 106px, 750px); }
+}
+
+/* ---------- Landscape: text and photo side by side ---------- */
+@media (min-width: 720px) and (orientation: landscape) and (min-height: 500px) {
+    /* The text fits the screen height and its half of the width, and grows
+       past 13px only above 1440px wide, so big screens aren't a small
+       island in the middle. */
+    .content {
+        --fs: clamp(10px, min((100vh - 82px) / 48, (50vw - 16px) / 48, 13px + max(0px, (100vw - 1440px) / 64)), 28px);
+        display: flex; align-items: center;
+    }
     .Hero, .profile { width: 50%; display: inline-flex; justify-content: center; }
     .Hero { align-items: center; }
     .profile { align-items: flex-start; }
-    /* Fit above the fold without cropping: width derives from the viewport
-       height; height follows via aspect-ratio, so both shrink together. */
-    .profile-stack { width: min(500px, calc((100vh - 110px) * 500 / 750)); aspect-ratio: 500 / 750; }
-    .Footer { justify-content: center; padding: 0; }
-    .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
+    /* The photo grows with the text (500px at 13px) and fits above the fold
+       without cropping. */
+    .profile-stack { width: min(var(--fs) * 500 / 13, (100vh - 110px) * 2 / 3, 50vw - 16px); }
+    /* The footer grows at half the text's rate (it has ~94px under the photo). */
+    .Footer > div { font-size: clamp(13px, 13px + (100vw - 1440px) / 128, 18px); }
+}
+/* Half the width is too narrow for full links below 1160px (they'd need
+   under 12px text): switch to reference-style links, which fit at 13px. */
+@media (min-width: 720px) and (max-width: 1159px) and (orientation: landscape) and (min-height: 500px) {
+    .content { --fs: clamp(10px, min((100vh - 82px) / 48, (50vw - 16px) / 41), 13px); }
+    .Hero pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .Hero .u { display: none; }
 }

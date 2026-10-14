@@ -48,8 +48,17 @@ No framework, no analytics script: the built page is a single ~10 kB
 readers skip the markdown syntax). Edit it, then run `pnpm generate` to copy
 it into `index.html`. `pnpm build` does this automatically.
 
-On phones (< 720 px) links render reference-style (`[Shumi]`): each link's
-`(https://…)` part sits in a `span.u` that the mobile CSS hides.
+Layouts (`src/style.css`):
+
+- **Phones** (< 720 px): text, then the photo. Links render reference-style
+  (`[Shumi]`): each link's `(https://…)` part sits in a `span.u` that the
+  CSS hides.
+- **Portrait tablets, phones in landscape**: the same stack with full links;
+  the photo takes the height that's left.
+- **Landscape** (≥ 720 px wide, ≥ 500 px tall): text and photo side by side,
+  scaled to fit the screen with no scrolling. Text is 13 px up to 1440 px
+  wide and grows beyond that; the photo grows with it. Below 1160 px wide,
+  links switch to reference-style so they fit half the width.
 
 ### Profile photo
 
@@ -57,20 +66,24 @@ The photo is a cross-fade stack: a placeholder paints underneath, the real
 photo sits on top at `opacity: 0` and fades in once it has loaded **and
 decoded**. The placeholder is then hidden.
 
-`generate.mjs` builds these from `src/assets/profile.png` (the source photo;
-not published):
+`generate.mjs` builds these from `src/assets/profile.png` (the 1280×1920
+source photo; not published):
 
-- `src/assets/profile.avif`: the real photo, ~23 KB (`src/assets/profile.webp`, 54 KB, is the
-  hand-made fallback for browsers without AVIF)
-- `src/assets/profile-lqip.avif`: placeholder, full resolution, ~4.7 KB, embedded in
+- `src/assets/profile-{500,800,1280}.avif`: the real photo, ~20 / 48 /
+  120 KB, picked by `srcset`/`sizes` (and the matching preload) so phones
+  get the small one and big or high-DPI screens a sharp one. The
+  `profile-{500,800,1280}.webp` files are the fallback for browsers without
+  AVIF.
+- `src/assets/profile-lqip.avif`: placeholder, 500 px, ~4.2 KB, embedded in
   `index.html` as a data URI so it paints with the first response
-- `profile-lqip.webp`: placeholder fallback, half resolution, ~5 KB
+- `profile-lqip.webp`: placeholder fallback, half resolution, ~4.4 KB
 
 The real photo goes through Vite, so it ships with a content hash in its
-name (`/assets/profile-<hash>.avif`) and is cached for a year as immutable.
+name (`/assets/profile-500-<hash>.avif`) and is cached for a year as immutable.
 Unhashed icons get 30 days; the HTML is always revalidated (`netlify.toml`).
 
-The tools (`avifenc`, `cwebp`; `brew install libavif webp`) aren't on
+The tools (`avifenc`, `cwebp`; `brew install libavif webp`; plus macOS
+`sips` for resizing) aren't on
 Netlify, so the build there uses the committed files. After changing
 `profile.png`, run `pnpm generate` locally and commit the regenerated
 files.

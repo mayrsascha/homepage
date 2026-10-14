@@ -1,7 +1,7 @@
 /* Build-time sync for the homepage's static content:
    1. Converged markdown markup -> the code block in index.html (byte-identical)
-   2. Profile photo files from src/assets/profile.png: the sharp AVIF and the
-      placeholder (AVIF + WebP fallback)
+   2. Profile photo files from src/assets/profile.png: the real photo at three
+      widths (AVIF + WebP fallback) and the placeholder (AVIF + WebP fallback)
 
    The converged markup started as the highlight.js output of the old React
    runtime; its class names are now shortened (h, s, l, b, e, w; styled in
@@ -29,9 +29,9 @@ if (!converged.includes('class="h"') || !converged.includes('<h1')) {
 // imperceptible. No blur filter at all. Served as a normal file (tiny
 // enough to arrive in the first burst with the HTML).
 //
-// Primary placeholder is AVIF at FULL resolution (500px, q18, 10-bit, ~4.7KB):
+// Primary placeholder is AVIF at the base resolution (500px, q18, 10-bit, ~4.7KB):
 // at the same byte budget AVIF keeps edges and texture that the 250px WebP
-// smears (SSIM vs profile.webp: 0.88 vs 0.77). The WebP stays as the
+// smears (SSIM vs the real photo: 0.88 vs 0.77). The WebP stays as the
 // <picture> fallback for browsers without AVIF (Safari < 16.4).
 //
 // cwebp/avifenc ship on dev machines (homebrew: webp, libavif) but NOT in the
@@ -41,14 +41,21 @@ const has = (cmd) => {
   try { execSync(cmd, { stdio: 'ignore' }); return true; }
   catch { return false; }
 };
+// The source photo is 1280x1920. The real photo ships at three widths
+// (srcset in index.html) so big and high-DPI screens get a sharp image and
+// phones a small one. avifenc can't resize, so sips (macOS) scales the
+// source first. q50 4:4:4 AVIF: ~20 / 48 / 120 KB.
+const tmp = (w) => join(tmpdir(), `homepage-profile-${w}.png`);
+const avif = (w) => ({ out: `src/assets/profile-${w}.avif`, probe: 'avifenc --version && sips --help', pkg: 'libavif',
+  cmd: `sips -Z ${w * 3 / 2} src/assets/profile.png --out ${tmp(w)} && avifenc -q 50 --qalpha 60 -s 0 -d 10 --yuv 444 -j 8 ${tmp(w)} src/assets/profile-${w}.avif` });
+const webp = (w) => ({ out: `src/assets/profile-${w}.webp`, probe: 'cwebp -version', pkg: 'webp',
+  cmd: `cwebp -quiet -resize ${w} 0 -q 75 -alpha_q 80 src/assets/profile.png -o src/assets/profile-${w}.webp` });
 const images = [
-  // Real photo: q50 4:4:4 is visually identical to the old 54KB WebP at
-  // retina zoom (SSIM 0.975) for 23KB. src/assets/profile.webp (hand-made) stays
-  // as the <picture> fallback.
-  { out: 'src/assets/profile.avif', probe: 'avifenc --version', pkg: 'libavif',
-    cmd: 'avifenc -q 50 --qalpha 60 -s 0 -d 10 --yuv 444 -j 8 src/assets/profile.png src/assets/profile.avif' },
-  { out: 'src/assets/profile-lqip.avif', probe: 'avifenc --version', pkg: 'libavif',
-    cmd: 'avifenc -q 18 -s 0 -d 10 --yuv 420 -j 8 src/assets/profile.png src/assets/profile-lqip.avif' },
+  ...[500, 800, 1280].flatMap((w) => [avif(w), webp(w)]),
+  // Placeholders: from the 500px scale, the size the photo shows at on a
+  // typical laptop.
+  { out: 'src/assets/profile-lqip.avif', probe: 'avifenc --version && sips --help', pkg: 'libavif',
+    cmd: `sips -Z 750 src/assets/profile.png --out ${tmp(500)} && avifenc -q 18 -s 0 -d 10 --yuv 420 -j 8 ${tmp(500)} src/assets/profile-lqip.avif` },
   { out: 'public/profile-lqip.webp', probe: 'cwebp -version', pkg: 'webp',
     cmd: 'cwebp -quiet -resize 250 0 -q 10 src/assets/profile.png -o public/profile-lqip.webp' },
 ];
