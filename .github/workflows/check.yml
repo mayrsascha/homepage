@@ -1,8 +1,10 @@
-# Keeps the footer honest: the build fails over the 10 kB budget
-# (vite.config.ts) or if the CSP would block an inline script/style
-# (scripts/verify-csp.mjs), and Lighthouse CI must score 100 for
-# accessibility, best practices and SEO, and at least 98 for performance
-# (2 points of slack for CI timing noise; it scores 100 locally).
+# Keeps the footer honest: the build fails over the 10.5 kB budget
+# (vite.config.ts) or if the CSP would block an inline script/style or the
+# theme copies drifted (scripts/verify-build.mjs), and Lighthouse CI, run
+# against the build served with its real headers (scripts/serve.mjs), must
+# score 100 for accessibility, best practices and SEO, and at least 98 for
+# performance (2 points of slack for CI timing noise; it scores 100
+# locally).
 name: Check
 
 on:
@@ -13,19 +15,29 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # The committed index.html must match src/Intro.converged.html
-      # (run `pnpm generate` after editing the content).
-      - run: node scripts/verify-skeleton.mjs
-      - run: pnpm run build
+      # Builds, then fails if that changed a committed file: index.html must
+      # already match src/Intro.converged.html and the photos (run
+      # `pnpm generate` after editing either).
+      - run: pnpm run check
+      # Without the encoders (as on Netlify) the committed photos are used
+      # locally, and a stale photo stops the build on CI.
+      - run: bash scripts/test-netlify-fallback.sh
       - run: pnpm exec lhci autorun

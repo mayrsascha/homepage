@@ -18,11 +18,12 @@ No framework, no analytics script: the built page is a single ~10 kB
 |---------|-------------|
 | `pnpm install` | Install dependencies |
 | `pnpm dev` | Dev server at localhost:3000 |
-| `pnpm build` | Production build to `build/` (runs `scripts/generate.mjs` first, `scripts/verify-csp.mjs` after) |
+| `pnpm build` | Production build to `build/` (runs `scripts/generate.mjs` and `tsc -b` first, `scripts/verify-build.mjs` after) |
+| `pnpm check` | `build`, then fail if it changed a committed file (what CI runs) |
 | `pnpm preview` | Preview the production build |
-| `pnpm generate` | Sync content and placeholders into `index.html` |
-| `node scripts/verify-skeleton.mjs` | Check the text block in `index.html` matches `src/Intro.converged.html` |
-| `scripts/test-netlify-fallback.sh` | Run `generate` with `cwebp`/`avifenc` hidden, as on Netlify |
+| `node scripts/serve.mjs` | Serve `build/` with its `_headers` (CSP, caching), as Netlify does, at localhost:5180 |
+| `pnpm generate` | Sync content, placeholder and photo `sizes` into `index.html` |
+| `scripts/test-netlify-fallback.sh` | Test the photo fallback with `cwebp`/`avifenc` hidden, as on Netlify |
 | `node scripts/generate.mjs --force` | Re-encode the photos even though `profile.png` didn't change |
 
 ## How it fits together
@@ -41,9 +42,11 @@ No framework, no analytics script: the built page is a single ~10 kB
   images; minify the hand-written inline scripts and strip HTML comments;
   hash every inline script and style (SHA-256) into a
   Content-Security-Policy in `build/_headers`, so only exactly those can
-  run, together with the immutable caching of each hashed photo; and fail
-  the build over the size budget (see Checks). The other headers are
-  static, in `netlify.toml`.
+  run, together with the caching rules (see Profile photo); and fail the
+  build over the size budget (see Checks). The other headers are static,
+  in `netlify.toml`.
+- **`tsconfig.app.json`** checks the page's TypeScript, **`tsconfig.node.json`**
+  the Vite config (`tsc -b` runs both).
 - **Printing** always uses the light colours (printers skip the dark
   background) and fits one page with the URLs, whatever the paper.
 - **Without JavaScript** the page still works: a `<noscript>` style shows the
@@ -114,8 +117,8 @@ The real photo goes through Vite, so it ships with a content hash in its
 name (`/assets/profile-500-<hash>.avif`) and is cached for a year as immutable
 (`build/_headers`, file by file, so a 404 under `/assets/` isn't).
 The unhashed files (icons including `favicon.svg`, `og.png`, `sascha-mayr.jpg`, the WebP
-placeholder) get 30 days, also named one by one; the HTML is always
-revalidated (`netlify.toml`).
+placeholder) get 30 days, also named one by one (`MONTH_CACHED` in
+`vite.config.ts`); the HTML is always revalidated.
 
 The tools (`avifenc`, `cwebp`; `brew install libavif webp`; plus macOS
 `sips` for resizing) aren't on Netlify, so the build there uses the
@@ -126,6 +129,8 @@ files.
 `generate.mjs` skips the encoding when `src/assets/profile.stamp` (a hash of
 `profile.png` and the encoder commands) matches; `--force` re-encodes. On
 Netlify and CI a mismatch fails the build rather than deploy stale photos.
+The photo's `srcset` and `sizes` in `index.html` are written by
+`generate.mjs` too, from the same layout measurements as `src/style.css`.
 
 `public/og.png` (the 1200×630 link-preview image) and `public/sascha-mayr.jpg`
 (800×1200 on the page background, the stable photo URL in the JSON-LD) were
@@ -137,26 +142,29 @@ the photo or tagline changes.
 - **Size budget:** `vite.config.ts` fails the build if the page is over
   10.5 kB gzipped, so the footer's "10 kB" stays true. It also minifies
   the hand-written inline scripts and strips HTML comments.
-- **CSP:** `scripts/verify-csp.mjs` (part of `pnpm build`) fails if any
+- **`scripts/verify-build.mjs`** (part of `pnpm build`) fails if any
   inline script or style in the built pages lacks its hash in
   `build/_headers`, or if a stylesheet or script is still external (the
-  build itself also fails when it can't inline one). Local previews and
-  Lighthouse CI don't send the policy, so nothing else would notice before
-  production. It also fails if the photo's three `sizes` copies (preload,
-  AVIF source, WebP img) differ, which would download the photo twice.
+  build itself also fails when it can't inline one). It also checks the
+  theme copies that `src/style.css` can't reach (the `noscript` style, the
+  inline scripts, the `theme-color` tags, `src/main.ts`, `404.html`): their
+  colours and the storage key must match.
 - **CI** (`.github/workflows/check.yml`, on every push and PR; actions
-  pinned by commit, kept current by Dependabot): the content in
-  `index.html` is in sync, the build passes the budget and the CSP check,
-  and Lighthouse CI (`lighthouserc.json`, 3 mobile runs) scores 100 for
-  accessibility, best practices and SEO, and at least 98 for performance
-  (2 points of slack for CI timing noise).
+  pinned by commit, kept current by Dependabot): `pnpm check` (the build
+  passes the budget and `verify-build`, and leaves `index.html` and the
+  photos unchanged), the Netlify fallback test, and Lighthouse CI
+  (`lighthouserc.json`, 3 mobile runs) against `scripts/serve.mjs`, so
+  the page loads under its real CSP: a blocked script is a console error,
+  which fails best practices. It must score 100 for accessibility, best
+  practices and SEO, and at least 98 for performance (2 points of slack
+  for CI timing noise).
 
 ## Deploy
 
-Netlify, auto-deploys from `master` (Node 24, `pnpm run build`, publish
-`build/`). `netlify.toml` holds the security headers (HSTS with
-`includeSubDomains; preload`, Permissions-Policy, framing, MIME sniffing),
-the caching rules and a few redirects: `/index.html` goes to `/`, and
+Netlify, auto-deploys from `master` (Node from `.nvmrc`, `pnpm run build`,
+publish `build/`). `netlify.toml` holds the security headers (HSTS with
+`includeSubDomains; preload`, Permissions-Policy, framing, MIME sniffing)
+and a few redirects: `/index.html` goes to `/`, and
 `/404` and `/404.html` answer 404. Unknown URLs get `404.html` (built by
 Vite, so it's covered by the CSP) with a real 404 status; it follows the
 same remembered light/dark choice.

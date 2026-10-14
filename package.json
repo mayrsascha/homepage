@@ -10,11 +10,13 @@
   "scripts": {
     "dev": "vite",
     "generate": "node scripts/generate.mjs",
-    "build": "node scripts/generate.mjs && tsc && vite build && node scripts/verify-csp.mjs",
-    "preview": "vite preview"
+    "build": "node scripts/generate.mjs && tsc -b && vite build && node scripts/verify-build.mjs",
+    "preview": "vite preview",
+    "check": "pnpm run build && git diff --exit-code -- index.html src/assets public"
   },
   "devDependencies": {
     "@lhci/cli": "0.15.1",
+    "@types/node": "26.6.5",
     "lightningcss": "1.33.0",
     "typescript": "^7",
     "vite": "^8"

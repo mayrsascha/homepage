@@ -1,18 +1,20 @@
 /* Build-time sync for the homepage's static content:
-   1. Converged markdown markup -> the code block in index.html (byte-identical)
+   1. Check src/Intro.converged.html (the converged markdown markup)
    2. Profile photo files from src/assets/profile.png: the real photo at three
       widths (AVIF + WebP fallback) and the placeholder (AVIF + WebP fallback)
+   3. Sync index.html: the markup into the code block (byte-identical), the
+      AVIF placeholder as a data URI, and the photo's srcset/sizes
 
    The converged markup started as the highlight.js output of the old React
    runtime; its class names are now shortened (h, s, l, b, e, w; styled in
    src/style.css). To change site content, edit src/Intro.converged.html.
 
    Run: node scripts/generate.mjs */
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { execSync } from 'child_process';
-import { createHash } from 'crypto';
-import { tmpdir } from 'os';
-import { join } from 'path';
+import { readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 // ---------- 1) Converged markdown markup ----------
 const converged = readFileSync('src/Intro.converged.html', 'utf8');
@@ -21,46 +23,48 @@ if (!converged.includes('class="h"') || !converged.includes('<h1')) {
   throw new Error('src/Intro.converged.html does not look like the converged markdown markup');
 }
 
-
-// ---------- 2) Profile placeholder (full-res AVIF + half-res WebP, no blur) ----------
-// A 24px blurred thumbnail looked like a "ghost" next to the final image —
-// too different, so the swap read as a flash. Instead: a HALF-RESOLUTION,
-// decent-quality WebP (250px, q10, ~5KB). Same composition as the real
-// image, just slightly soft — the swap from placeholder to full-res is
-// imperceptible. No blur filter at all. Served as a normal file (tiny
-// enough to arrive in the first burst with the HTML).
-//
-// Primary placeholder is AVIF at the base resolution (500px, q18, 10-bit, ~4.4KB;
-// alpha at q25, not q18: fewer faint blocks around the edges for ~180 bytes):
-// at the same byte budget AVIF keeps edges and texture that the 250px WebP
-// smears (SSIM vs the real photo: 0.88 vs 0.77). The WebP stays as the
-// <picture> fallback for browsers without AVIF (Safari < 16.4).
+// ---------- 2) Profile photo and placeholder ----------
+// The placeholder is the photo itself at low quality, not a blurred
+// thumbnail (that read as a "ghost", and the swap as a flash): AVIF at
+// 500px (q18, 10-bit, ~4.4KB; alpha at q25, not q18: fewer faint blocks
+// around the edges for ~180 bytes), embedded in index.html. The fallback
+// for browsers without AVIF (Safari < 16.4) is a half-resolution WebP
+// (250px, q10, ~4.4KB) served as a file: at the same size AVIF keeps the
+// edges and texture the WebP smears (SSIM vs the real photo: 0.88 vs 0.77).
 //
 // cwebp/avifenc ship on dev machines (homebrew: webp, libavif) but NOT in the
 // Netlify build image — when absent, the committed files are used.
 // After changing profile.png locally, commit the regenerated files.
-const has = (cmd) => {
-  try { execSync(cmd, { stdio: 'ignore' }); return true; }
+const run = ([bin, ...args], stdio) => execFileSync(bin, args, { stdio });
+const has = (steps) => {
+  try { steps.forEach((step) => run(step, 'ignore')); return true; }
   catch { return false; }
 };
 // The source photo is 1280x1920. The real photo ships at three widths
 // (srcset in index.html) so big and high-DPI screens get a sharp image and
 // phones a small one. avifenc can't resize, so sips (macOS) scales the
 // source first. q50 4:4:4 AVIF: ~20 / 48 / 120 KB.
+// Each image is a list of commands (argument arrays, no shell); `tmp` is a
+// scaled copy that avifenc encodes and that is deleted afterwards.
 const tmp = (w) => join(tmpdir(), `homepage-profile-${w}.png`);
-const avif = (w) => ({ out: `src/assets/profile-${w}.avif`, probe: 'avifenc --version && sips --help', pkg: 'libavif',
-  cmd: `sips -Z ${w * 3 / 2} src/assets/profile.png --out ${tmp(w)} && avifenc -q 50 --qalpha 60 -s 0 -d 10 --yuv 444 -j 8 ${tmp(w)} src/assets/profile-${w}.avif` });
-const webp = (w) => ({ out: `src/assets/profile-${w}.webp`, probe: 'cwebp -version', pkg: 'webp',
-  cmd: `cwebp -quiet -resize ${w} 0 -q 75 -alpha_q 80 src/assets/profile.png -o src/assets/profile-${w}.webp` });
+const AVIF_PROBE = [['avifenc', '--version'], ['sips', '--help']];
+const WEBP_PROBE = [['cwebp', '-version']];
+const avif = (w, h, quality, out) => ({ out, probe: AVIF_PROBE, pkg: 'libavif', tmp: tmp(w), steps: [
+  ['sips', '-Z', String(h), 'src/assets/profile.png', '--out', tmp(w)],
+  ['avifenc', ...quality, '-s', '0', '-d', '10', '-j', '8', tmp(w), out]] });
+const webp = (args, out) => ({ out, probe: WEBP_PROBE, pkg: 'webp',
+  steps: [['cwebp', '-quiet', ...args, 'src/assets/profile.png', '-o', out]] });
 const images = [
-  ...[500, 800, 1280].flatMap((w) => [avif(w), webp(w)]),
+  ...[500, 800, 1280].flatMap((w) => [
+    avif(w, w * 3 / 2, ['-q', '50', '--qalpha', '60', '--yuv', '444'], `src/assets/profile-${w}.avif`),
+    webp(['-resize', String(w), '0', '-q', '75', '-alpha_q', '80'], `src/assets/profile-${w}.webp`)]),
   // Placeholders: from the 500px scale, the size the photo shows at on a
   // typical laptop.
-  { out: 'src/assets/profile-lqip.avif', probe: 'avifenc --version && sips --help', pkg: 'libavif',
-    cmd: `sips -Z 750 src/assets/profile.png --out ${tmp(500)} && avifenc -q 18 --qalpha 25 -s 0 -d 10 --yuv 420 -j 8 ${tmp(500)} src/assets/profile-lqip.avif` },
-  { out: 'public/profile-lqip.webp', probe: 'cwebp -version', pkg: 'webp',
-    cmd: 'cwebp -quiet -resize 250 0 -q 10 src/assets/profile.png -o public/profile-lqip.webp' },
+  avif(500, 750, ['-q', '18', '--qalpha', '25', '--yuv', '420'], 'src/assets/profile-lqip.avif'),
+  webp(['-resize', '250', '0', '-q', '10'], 'public/profile-lqip.webp'),
 ];
+// The commands as one string each, for the stamp below.
+const describe = (p) => p.steps.map((step) => step.join(' ')).join(' && ');
 // Encoding all of them takes ~15s, so skip it when neither profile.png nor
 // the commands changed since the committed files were made (the stamp file
 // records both). `node scripts/generate.mjs --force` re-encodes anyway.
@@ -69,7 +73,7 @@ const stamp = createHash('sha256')
   .update(readFileSync('src/assets/profile.png'))
   // The commands contain the temp dir, which differs per machine: hash them
   // without it, or the stamp never matches anywhere else.
-  .update(JSON.stringify(images.map((p) => p.cmd.replaceAll(tmpdir(), '<tmp>'))))
+  .update(JSON.stringify(images.map((p) => describe(p).replaceAll(tmpdir(), '<tmp>'))))
   .digest('hex');
 const upToDate = !process.argv.includes('--force')
   && existsSync(STAMP) && readFileSync(STAMP, 'utf8').trim() === stamp
@@ -77,15 +81,18 @@ const upToDate = !process.argv.includes('--force')
 if (upToDate) console.log('images: up to date with profile.png (stamp matches), not re-encoded');
 let encodedAll = !upToDate;
 for (const p of upToDate ? [] : images) {
+  const tool = p.probe[0][0];
   if (has(p.probe)) {
-    execSync(p.cmd, { stdio: 'ignore' });
+    // stderr stays visible: a failing encoder says why.
+    try { p.steps.forEach((step) => run(step, ['ignore', 'ignore', 'inherit'])); }
+    finally { if (p.tmp) rmSync(p.tmp, { force: true }); }
     console.log(`image: regenerated ${p.out} from profile.png`);
   } else if (existsSync(p.out)) {
     encodedAll = false;
-    console.log(`NOTE: ${p.probe.split(' ')[0]} not available — using committed ${p.out}.`,
+    console.log(`NOTE: ${tool} not available — using committed ${p.out}.`,
       `Regenerate locally (brew install ${p.pkg}) after changing profile.png.`);
   } else {
-    throw new Error(`Image not available: ${p.probe.split(' ')[0]} missing and ${p.out} not found`);
+    throw new Error(`Image not available: ${tool} missing and ${p.out} not found`);
   }
 }
 // Only a complete re-encode may vouch for every file: with one tool missing,
@@ -94,7 +101,7 @@ if (encodedAll) writeFileSync(STAMP, stamp + '\n');
 // On Netlify and CI the tools are missing: a changed profile.png would
 // deploy the old photos without a word.
 if (!upToDate && !encodedAll && (process.env.CI || process.env.NETLIFY))
-  throw new Error('profile.png changed, but the images were not re-encoded: run pnpm generate locally and commit the results');
+  throw new Error('The images were not re-encoded (profile.png changed, or --force): run pnpm generate locally and commit the results');
 const placeholderBytes = readFileSync('src/assets/profile-lqip.avif').length;
 
 // ---------- 3) Sync skeleton in index.html ----------
@@ -124,6 +131,35 @@ index = index.replace(lqipRe, () => `<source srcset="data:image/avif;base64,${lq
 if (!index.includes('<img class="profile-placeholder" src="/profile-lqip.webp"')) {
   throw new Error('Skeleton profile placeholder img not found (expected /profile-lqip.webp stack)');
 }
+
+// 3d) the real photo's srcset and sizes, written into the preload and the
+//     AVIF <source> (the WebP <img> gets the same sizes): if the preload's
+//     drifted, the browser would fetch the photo twice. The sizes mirror
+//     the CSS layouts in src/style.css, from the same measurements:
+const TEXT_EM = 33.7, TEXT_REM = 21; // text block height: 33.7em + 21rem
+const RESERVE = 116; // footer and padding below the stacked photo (px)
+const MIN_H = 280; // the stacked photo's minimum height
+const MIN_W = Math.round(MIN_H * 2 / 3);
+// Stacked layouts: the height the photo leaves at a given text size.
+const stacked = (fs) => `clamp(${MIN_W}px, (100vh - ${Math.round(fs * TEXT_EM + TEXT_REM * 16 + RESERVE)}px) / 1.5, 500px)`;
+const SRCSET = [500, 800, 1280].map((w) => `/src/assets/profile-${w}.avif ${w}w`).join(', ');
+const SIZES = [
+  '(max-width: 499px) 60vw', // phones: 60% wide,
+  '(max-width: 44.99em) and (orientation: portrait) 300px', // at most 300px
+  '(max-width: 39.99em) min(300px, calc((100vh - 2em) / 1.5))', // phones in landscape: fit the height
+  `(orientation: portrait) and (min-width: 62em) ${stacked(16)}`, // stacked, 16px text
+  `(orientation: portrait) ${stacked(13)}`, // stacked, 13px text
+  `(max-height: 499px) ${MIN_W}px`, // short landscape: the minimum
+  `(max-width: 56.49em) ${stacked(13)}`,
+  // Side by side: --pw in src/style.css.
+  'min(calc((100vh - 7.25rem) / 1.5), calc(500px + max(0px, (100vw - 1440px) * .6)), calc(100vw - 48px - 37.875rem))',
+].join(', ');
+const sizesRe = /(imagesizes|sizes)="\(max-width: 499px\)[^"]*"/g;
+if ((index.match(sizesRe) ?? []).length !== 3) throw new Error('Expected the photo sizes in 3 places in index.html');
+index = index.replace(sizesRe, (_m, attr) => `${attr}="${SIZES}"`);
+const srcsetRe = /(imagesrcset|srcset)="\/src\/assets\/profile-500\.avif[^"]*"/g;
+if ((index.match(srcsetRe) ?? []).length !== 2) throw new Error('Expected the AVIF srcset in 2 places in index.html');
+index = index.replace(srcsetRe, (_m, attr) => `${attr}="${SRCSET}"`);
 
 writeFileSync('index.html', index);
 

@@ -36,27 +36,26 @@ html { background-color: var(--bg); }
 
 /* ---------- Layout: body is the flex column, main grows ---------- */
 body { display: flex; flex-direction: column; }
-.content { flex: 1 0 auto; padding: 1em 1em 0; }
-footer { flex-shrink: 0; }
+.content {
+    flex: 1 0 auto; padding: 1em 1em 0;
+    /* The text block's height at the current text size (see Layouts). */
+    --text-h: calc(var(--fs) * 33.7 + 21rem);
+}
 
 /* ---------- Text block: markdown in a code block ---------- */
 /* Divs styled like <pre><code>: the block holds headings, which <pre> and
    <code> (phrasing content only) may not. */
 /* --fs is the text size; each layout below sets it, and the photo sizes
    itself from it so the two stay in proportion. */
-.Hero .md-pre {
-    font-size: var(--fs);
-    line-height: 1.15;
-    white-space: pre;
-}
-.Hero .md-pre a { color: unset; text-decoration: none; white-space: pre-wrap; }
+.Hero .md-pre { font-size: var(--fs); white-space: pre; }
+.Hero .md-pre a { color: inherit; text-decoration: none; white-space: pre-wrap; }
 /* Link rows at least 24px apart on every layout (WCAG 2.5.8 target
    spacing), so a tap or click can't land on the neighbour. The space goes
    between the items, so a project's context line stays with its link; it
    starts under the link text (hanging indent). */
 .Hero [role="list"] { display: block; white-space: normal; }
 .Hero [role="listitem"] {
-    display: block; white-space: pre; line-height: 1.15;
+    display: block; white-space: pre;
     padding: calc((1.5rem - 1.15em) / 2) 0 calc((1.5rem - 1.15em) / 2) 2ch; text-indent: -2ch;
 }
 /* Hover/focus underlines the link text, as rendered Markdown would. */
@@ -67,7 +66,7 @@ footer { flex-shrink: 0; }
 
 /* highlight.js-style classes, shortened: h=section, s=string (link text),
    l=link (URL), b=bullet, e=emphasis, w=strong */
-.md { display: block; overflow-x: auto; padding: .5em; color: var(--fg); }
+.md { overflow-x: auto; padding: .5em; color: var(--fg); }
 .h { color: var(--hl-section); }
 .s { color: var(--hl-string); }
 .l { color: var(--hl-link); }
@@ -84,7 +83,7 @@ footer { flex-shrink: 0; }
 .profile-stack img {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
-    object-fit: cover; display: block;
+    object-fit: cover;
 }
 /* Only the bottom layer gets a backdrop: the real img must stay transparent
    until it paints, or it covers the placeholder with a blank box. */
@@ -98,7 +97,7 @@ footer { flex-shrink: 0; }
 
 /* ---------- Footer ---------- */
 .Footer {
-    width: 100%;
+    flex-shrink: 0;
     text-align: center;
     display: flex;
     justify-content: center;
@@ -117,9 +116,8 @@ footer { flex-shrink: 0; }
     display: flex; align-items: center; justify-content: center;
 }
 /* Both icons are in the DOM; CSS picks per theme. No JS swap, no flash. */
-.Footer .button .icon-sun { display: none; }
-html.js-dark .Footer .button .icon-sun { display: inline; }
-html.js-dark .Footer .button .icon-moon { display: none; }
+.icon-sun, .js-dark .icon-moon { display: none; }
+.js-dark .icon-sun { display: inline; }
 .Footer .github-link { color: inherit; display: flex; margin-left: 25px; }
 .Footer .github-link:hover { color: var(--hl-link); }
 /* One visible focus ring for every control (WCAG 2.4.7). */
@@ -143,9 +141,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
    The text block measures 49.5em wide with full links (one more em of slack:
    Safari's monospace is slightly wider) and 33.7em + 21rem tall (the 14
    link rows are 1.5rem; above ~21px text the rows are 1.15em instead, so
-   49.9em), plus ~6.25rem of footer and padding (rem: the footer grows with the font setting): --fs is capped by both, so
-   the page doesn't scroll down to 12px text. Sizes are in rem: they follow the browser's font-size
-   setting where the layout leaves room. The breakpoints are in em (16px
+   49.9em), plus ~6.25rem of footer and padding (rem: the footer grows
+   with the font setting): --fs is capped by both, so the page doesn't
+   scroll down to 12px text. scripts/generate.mjs derives the photo's
+   sizes attribute from the same numbers. Sizes are in rem: they follow
+   the browser's font-size setting where the layout leaves room. The breakpoints are in em (16px
    at the default setting: 45em = 720px, 56.5em = 904px), so larger text
    switches to the stacked layouts sooner instead of squeezing the photo. */
 
@@ -197,10 +197,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     .content { --fs: clamp(.8125rem, (100vw - 32px) / 60, 1rem); }
     /* Where the photo can't fit whole under the text (at its 280px floor),
        the text fills the first screen and the photo follows on scrolling,
-       as on phones. The *1e5 makes the min-height a step: 0 or the screen. */
-    .Hero { display: flex; justify-content: center; align-items: center; min-height: clamp(0px, (var(--fs) * 33.7 + 23rem + 280px - 100vh) * 1e5, 100vh - 1em); }
+       as on phones. 2rem is the padding above and below the photo; the
+       *1e5 makes the min-height a step: 0 or the screen. */
+    .Hero { display: flex; justify-content: center; align-items: center; min-height: clamp(0px, (var(--text-h) + 2rem + 280px - 100vh) * 1e5, 100vh - 1em); }
     .profile { text-align: center; padding: 1em 0; }
-    .profile-stack { height: clamp(280px, 100vh - var(--fs) * 33.7 - 21rem - 116px, 750px); }
+    .profile-stack { height: clamp(280px, 100vh - var(--text-h) - 116px, 750px); }
 }
 
 /* Phones in landscape (640-719px): full links fit only at 12px. */

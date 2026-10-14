@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <!-- "SM" favicon as an inline SVG (Helvetica Bold glyphs as paths, integer coordinates): no request.
-         /favicon.ico stays as the fallback for browsers without SVG icons. -->
+    <!-- "SM" favicon (Helvetica Bold glyphs as paths). /favicon.ico is the
+         fallback for browsers without SVG icons. -->
     <link rel="icon" href="/favicon.svg">
     <meta name="theme-color" content="#fdf6e3" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#1d1f21" media="(prefers-color-scheme: dark)">
@@ -39,7 +39,7 @@
       (function () {
         var stored = null;
         try { stored = localStorage.getItem('darkMode'); } catch (e) {}
-        var dark = stored ? stored === 'true' : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var dark = stored ? stored === 'true' : matchMedia('(prefers-color-scheme: dark)').matches;
         if (dark) document.documentElement.className = 'js-dark';
         // The theme-color tags follow the OS by media query; a stored
         // choice overrides both.
@@ -128,13 +128,13 @@ Helped correct its currency data</span>
         var ph = document.querySelector('.profile-placeholder');
         // Loaded already (Chrome; decoding="sync" paints it with the text):
         // release now. Not yet (Safari): release once it's decoded.
-        if (!ph || ph.complete || !ph.decode) show(); else ph.decode().then(show, show);
+        if (!ph || ph.complete) show(); else ph.decode().then(show, show);
         var real = document.querySelector('.profile-real');
         if (!real) return;
         var mark = function () { de.classList.add('profile-loaded'); show(); };
         var reveal = function () {
           if (!real.naturalWidth) return; // failed load: keep the placeholder
-          if (real.decode) real.decode().then(mark, mark); else mark();
+          real.decode().then(mark, mark);
         };
         if (real.complete) reveal();
         else real.addEventListener('load', reveal);

@@ -2,8 +2,7 @@
   command = "pnpm run build"
   publish = "build"
 
-[build.environment]
-  NODE_VERSION = "24"
+# Node: Netlify reads the version from .nvmrc.
 
 # Edge caching needs no config: Netlify caches static deploy files at the
 # edge for a year and purges them on every deploy (docs: "Caching overview").
@@ -24,45 +23,10 @@
     # visit. Every future subdomain must serve HTTPS.
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
 
-# Content-hashed build assets (the photos) are cached as immutable via
-# build/_headers, file by file (vite.config.ts): a wildcard here would also
-# cache a 404 for a missing asset for a year.
-
-# Unhashed static files (icons, the WebP placeholder fallback) can't change
-# URL when their content changes: 30 days, revalidated in the background.
-# HTML keeps Netlify's default (always revalidated) so deploys show up
+# Caching (hashed photos immutable, the unhashed public/ files 30 days) is
+# generated into build/_headers too, file by file (vite.config.ts). HTML
+# keeps Netlify's default (always revalidated) so deploys show up
 # immediately.
-[[headers]]
-  for = "/profile-lqip.webp"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
-
-# Named one by one: a wildcard would also cache 404s for missing icons
-# (old URLs like /logo192.png still get requested) for 30 days.
-[[headers]]
-  for = "/apple-touch-icon.png"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
-
-[[headers]]
-  for = "/og.png"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
-
-[[headers]]
-  for = "/sascha-mayr.jpg"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
-
-[[headers]]
-  for = "/favicon.svg"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
-
-[[headers]]
-  for = "/favicon.ico"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
 
 # /index.html: Netlify's own redirect skips the custom headers above (its
 # HSTS lacks includeSubDomains); this one carries them. (A rule for /index
