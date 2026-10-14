@@ -22,7 +22,7 @@ import { join } from 'path';
 // ---------- 1) Converged hljs markup ----------
 const converged = readFileSync('src/Intro.converged.html', 'utf8');
 
-if (!converged.includes('hljs-section') || !converged.includes('<h1>')) {
+if (!converged.includes('hljs-section') || !converged.includes('<h1')) {
   throw new Error('src/Intro.converged.html does not look like converged hljs markup');
 }
 

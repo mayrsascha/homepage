@@ -10,6 +10,7 @@ const root = document.documentElement;
 
 const setDarkMode = (dark: boolean) => {
   root.classList.toggle('js-dark', dark);
+  document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')!.content = dark ? '#1d1f21' : '#fdf6e3';
   localStorage.setItem('darkMode', String(dark));
 };
 

@@ -76,6 +76,14 @@ html.js-dark .content {
     opacity: 1;
 }
 
+/* Once the real image has faded in, drop the placeholder: the photo has a
+   transparent background, and the placeholder's lossy alpha (blocky faint
+   squares, soft edges) would otherwise show through around it. */
+.profile-loaded .profile-placeholder {
+    visibility: hidden;
+    transition: visibility 0s 0.2s;
+}
+
 /* Fit above the fold without cropping: on wide screens the box is
    min(500px, viewport-derived) wide; height follows via aspect-ratio.
    Short viewport => BOTH dimensions shrink proportionally. */
