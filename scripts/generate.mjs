@@ -1,6 +1,6 @@
 /* Build-time sync for the homepage's static content:
    1. Converged markdown markup -> the code block in index.html (byte-identical)
-   2. Profile photo files from public/profile.png: the sharp AVIF and the
+   2. Profile photo files from src/assets/profile.png: the sharp AVIF and the
       placeholder (AVIF + WebP fallback)
 
    The converged markup started as the highlight.js output of the old React
@@ -46,11 +46,11 @@ const images = [
   // retina zoom (SSIM 0.975) for 23KB. src/assets/profile.webp (hand-made) stays
   // as the <picture> fallback.
   { out: 'src/assets/profile.avif', probe: 'avifenc --version', pkg: 'libavif',
-    cmd: 'avifenc -q 50 --qalpha 60 -s 0 -d 10 --yuv 444 -j 8 public/profile.png src/assets/profile.avif' },
-  { out: 'public/profile-lqip.avif', probe: 'avifenc --version', pkg: 'libavif',
-    cmd: 'avifenc -q 18 -s 0 -d 10 --yuv 420 -j 8 public/profile.png public/profile-lqip.avif' },
+    cmd: 'avifenc -q 50 --qalpha 60 -s 0 -d 10 --yuv 444 -j 8 src/assets/profile.png src/assets/profile.avif' },
+  { out: 'src/assets/profile-lqip.avif', probe: 'avifenc --version', pkg: 'libavif',
+    cmd: 'avifenc -q 18 -s 0 -d 10 --yuv 420 -j 8 src/assets/profile.png src/assets/profile-lqip.avif' },
   { out: 'public/profile-lqip.webp', probe: 'cwebp -version', pkg: 'webp',
-    cmd: 'cwebp -quiet -resize 250 0 -q 10 public/profile.png -o public/profile-lqip.webp' },
+    cmd: 'cwebp -quiet -resize 250 0 -q 10 src/assets/profile.png -o public/profile-lqip.webp' },
 ];
 for (const p of images) {
   if (has(p.probe)) {
@@ -63,7 +63,7 @@ for (const p of images) {
     throw new Error(`Image not available: ${p.probe.split(' ')[0]} missing and ${p.out} not found`);
   }
 }
-const placeholderBytes = readFileSync('public/profile-lqip.avif').length;
+const placeholderBytes = readFileSync('src/assets/profile-lqip.avif').length;
 
 // ---------- 3) Sync skeleton in index.html ----------
 let index = readFileSync('index.html', 'utf8');
@@ -81,7 +81,7 @@ index = index.slice(0, contentStart) + converged + index.slice(contentEnd);
 //     HTML bytes (it's the desktop LCP element), no extra request. Base64
 //     doesn't gzip, so this adds ~6.3KB; the page stays inside the first
 //     network round trip (~14KB).
-const lqip = readFileSync('public/profile-lqip.avif').toString('base64');
+const lqip = readFileSync('src/assets/profile-lqip.avif').toString('base64');
 const lqipRe = /<source srcset="[^"]*" type="image\/avif" \/><img class="profile-placeholder"/;
 if (!lqipRe.test(index)) throw new Error('Placeholder <source> not found in index.html');
 index = index.replace(lqipRe, () => `<source srcset="data:image/avif;base64,${lqip}" type="image/avif" /><img class="profile-placeholder"`);

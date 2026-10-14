@@ -4,19 +4,29 @@ import './style.css';
 // the inline pre-paint script sets html.js-dark before first paint; here we
 // wire the toggle button and follow OS theme changes.
 const root = document.documentElement;
+const KEY = 'darkMode';
 
-const setDarkMode = (dark: boolean) => {
-  root.classList.toggle('js-dark', dark);
-  document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')!.content = dark ? '#1d1f21' : '#fdf6e3';
-  localStorage.setItem('darkMode', String(dark));
+// localStorage can throw (blocked storage, some private modes): the theme
+// then simply isn't remembered.
+const stored = (): string | null => {
+  try { return localStorage.getItem(KEY); } catch { return null; }
 };
 
+const applyTheme = (dark: boolean) => {
+  root.classList.toggle('js-dark', dark);
+  document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')!.content = dark ? '#1d1f21' : '#fdf6e3';
+};
+
+// A click is an explicit choice: apply and remember it.
 document.querySelector('.Footer .button')?.addEventListener('click', () => {
-  setDarkMode(!root.classList.contains('js-dark'));
+  const dark = !root.classList.contains('js-dark');
+  applyTheme(dark);
+  try { localStorage.setItem(KEY, String(dark)); } catch { /* not remembered */ }
 });
 
+// OS theme changes only apply while the visitor hasn't chosen one.
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-  setDarkMode(e.matches);
+  if (stored() === null) applyTheme(e.matches);
 });
 
 const year = document.getElementById('year');

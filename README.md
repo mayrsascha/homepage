@@ -21,7 +21,7 @@ No framework, no analytics script: the built page is a single ~10 kB
 | `pnpm preview` | Preview the production build |
 | `pnpm generate` | Sync content and placeholders into `index.html` |
 | `node scripts/verify-skeleton.mjs` | Check the text block in `index.html` matches `src/Intro.converged.html` |
-| `bash scripts/test-netlify-fallback.mjs` | Run `generate` with `cwebp`/`avifenc` hidden, as on Netlify |
+| `scripts/test-netlify-fallback.sh` | Run `generate` with `cwebp`/`avifenc` hidden, as on Netlify |
 
 ## How it fits together
 
@@ -34,7 +34,12 @@ No framework, no analytics script: the built page is a single ~10 kB
   possible.
 - **`vite.config.ts`** has a small `inline-assets` plugin that embeds the
   built CSS and JS into `index.html`, so the page needs no follow-up
-  requests besides images.
+  requests besides images. A second plugin hashes every inline script and
+  style (SHA-256) and writes the Content-Security-Policy into
+  `build/_headers`, so only exactly those can run. The other security
+  headers are static, in `netlify.toml`.
+- **Without JavaScript** the page still works: a `<noscript>` style shows the
+  real photo directly and hides the theme toggle.
 
 ### Editing content
 
@@ -52,11 +57,12 @@ The photo is a cross-fade stack: a placeholder paints underneath, the real
 photo sits on top at `opacity: 0` and fades in once it has loaded **and
 decoded**. The placeholder is then hidden.
 
-`generate.mjs` builds these from `public/profile.png`:
+`generate.mjs` builds these from `src/assets/profile.png` (the source photo;
+not published):
 
 - `src/assets/profile.avif`: the real photo, ~23 KB (`src/assets/profile.webp`, 54 KB, is the
   hand-made fallback for browsers without AVIF)
-- `profile-lqip.avif`: placeholder, full resolution, ~4.7 KB, embedded in
+- `src/assets/profile-lqip.avif`: placeholder, full resolution, ~4.7 KB, embedded in
   `index.html` as a data URI so it paints with the first response
 - `profile-lqip.webp`: placeholder fallback, half resolution, ~5 KB
 
@@ -76,5 +82,6 @@ changes.
 ## Deploy
 
 Netlify, auto-deploys from `master`. Config in `netlify.toml`
-(Node 20, `pnpm run build`, publish `build/`). Unknown URLs get
-`public/404.html` with a real 404 status.
+(Node 24, `pnpm run build`, publish `build/`). Unknown URLs get
+`404.html` (built by Vite, so it's covered by the CSP) with a real 404
+status; it follows the same remembered light/dark choice.
