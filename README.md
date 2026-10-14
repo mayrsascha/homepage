@@ -43,6 +43,9 @@ No framework, no analytics script: the built page is a single ~10 kB
 readers skip the markdown syntax). Edit it, then run `pnpm generate` to copy
 it into `index.html`. `pnpm build` does this automatically.
 
+On phones (< 720 px) links render reference-style (`[Shumi]`): each link's
+`(https://…)` part sits in a `span.u` that the mobile CSS hides.
+
 ### Profile photo
 
 The photo is a cross-fade stack: a placeholder paints underneath, the real

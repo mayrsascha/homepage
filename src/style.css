@@ -115,7 +115,23 @@ html.js-dark .Footer .button .icon-moon { display: none; }
 
 /* ---------- Mobile: photo below the text ---------- */
 @media (max-width: 719px) {
-    .profile-stack { width: 100%; max-width: 500px; aspect-ratio: 500 / 750; }
+    /* Links become reference-style Markdown ("[Shumi]"): the "(https://…)"
+       part is hidden, so each entry fits on one line. Remaining long lines
+       wrap instead of being clipped. The inner code padding is dropped to
+       give the text the width. */
+    .Hero pre { font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .Hero code.md { padding: 0; }
+    .Hero .u { display: none; }
+    /* Photo after the links, smaller and centred: keeps the page short
+       without cropping the full-body shot. */
+    .profile { text-align: center; padding: 1em 0 .5em; }
+    .profile-stack { width: 60%; max-width: 300px; aspect-ratio: 500 / 750; }
+    /* Footer: text gets the full width (no mid-line breaks), icons sit in a
+       row below at the desktop size. */
+    .Footer { flex-wrap: wrap; justify-content: center; padding: .5em 10px 1em; }
+    .Footer > div { flex-basis: 100%; font-size: 12px; text-wrap: balance; }
+    .Footer .button { margin-left: 0; }
+    .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
 }
 
 /* ---------- Desktop: text and photo side by side ---------- */
