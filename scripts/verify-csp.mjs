@@ -2,6 +2,7 @@
    <script> and <style> in build/*.html must have its SHA-256 hash in
    build/_headers, or the browser blocks it in production (where the policy
    applies; local previews and Lighthouse CI don't send it).
+   Also checks that the photo's three sizes attributes match.
    Run after `vite build` (pnpm build does). */
 import { readFileSync, readdirSync } from 'fs';
 import { createHash } from 'crypto';
@@ -33,8 +34,15 @@ for (const file of readdirSync('build').filter((f) => f.endsWith('.html'))) {
     if (!styles.has(hash(code))) missing.push(`${file}: inline style ${hash(code)}`);
   }
 }
+// The photo's sizes are written three times (preload, AVIF source, WebP
+// img): if the preload's drifts, the browser fetches the photo twice.
+{
+  const html = readFileSync('build/index.html', 'utf8');
+  const sizes = new Set([...html.matchAll(/\s(?:image)?sizes="(\([^"]*)"/g)].map((m) => m[1]));
+  if (sizes.size !== 1) missing.push(`index.html: the photo's preload/source/img sizes differ (${sizes.size} variants)`);
+}
 if (missing.length) {
-  console.error('CSP would block:\n  ' + missing.join('\n  '));
+  console.error('verify-csp failed:\n  ' + missing.join('\n  '));
   process.exit(1);
 }
 console.log(`verify-csp: ${checked} inline scripts/styles, all allowed by build/_headers`);

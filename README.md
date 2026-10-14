@@ -71,7 +71,8 @@ Layouts (`src/style.css`):
   the email address stays visible.
 - **Portrait tablets, phones in landscape, landscape windows under 904 px**:
   the same stack with full links (12 px under 720 px wide); the photo
-  takes the height that's left.
+  takes the height that's left. Where even its 280 px minimum doesn't fit,
+  it moves whole to the second screen, as on phones.
 - **Landscape** (≥ 904 px wide, ≥ 500 px tall): text and photo side by side,
   scaled to fit the screen. Links always show in full. Where width is
   short, the photo gives way first, so the text never drops below 12 px;
@@ -112,7 +113,7 @@ source photo; in the repo, but not deployed with the site):
 The real photo goes through Vite, so it ships with a content hash in its
 name (`/assets/profile-500-<hash>.avif`) and is cached for a year as immutable
 (`build/_headers`, file by file, so a 404 under `/assets/` isn't).
-The unhashed files (icons, `og.png`, `sascha-mayr.jpg`, the WebP
+The unhashed files (icons including `favicon.svg`, `og.png`, `sascha-mayr.jpg`, the WebP
 placeholder) get 30 days, also named one by one; the HTML is always
 revalidated (`netlify.toml`).
 
@@ -139,8 +140,10 @@ the photo or tagline changes.
 - **CSP:** `scripts/verify-csp.mjs` (part of `pnpm build`) fails if any
   inline script or style in the built pages lacks its hash in
   `build/_headers`, or if a stylesheet or script is still external (the
-  build itself also fails when it can't inline one). Local previews and Lighthouse CI don't send the policy,
-  so nothing else would notice before production.
+  build itself also fails when it can't inline one). Local previews and
+  Lighthouse CI don't send the policy, so nothing else would notice before
+  production. It also fails if the photo's three `sizes` copies (preload,
+  AVIF source, WebP img) differ, which would download the photo twice.
 - **CI** (`.github/workflows/check.yml`, on every push and PR; actions
   pinned by commit, kept current by Dependabot): the content in
   `index.html` is in sync, the build passes the budget and the CSP check,

@@ -11,7 +11,6 @@ html { line-height: 1.15; -webkit-text-size-adjust: 100%; }
    setting. (The "monospace, monospace" trick doesn't survive minification.) */
 html, body { height: 100%; margin: 0; }
 body { font-family: monospace; }
-b { font-weight: bolder; }
 button { font-family: inherit; font-size: 100%; line-height: 1.15; margin: 0; }
 
 /* ---------- Theme: solarized-light / tomorrow-night ---------- */
@@ -37,7 +36,7 @@ html { background-color: var(--bg); }
 
 /* ---------- Layout: body is the flex column, main grows ---------- */
 body { display: flex; flex-direction: column; }
-.content { flex: 1 0 auto; padding: 1em 1em 0; background-color: var(--bg); }
+.content { flex: 1 0 auto; padding: 1em 1em 0; }
 footer { flex-shrink: 0; }
 
 /* ---------- Text block: markdown in a code block ---------- */
@@ -47,7 +46,6 @@ footer { flex-shrink: 0; }
    itself from it so the two stay in proportion. */
 .Hero .md-pre {
     font-size: var(--fs);
-    font-family: monospace;
     line-height: 1.15;
     white-space: pre;
 }
@@ -64,13 +62,12 @@ footer { flex-shrink: 0; }
 
 /* highlight.js-style classes, shortened: h=section, s=string (link text),
    l=link (URL), b=bullet, e=emphasis, w=strong */
-.md { display: block; overflow-x: auto; padding: .5em; background: var(--bg); color: var(--fg); }
+.md { display: block; overflow-x: auto; padding: .5em; color: var(--fg); }
 .h { color: var(--hl-section); }
 .s { color: var(--hl-string); }
 .l { color: var(--hl-link); }
 .b { color: var(--hl-bullet); }
 .e { font-style: italic; }
-.w { font-weight: 700; }
 
 /* ---------- Photo: cross-fade stack ---------- */
 /* The placeholder (embedded in index.html) paints underneath; the real photo
@@ -99,11 +96,10 @@ footer { flex-shrink: 0; }
     width: 100%;
     text-align: center;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     color: var(--fg);
-    background-color: var(--bg);
-    padding: 0 10px;
+    padding: 0 0 10px;
     font-size: .8125rem;
 }
 /* Three short lines: tight spacing keeps the footer short (the layouts
@@ -112,7 +108,7 @@ footer { flex-shrink: 0; }
 .Footer .button {
     background: inherit; border: none; padding: 0; color: inherit;
     cursor: pointer;
-    font-size: 48px; margin-left: 25px; width: 48px; height: 48px;
+    font-size: 2.5em; margin-left: 25px; width: 30px; height: 30px;
     display: flex; align-items: center; justify-content: center;
 }
 /* Both icons are in the DOM; CSS picks per theme. No JS swap, no flash. */
@@ -123,7 +119,6 @@ html.js-dark .Footer .button .icon-moon { display: none; }
 .Footer .github-link:hover { color: var(--hl-link); }
 /* One visible focus ring for every control (WCAG 2.4.7). */
 a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outline-offset: 2px; border-radius: 2px; }
-.Footer .github-link svg { width: 48px; height: 48px; color: inherit; }
 
 /* Screen-reader-only text. */
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -190,15 +185,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     }
     /* Footer: text gets the full width (no mid-line breaks), icons sit in a
        row below at the desktop size. */
-    .Footer { flex-wrap: wrap; justify-content: center; padding: .5em 10px 1em; }
+    .Footer { flex-wrap: wrap; padding: .5em 10px 1em; }
     .Footer > div { flex-basis: 100%; font-size: .75rem; text-wrap: balance; }
     .Footer .button { margin-left: 0; }
-    .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
-}
-
-@media (min-width: 45em), (min-width: 40em) and (orientation: landscape) {
-    .Footer { justify-content: center; padding: 0; }
-    .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
 }
 
 /* ---------- Portrait tablets, phones in landscape, narrow windows: stacked ----------
@@ -206,10 +195,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
    height the text and footer leave (it scrolls only below 280px). */
 @media (min-width: 45em) and (orientation: portrait), (min-width: 45em) and (max-height: 499px), (min-width: 45em) and (max-width: 56.49em), (min-width: 40em) and (max-width: 44.99em) and (orientation: landscape) {
     .content { --fs: clamp(.8125rem, (100vw - 32px) / 60, 1rem); }
-    .Hero { display: flex; justify-content: center; }
+    /* Where the photo can't fit whole under the text (at its 280px floor),
+       the text fills the first screen and the photo follows on scrolling,
+       as on phones. The *1e5 makes the min-height a step: 0 or the screen. */
+    .Hero { display: flex; justify-content: center; align-items: center; min-height: clamp(0px, (var(--fs) * 24.5 + 21.5rem + 280px - 100vh) * 1e5, 100vh - 1em); }
     .profile { text-align: center; padding: 1em 0; }
     .profile-stack { height: clamp(280px, 100vh - var(--fs) * 24.5 - 19.5rem - 116px, 750px); }
-    .Footer { padding-bottom: 10px; }
 }
 
 /* Phones in landscape (640-719px): full links fit only at 12px. */
@@ -235,8 +226,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     .Hero { flex: 0 0 max(50%, var(--fs) * 50.5); align-items: center; }
     .profile { flex: 1 1 0; min-width: 0; align-items: flex-start; }
     .profile-stack { width: var(--pw); }
-    /* Footer: grows at half the text's rate, with room below its last line. */
-    .Footer { padding-bottom: 10px; }
+    /* Footer: grows at half the text's rate. */
     .Footer > div { font-size: clamp(.8125rem, .8125rem + (100vw - 1440px) / 128, 1.125rem); }
 }
 
