@@ -153,6 +153,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
        wrap instead of being clipped. The inner code padding is dropped to
        give the text the width. */
     .content { --fs: .75rem; }
+    /* The text fills the first screen (centred), so the photo is never cut
+       by its bottom edge: it arrives whole, with the footer, on scrolling.
+       svh is the screen with the browser bars shown; vh is the fallback
+       (iOS < 15.4), which errs towards hiding the photo, not cutting it. */
+    .Hero {
+        display: flex; flex-direction: column; justify-content: center;
+        min-height: calc(100vh - 1em); min-height: calc(100svh - 1em);
+    }
     /* A row that wraps stays one item: lines within it are tight and
        indented under the text, the 24px spacing goes between items. */
     .Hero [role="list"] { display: block; white-space: normal; }

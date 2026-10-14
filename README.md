@@ -54,7 +54,8 @@ it into `index.html`. `pnpm build` does this automatically.
 
 Layouts (`src/style.css`):
 
-- **Phones** (< 720 px): text, then the photo. Links render reference-style
+- **Phones** (< 720 px): the text fills the first screen; the whole photo
+  and the footer follow on scrolling (never cut in half by the screen edge). Links render reference-style
   (`[Shumi]`): each link's `(https://…)` part sits in a `span.u` that the
   CSS hides. A row that wraps stays visibly one item (hanging indent), and
   the email address stays visible.
