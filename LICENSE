@@ -1,4 +1,4 @@
-MIT License (code)
+MIT License
 
 Copyright (c) 2020-2026 Sascha Mayr
 
@@ -19,10 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Not covered by the MIT License: the photos (src/assets/profile*,
-public/profile-lqip.webp, public/sascha-mayr.jpg, public/og.png) and the
-personal content (src/Intro.converged.html and the page text). Those are
-© Sascha Mayr, all rights reserved.

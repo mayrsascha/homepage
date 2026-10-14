@@ -122,5 +122,5 @@ status; it follows the same remembered light/dark choice.
 
 ## License
 
-The code is MIT (see `LICENSE`). The photos and the personal content are
-not: © Sascha Mayr, all rights reserved.
+The code is MIT (`LICENSE`). The photos and the personal content are not:
+© Sascha Mayr, all rights reserved (`NOTICE`).
