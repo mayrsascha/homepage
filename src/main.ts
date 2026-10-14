@@ -25,16 +25,30 @@ const applyTheme = (dark: boolean) => {
 // The button is a toggle: "Dark mode", pressed or not.
 button?.setAttribute('aria-pressed', String(root.classList.contains('js-dark')));
 
-// A click is an explicit choice: apply and remember it.
+const os = window.matchMedia?.('(prefers-color-scheme: dark)');
+
+// A click is an explicit choice: apply and remember it. Choosing what the
+// OS shows anyway forgets the choice, so the page follows the OS again.
 button?.addEventListener('click', () => {
   const dark = !root.classList.contains('js-dark');
   applyTheme(dark);
-  try { localStorage.setItem(KEY, String(dark)); } catch { /* not remembered */ }
+  try {
+    if (dark === Boolean(os?.matches)) localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY, String(dark));
+  } catch { /* not remembered */ }
 });
 
 // OS theme changes only apply while the visitor hasn't chosen one.
-window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+os?.addEventListener('change', (e) => {
   if (stored() === null) applyTheme(e.matches);
+});
+
+// Keep other open tabs in step with a choice made here.
+window.addEventListener('storage', (e) => {
+  if (e.key === KEY || e.key === null) {
+    const value = stored();
+    applyTheme(value === null ? Boolean(os?.matches) : value === 'true');
+  }
 });
 
 const year = document.getElementById('year');

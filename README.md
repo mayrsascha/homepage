@@ -7,7 +7,7 @@ solarized/tomorrow-night colors, monospace, dark-mode toggle, no scroll.
 
 ## Stack
 
-Static HTML · ~20 lines of TypeScript · Vite 8 · Lightning CSS · pnpm.
+Static HTML · ~50 lines of TypeScript · Vite 8 · Lightning CSS · pnpm.
 No framework, no analytics script: the built page is a single ~10 kB
 (gzipped) `index.html` with the CSS, JS and photo placeholder inlined.
 
@@ -29,7 +29,9 @@ No framework, no analytics script: the built page is a single ~10 kB
 - **`index.html`** is the page. All markup lives there; nothing is rendered
   by JavaScript.
 - **`src/main.ts`** imports the CSS and owns the theme toggle, following OS
-  theme changes, the `theme-color` meta tag and the footer year.
+  theme changes, the `theme-color` meta tags and the footer year. A click
+  is remembered; choosing what the OS shows anyway forgets the choice (the
+  page follows the OS again). Open tabs stay in sync.
 - **Inline scripts in `index.html`** set the theme before first paint
   (localStorage → OS preference) and wire the photo fade-in as early as
   possible.
@@ -53,14 +55,19 @@ Layouts (`src/style.css`):
 
 - **Phones** (< 720 px): text, then the photo. Links render reference-style
   (`[Shumi]`): each link's `(https://…)` part sits in a `span.u` that the
-  CSS hides.
-- **Portrait tablets, phones in landscape**: the same stack with full links;
-  the photo takes the height that's left.
-- **Landscape** (≥ 720 px wide, ≥ 500 px tall): text and photo side by side,
-  scaled to fit the screen with no scrolling. Text is 13 px up to 1440 px
-  wide and grows beyond that; the photo grows with it. Links always show
-  in full: on narrower screens the text column takes more than half the
-  width and the text shrinks to fit.
+  CSS hides. Link rows are 24 px apart, for tapping.
+- **Portrait tablets, phones in landscape, landscape windows under 900 px**:
+  the same stack with full links; the photo takes the height that's left.
+- **Landscape** (≥ 900 px wide, ≥ 500 px tall): text and photo side by side,
+  scaled to fit the screen. Links always show in full. Where width is
+  short, the photo gives way first, so the text never drops below 12 px;
+  the text is at most 13 px up to 1440 px wide and grows beyond that, and
+  the photo grows with it. Below ~590 px of height the page scrolls a
+  little rather than shrink the text further.
+
+Sizes are in `rem` and breakpoints in `em` (720 and 904 px at the default
+16 px), so both follow the browser's font-size setting: larger text gets
+the stacked layouts sooner.
 
 ### Profile photo
 
@@ -107,10 +114,16 @@ changes.
 - **Size budget:** `vite.config.ts` fails the build if the page is over
   10.5 kB gzipped, so the footer's "10 kB" stays true. It also minifies
   the hand-written inline scripts and strips HTML comments.
-- **CI** (`.github/workflows/check.yml`, on every push and PR): the
-  content in `index.html` is in sync, the build passes the budget, and
-  Lighthouse CI (`lighthouserc.json`, 3 mobile runs) scores 100 for
-  accessibility, best practices and SEO, and at least 98 for performance.
+- **CSP:** `scripts/verify-csp.mjs` (part of `pnpm build`) fails if any
+  inline script or style in the built pages lacks its hash in
+  `build/_headers`. Local previews and Lighthouse CI don't send the policy,
+  so nothing else would notice before production.
+- **CI** (`.github/workflows/check.yml`, on every push and PR; actions
+  pinned by commit, kept current by Dependabot): the content in
+  `index.html` is in sync, the build passes the budget and the CSP check,
+  and Lighthouse CI (`lighthouserc.json`, 3 mobile runs) scores 100 for
+  accessibility, best practices and SEO, and at least 98 for performance
+  (2 points of slack for CI timing noise).
 
 ## Deploy
 

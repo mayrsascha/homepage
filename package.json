@@ -10,10 +10,11 @@
   "scripts": {
     "dev": "vite",
     "generate": "node scripts/generate.mjs",
-    "build": "node scripts/generate.mjs && tsc && vite build",
+    "build": "node scripts/generate.mjs && tsc && vite build && node scripts/verify-csp.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@lhci/cli": "0.15.1",
     "typescript": "^7",
     "vite": "^8"
   }

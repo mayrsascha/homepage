@@ -66,26 +66,30 @@ const images = [
 const STAMP = 'src/assets/profile.stamp';
 const stamp = createHash('sha256')
   .update(readFileSync('src/assets/profile.png'))
-  .update(JSON.stringify(images.map((p) => p.cmd)))
+  // The commands contain the temp dir, which differs per machine: hash them
+  // without it, or the stamp never matches anywhere else.
+  .update(JSON.stringify(images.map((p) => p.cmd.replaceAll(tmpdir(), '<tmp>'))))
   .digest('hex');
 const upToDate = !process.argv.includes('--force')
   && existsSync(STAMP) && readFileSync(STAMP, 'utf8').trim() === stamp
   && images.every((p) => existsSync(p.out));
 if (upToDate) console.log('images: up to date with profile.png (stamp matches), not re-encoded');
-let encoded = false;
+let encodedAll = !upToDate;
 for (const p of upToDate ? [] : images) {
   if (has(p.probe)) {
-    encoded = true;
     execSync(p.cmd, { stdio: 'ignore' });
     console.log(`image: regenerated ${p.out} from profile.png`);
   } else if (existsSync(p.out)) {
+    encodedAll = false;
     console.log(`NOTE: ${p.probe.split(' ')[0]} not available — using committed ${p.out}.`,
       `Regenerate locally (brew install ${p.pkg}) after changing profile.png.`);
   } else {
     throw new Error(`Image not available: ${p.probe.split(' ')[0]} missing and ${p.out} not found`);
   }
 }
-if (encoded) writeFileSync(STAMP, stamp + '\n');
+// Only a complete re-encode may vouch for every file: with one tool missing,
+// some outputs are stale.
+if (encodedAll) writeFileSync(STAMP, stamp + '\n');
 const placeholderBytes = readFileSync('src/assets/profile-lqip.avif').length;
 
 // ---------- 3) Sync skeleton in index.html ----------

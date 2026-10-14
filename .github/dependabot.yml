@@ -1,4 +1,4 @@
-# Dependency updates for the build tooling (vite, typescript), monthly and
+# Dependency updates for the build tooling (vite, typescript, lhci), monthly and
 # grouped into a single PR. The site has no runtime dependencies.
 version: 2
 updates:
@@ -8,4 +8,13 @@ updates:
       interval: "monthly"
     groups:
       tooling:
+        patterns: ["*"]
+  # The CI workflow's actions are pinned by commit SHA; this keeps them
+  # current (the version comment next to each SHA is updated too).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
         patterns: ["*"]

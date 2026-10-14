@@ -5,7 +5,12 @@
 /* ---------- Reset (the parts of normalize.css this page uses) ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { line-height: 1.15; -webkit-text-size-adjust: 100%; }
-html, body { height: 100%; margin: 0; font-family: monospace; }
+/* The font goes on body, not html: with "monospace" on the root, browsers
+   size rem from their 13px fixed-width default instead of the visitor's
+   font-size setting, and all sizes below are in rem so they follow that
+   setting. (The "monospace, monospace" trick doesn't survive minification.) */
+html, body { height: 100%; margin: 0; }
+body { font-family: monospace; }
 main { display: block; }
 b { font-weight: bolder; }
 img { border-style: none; }
@@ -27,6 +32,7 @@ html.js-dark {
     --bg: #1d1f21; --fg: #c5c8c6;
     --hl-section: #81a2be; --hl-string: #b5bd68; --hl-link: #de935f; --hl-bullet: #b5bd68;
 }
+html.js-dark { color-scheme: dark; }
 html.js-dark body { background-color: var(--bg); }
 /* The canvas carries the theme colour too, so the page shows it while the
    text is held (html.ph-wait, set in index.html). */
@@ -100,6 +106,7 @@ footer { flex-shrink: 0; }
     color: var(--fg);
     background-color: var(--bg);
     padding: 0 10px;
+    font-size: .8125rem;
 }
 /* Three short lines: tight spacing keeps the footer short (the photo and
    text sizes assume ~70px). */
@@ -130,20 +137,28 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
 
 /* ---------- Layouts ----------
    Phones (< 720px): text, then the photo; links reference-style.
-   Portrait tablets and short landscape screens: the same stack, full links.
+   Portrait tablets, short or narrow (< 900px) landscape: the same stack,
+   full links.
    Everything else: text and photo side by side, scaled to fit the screen.
 
    The text block measures 49.5em wide with full links (one more em of slack:
-   Safari's monospace is slightly wider) and 38em tall (plus the 82px of footer and
-   padding: --fs is capped at (100vh - 82px) / 48 so it never scrolls). */
+   Safari's monospace is slightly wider) and 39em tall (plus ~100px of footer
+   and padding: --fs is capped at (100vh - 100px) / 40.5 so it doesn't scroll
+   down to 12px text). Sizes are in rem: they follow the browser's font-size
+   setting where the layout leaves room. The breakpoints are in em (16px
+   at the default setting: 45em = 720px, 56.5em = 904px), so larger text
+   switches to the stacked layouts sooner instead of squeezing the photo. */
 
 /* ---------- Phones: photo below the text ---------- */
-@media (max-width: 719px) {
+@media (max-width: 44.99em) {
     /* Links become reference-style Markdown ("[Shumi]"): the "(https://…)"
        part is hidden, so each entry fits on one line. Remaining long lines
        wrap instead of being clipped. The inner code padding is dropped to
        give the text the width. */
-    .content { --fs: 12px; }
+    .content { --fs: .75rem; }
+    /* Link rows 24px apart (WCAG 2.5.8 target spacing) so a tap on one
+       can't land on its neighbour. */
+    .Hero [role="listitem"] { line-height: 2; }
     .Hero .md-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
     .Hero .md-code { padding: 0; }
     .Hero .u { display: none; }
@@ -154,21 +169,21 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     /* Footer: text gets the full width (no mid-line breaks), icons sit in a
        row below at the desktop size. */
     .Footer { flex-wrap: wrap; justify-content: center; padding: .5em 10px 1em; }
-    .Footer > div { flex-basis: 100%; font-size: 12px; text-wrap: balance; }
+    .Footer > div { flex-basis: 100%; font-size: .75rem; text-wrap: balance; }
     .Footer .button { margin-left: 0; }
     .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
 }
 
-@media (min-width: 720px) {
+@media (min-width: 45em) {
     .Footer { justify-content: center; padding: 0; }
     .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
 }
 
-/* ---------- Portrait tablets, phones in landscape: stacked, full links ----------
-   Side by side, each column would be too narrow for the links. The photo
-   takes the height the text and footer leave (it scrolls only below 280px). */
-@media (min-width: 720px) and (orientation: portrait), (min-width: 720px) and (max-height: 499px) {
-    .content { --fs: clamp(13px, (100vw - 32px) / 60, 16px); }
+/* ---------- Portrait tablets, phones in landscape, narrow windows: stacked ----------
+   Side by side, the links would need text under 12px. The photo takes the
+   height the text and footer leave (it scrolls only below 280px). */
+@media (min-width: 45em) and (orientation: portrait), (min-width: 45em) and (max-height: 499px), (min-width: 45em) and (max-width: 56.49em) {
+    .content { --fs: clamp(.8125rem, (100vw - 32px) / 60, 1rem); }
     .Hero { display: flex; justify-content: center; }
     .profile { text-align: center; padding: 1em 0; }
     .profile-stack { height: clamp(280px, 100vh - var(--fs) * 38 - 116px, 750px); }
@@ -176,15 +191,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
 }
 
 /* ---------- Landscape: text and photo side by side ---------- */
-@media (min-width: 720px) and (orientation: landscape) and (min-height: 500px) {
+@media (min-width: 56.5em) and (orientation: landscape) and (min-height: 500px) {
     /* --pw is the photo width: it fits above the fold without cropping,
-       grows past 500px only above 1440px wide, and always leaves the text
-       room for 10px. The text then takes the rest of the width (full links,
-       no wrapping), fits the height, and grows past 13px only above 1440px,
-       so big screens aren't a small island in the middle. */
+       grows past 500px only above 1440px wide, and gives way first: the
+       text always keeps room for 12px with full links. The text then takes
+       the rest of the width (no wrapping), fits the height, and grows past
+       13px only above 1440px, so big screens aren't a small island. */
     .content {
-        --pw: min((100vh - 116px) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 553px);
-        --fs: clamp(10px, min((100vh - 82px) / 48, (100vw - 48px - var(--pw)) / 50.5, 13px + max(0px, (100vw - 1440px) / 64)), 28px);
+        --pw: min((100vh - 116px) * 2 / 3, 500px + max(0px, (100vw - 1440px) * .6), 100vw - 48px - .75rem * 50.5);
+        --fs: clamp(.75rem, min((100vh - 100px) / 40.5, (100vw - 48px - var(--pw)) / 50.5, .8125rem + max(0px, (100vw - 1440px) / 64)), 1.75rem);
         display: flex; align-items: center;
     }
     /* Each column centres its content; the text column is at least half
@@ -195,5 +210,5 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     .profile-stack { width: var(--pw); }
     /* Footer: grows at half the text's rate, with room below its last line. */
     .Footer { padding-bottom: 10px; }
-    .Footer > div { font-size: clamp(13px, 13px + (100vw - 1440px) / 128, 18px); }
+    .Footer > div { font-size: clamp(.8125rem, .8125rem + (100vw - 1440px) / 128, 1.125rem); }
 }

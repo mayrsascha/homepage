@@ -59,3 +59,37 @@
   for = "/favicon.ico"
   [headers.values]
     Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
+
+# Explicit redirects for URLs Netlify would otherwise handle itself: its
+# built-in redirects skip the custom headers above (their HSTS lacked
+# includeSubDomains), and the 404 page and the sitemap shouldn't answer 200
+# at a second URL.
+[[redirects]]
+  from = "/index"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/sitemap.xml/"
+  to = "/sitemap.xml"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/404"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/404.html"
+  to = "/404.html"
+  status = 404
+  force = true
