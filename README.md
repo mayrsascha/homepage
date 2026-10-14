@@ -18,7 +18,7 @@ No framework, no analytics script: the built page is a single ~10 kB
 |---------|-------------|
 | `pnpm install` | Install dependencies |
 | `pnpm dev` | Dev server at localhost:3000 |
-| `pnpm build` | Production build to `build/` (runs `scripts/generate.mjs` first) |
+| `pnpm build` | Production build to `build/` (runs `scripts/generate.mjs` first, `scripts/verify-csp.mjs` after) |
 | `pnpm preview` | Preview the production build |
 | `pnpm generate` | Sync content and placeholders into `index.html` |
 | `node scripts/verify-skeleton.mjs` | Check the text block in `index.html` matches `src/Intro.converged.html` |
@@ -36,32 +36,38 @@ No framework, no analytics script: the built page is a single ~10 kB
 - **Inline scripts in `index.html`** set the theme before first paint
   (localStorage → OS preference) and wire the photo fade-in as early as
   possible.
-- **`vite.config.ts`** has a small `inline-assets` plugin that embeds the
-  built CSS and JS into `index.html`, so the page needs no follow-up
-  requests besides images. A second plugin hashes every inline script and
-  style (SHA-256) and writes the Content-Security-Policy into
-  `build/_headers`, so only exactly those can run. The other security
-  headers are static, in `netlify.toml`.
+- **`vite.config.ts`** has small plugins that: embed the built CSS and JS
+  into `index.html`, so the page needs no follow-up requests besides
+  images; minify the hand-written inline scripts and strip HTML comments;
+  hash every inline script and style (SHA-256) into a
+  Content-Security-Policy in `build/_headers`, so only exactly those can
+  run, together with the immutable caching of each hashed photo; and fail
+  the build over the size budget (see Checks). The other headers are
+  static, in `netlify.toml`.
 - **Without JavaScript** the page still works: a `<noscript>` style shows the
-  real photo directly and hides the theme toggle.
+  real photo directly, hides the theme toggle and follows the OS dark mode.
 
 ### Editing content
 
 `src/Intro.converged.html` holds the pre-highlighted markdown markup
-(highlight.js-style, with short class names styled in `src/style.css`, plus `aria-label`s on links and headings so screen
-readers skip the markdown syntax). Edit it, then run `pnpm generate` to copy
-it into `index.html`. `pnpm build` does this automatically.
+(highlight.js-style, with short class names styled in `src/style.css`), plus
+the accessibility layer: `aria-label`s on links and headings so screen
+readers skip the markdown syntax, and list roles on the `- ` lines. It goes
+into divs styled like `<pre><code>` (headings aren't allowed inside those).
+Edit it, then run `pnpm generate` to copy it into `index.html`; `pnpm build`
+does this automatically, and CI fails if the committed `index.html` is out
+of sync.
 
 Layouts (`src/style.css`):
 
 - **Phones** (< 720 px): the text fills the first screen; the whole photo
-  and the footer follow on scrolling (never cut in half by the screen edge). Links render reference-style
-  (`[Shumi]`): each link's `(https://…)` part sits in a `span.u` that the
+  and the footer follow on scrolling (never cut in half by the screen
+  edge). Links render reference-style (`[Shumi]`): each link's `(https://…)` part sits in a `span.u` that the
   CSS hides. A row that wraps stays visibly one item (hanging indent), and
   the email address stays visible.
-- **Portrait tablets, phones in landscape, landscape windows under 900 px**:
+- **Portrait tablets, phones in landscape, landscape windows under 904 px**:
   the same stack with full links; the photo takes the height that's left.
-- **Landscape** (≥ 900 px wide, ≥ 500 px tall): text and photo side by side,
+- **Landscape** (≥ 904 px wide, ≥ 500 px tall): text and photo side by side,
   scaled to fit the screen. Links always show in full. Where width is
   short, the photo gives way first, so the text never drops below 12 px;
   the text is at most 13 px up to 1440 px wide and grows beyond that, and
@@ -69,9 +75,11 @@ Layouts (`src/style.css`):
   little rather than shrink the text further.
 
 Link rows are at least 24 px apart on every layout, for tapping and
-clicking. Sizes are in `rem` and breakpoints in `em` (720 and 904 px at the default
-16 px), so both follow the browser's font-size setting: larger text gets
-the stacked layouts sooner.
+clicking. Sizes are in `rem` and breakpoints in `em` (720 and 904 px at
+the default 16 px), so both follow the browser's font-size setting: larger
+text gets the stacked layouts sooner. The CSS is built for Safari 15 /
+Chrome 100 (`build.cssTarget`), so the media queries use `min-width`, not
+range syntax, which iOS 15 ignores.
 
 ### Profile photo
 
@@ -91,19 +99,21 @@ source photo; in the repo, but not deployed with the site):
   get the small one and big or high-DPI screens a sharp one. The
   `profile-{500,800,1280}.webp` files are the fallback for browsers without
   AVIF.
-- `src/assets/profile-lqip.avif`: placeholder, 500 px, ~4.4 KB (alpha at a higher quality than the colour,
-  for cleaner edges), embedded in
+- `src/assets/profile-lqip.avif`: placeholder, 500 px, ~4.4 KB (alpha at a
+  higher quality than the colour, for cleaner edges), embedded in
   `index.html` as a data URI so it paints with the first response
 - `profile-lqip.webp`: placeholder fallback, half resolution, ~4.4 KB
 
 The real photo goes through Vite, so it ships with a content hash in its
 name (`/assets/profile-500-<hash>.avif`) and is cached for a year as immutable
 (`build/_headers`, file by file, so a 404 under `/assets/` isn't).
-Unhashed icons get 30 days; the HTML is always revalidated (`netlify.toml`).
+The unhashed files (icons, `og.png`, `sascha-mayr.jpg`, the WebP
+placeholder) get 30 days, also named one by one; the HTML is always
+revalidated (`netlify.toml`).
 
 The tools (`avifenc`, `cwebp`; `brew install libavif webp`; plus macOS
-`sips` for resizing) aren't on
-Netlify, so the build there uses the committed files. After changing
+`sips` for resizing) aren't on Netlify, so the build there uses the
+committed files. After changing
 `profile.png`, run `pnpm generate` locally and commit the regenerated
 files.
 
@@ -112,8 +122,8 @@ files.
 
 `public/og.png` (the 1200×630 link-preview image) and `public/sascha-mayr.jpg`
 (800×1200 on the page background, the stable photo URL in the JSON-LD) were
-generated once and are not part of the pipeline. Regenerate it by hand if the photo or tagline
-changes.
+generated once and are not part of the pipeline. Regenerate them by hand if
+the photo or tagline changes.
 
 ## Checks
 
@@ -133,11 +143,13 @@ changes.
 
 ## Deploy
 
-Netlify, auto-deploys from `master`. Config in `netlify.toml` (including
-HSTS with `includeSubDomains; preload`)
-(Node 24, `pnpm run build`, publish `build/`). Unknown URLs get
-`404.html` (built by Vite, so it's covered by the CSP) with a real 404
-status; it follows the same remembered light/dark choice.
+Netlify, auto-deploys from `master` (Node 24, `pnpm run build`, publish
+`build/`). `netlify.toml` holds the security headers (HSTS with
+`includeSubDomains; preload`, Permissions-Policy, framing, MIME sniffing),
+the caching rules and a few redirects: `/index.html` goes to `/`, and
+`/404` and `/404.html` answer 404. Unknown URLs get `404.html` (built by
+Vite, so it's covered by the CSP) with a real 404 status; it follows the
+same remembered light/dark choice.
 
 ## License
 
