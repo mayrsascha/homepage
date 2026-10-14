@@ -5,7 +5,7 @@
 
    The converged markup started as the highlight.js output of the old React
    runtime; its class names are now shortened (h, s, l, b, e, w; styled in
-   src/base.css). To change site content, edit src/Intro.converged.html.
+   src/style.css). To change site content, edit src/Intro.converged.html.
 
    Run: node scripts/generate.mjs */
 import { readFileSync, writeFileSync, existsSync } from 'fs';

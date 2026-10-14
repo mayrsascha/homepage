@@ -1,0 +1,132 @@
+/* All page styles. vite.config.ts inlines the built file into index.html,
+   so it paints with the first response. The theme class html.js-dark is set
+   before first paint by the inline script in index.html. */
+
+/* ---------- Reset (the parts of normalize.css this page uses) ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { line-height: 1.15; -webkit-text-size-adjust: 100%; }
+html, body { height: 100%; margin: 0; font-family: monospace; }
+main { display: block; }
+pre { margin: 0; }
+pre, code { font-family: monospace, monospace; font-size: 1em; }
+b { font-weight: bolder; }
+img { border-style: none; }
+button {
+    font-family: inherit; font-size: 100%; line-height: 1.15; margin: 0;
+    overflow: visible; text-transform: none; -webkit-appearance: button;
+}
+button::-moz-focus-inner { border-style: none; padding: 0; }
+button:-moz-focusring { outline: 1px dotted ButtonText; }
+
+/* ---------- Theme: solarized-light / tomorrow-night ---------- */
+:root {
+    --bg: #fdf6e3; --fg: #657b83;
+    --hl-section: #268bd2; --hl-string: #2aa198; --hl-link: #cb4b16; --hl-bullet: #cb4b16;
+}
+html.js-dark {
+    --bg: #1d1f21; --fg: #c5c8c6;
+    --hl-section: #81a2be; --hl-string: #b5bd68; --hl-link: #de935f; --hl-bullet: #b5bd68;
+}
+html.js-dark body { background-color: var(--bg); }
+
+/* ---------- Layout: body is the flex column, main grows ---------- */
+body { display: flex; flex-direction: column; }
+.content { flex: 1 0 auto; padding: 1em 1em 0; background-color: var(--bg); }
+footer { flex-shrink: 0; }
+
+/* ---------- Text block: markdown in a code block ---------- */
+/* Scales with viewport height so the one-pager never scrolls.
+   At >=13px the page needs ~707px; below that text shrinks proportionally. */
+.Hero pre {
+    font-size: clamp(10px, calc((100vh - 82px) / 48), 13px);
+    font-family: monospace;
+    line-height: 1.15;
+}
+.Hero pre a { color: unset; text-decoration: none; white-space: pre-wrap; }
+.Hero pre h1, .Hero pre h2 { margin: 0; }
+.Hero pre h1 { font-size: 1.5em; }
+.Hero pre h2 { font-size: 1.25em; }
+
+/* highlight.js-style classes, shortened: h=section, s=string (link text),
+   l=link (URL), b=bullet, e=emphasis, w=strong */
+.md { display: block; overflow-x: auto; padding: .5em; background: var(--bg); color: var(--fg); }
+.h { color: var(--hl-section); }
+.s { color: var(--hl-string); }
+.l { color: var(--hl-link); }
+.b { color: var(--hl-bullet); }
+.e { font-style: italic; }
+.w { font-weight: 700; }
+
+/* ---------- Photo: cross-fade stack ---------- */
+/* The placeholder (embedded in index.html) paints underneath; the real photo
+   sits on top at opacity 0 and fades in once loaded AND decoded (inline
+   script sets html.profile-loaded). Neither src changes after parse: no
+   load-order race, no flash. The box has a locked 500/750 aspect ratio, so
+   object-fit: cover only ever scales, never crops. */
+.profile img {
+    width: 100%;
+    max-width: 500px;
+    max-height: calc(100vh - 110px);
+    object-fit: cover;
+    aspect-ratio: 500 / 750;
+}
+.profile-stack { position: relative; display: inline-block; line-height: 0; }
+.profile-stack img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+}
+/* Only the bottom layer gets a backdrop: the real img must stay transparent
+   until it paints, or it covers the placeholder with a blank box. */
+.profile-placeholder { background-color: var(--bg); }
+.profile-real { opacity: 0; transition: opacity .2s ease; }
+.profile-loaded .profile-real { opacity: 1; }
+/* Once the photo has faded in, drop the placeholder: the photo has a
+   transparent background, and the placeholder's lossy alpha would show
+   through around it. */
+.profile-loaded .profile-placeholder { visibility: hidden; transition: visibility 0s .2s; }
+
+/* ---------- Footer ---------- */
+.Footer {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    color: var(--fg);
+    background-color: var(--bg);
+    padding: 0 10px;
+}
+/* Three short lines: tight spacing keeps the footer short (the photo and
+   text sizes assume ~70px). */
+.Footer p { margin: .35em 0; }
+.Footer .button {
+    background: inherit; border: none; outline: none; padding: 0;
+    cursor: pointer;
+    font-size: 48px; margin-left: 25px; width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+}
+/* Both icons are in the DOM; CSS picks per theme. No JS swap, no flash. */
+.Footer .button .icon-sun { display: none; }
+html.js-dark .Footer .button .icon-sun { display: inline; }
+html.js-dark .Footer .button .icon-moon { display: none; }
+.Footer .github-link { color: inherit; }
+.Footer .github-link svg { width: 48px; height: 48px; margin-left: 25px; color: inherit; }
+
+/* ---------- Mobile: photo below the text ---------- */
+@media (max-width: 719px) {
+    .profile-stack { width: 100%; max-width: 500px; aspect-ratio: 500 / 750; }
+}
+
+/* ---------- Desktop: text and photo side by side ---------- */
+@media (min-width: 720px) {
+    .content { display: flex; align-items: center; }
+    .Hero, .profile { width: 50%; display: inline-flex; justify-content: center; }
+    .Hero { align-items: center; }
+    .profile { align-items: flex-start; }
+    /* Fit above the fold without cropping: width derives from the viewport
+       height; height follows via aspect-ratio, so both shrink together. */
+    .profile-stack { width: min(500px, calc((100vh - 110px) * 500 / 750)); aspect-ratio: 500 / 750; }
+    .Footer { justify-content: center; padding: 0; }
+    .Footer .button, .Footer .github-link svg { width: 30px; height: 30px; font-size: 2.5em; }
+}

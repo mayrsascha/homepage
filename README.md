@@ -39,7 +39,7 @@ No framework, no analytics script: the built page is a single ~10 kB
 ### Editing content
 
 `src/Intro.converged.html` holds the pre-highlighted markdown markup
-(highlight.js-style, with short class names styled in `src/base.css`, plus `aria-label`s on links and headings so screen
+(highlight.js-style, with short class names styled in `src/style.css`, plus `aria-label`s on links and headings so screen
 readers skip the markdown syntax). Edit it, then run `pnpm generate` to copy
 it into `index.html`. `pnpm build` does this automatically.
 

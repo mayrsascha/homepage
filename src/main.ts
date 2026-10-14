@@ -1,7 +1,4 @@
-import './base.css';
-import './App.css';
-import './Hero.css';
-import './Footer.css';
+import './style.css';
 
 // The page is static HTML (index.html). This module only owns the theme:
 // the inline pre-paint script sets html.js-dark before first paint; here we
