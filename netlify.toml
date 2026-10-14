@@ -60,25 +60,13 @@
   [headers.values]
     Cache-Control = "public, max-age=2592000, stale-while-revalidate=2592000"
 
-# Explicit redirects for URLs Netlify would otherwise handle itself: its
-# built-in redirects skip the custom headers above (their HSTS lacked
-# includeSubDomains), and the 404 page and the sitemap shouldn't answer 200
-# at a second URL.
-[[redirects]]
-  from = "/index"
-  to = "/"
-  status = 301
-  force = true
-
+# /index.html: Netlify's own redirect skips the custom headers above (its
+# HSTS lacks includeSubDomains); this one carries them. (A rule for /index
+# has no effect, and one for /sitemap.xml/ loops: rules ignore a trailing
+# slash.) The 404 page answers 404 at its own URLs too.
 [[redirects]]
   from = "/index.html"
   to = "/"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/sitemap.xml/"
-  to = "/sitemap.xml"
   status = 301
   force = true
 
