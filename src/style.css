@@ -51,9 +51,14 @@ footer { flex-shrink: 0; }
 }
 .Hero .md-pre a { color: unset; text-decoration: none; white-space: pre-wrap; }
 /* Link rows at least 24px apart on every layout (WCAG 2.5.8 target
-   spacing), so a tap or click can't land on the neighbour. The line-height
-   sits on the link, so a project's context line below it stays tight. */
-.Hero [role="listitem"] a { line-height: 1.5rem; }
+   spacing), so a tap or click can't land on the neighbour. The space goes
+   between the items, so a project's context line stays with its link; it
+   starts under the link text (hanging indent). */
+.Hero [role="list"] { display: block; white-space: normal; }
+.Hero [role="listitem"] {
+    display: block; white-space: pre; line-height: 1.15;
+    padding: calc((1.5rem - 1.15em) / 2) 0 calc((1.5rem - 1.15em) / 2) 2ch; text-indent: -2ch;
+}
 /* Hover/focus underlines the link text, as rendered Markdown would. */
 .Hero .md-pre a:hover .s, .Hero .md-pre a:focus-visible .s { text-decoration: underline; text-underline-offset: .2em; }
 .Hero .md-pre h1, .Hero .md-pre h2 { margin: 0; }
@@ -163,16 +168,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
         display: flex; flex-direction: column; justify-content: center;
         min-height: calc(100vh - 1em); min-height: calc(100svh - 1em);
     }
-    /* A row that wraps stays one item: lines within it are tight and
-       indented under the text, the 24px spacing goes between items. */
-    .Hero [role="list"] { display: block; white-space: normal; }
-    .Hero [role="listitem"] {
-        display: block; white-space: pre-wrap; line-height: 1.15;
-        padding: calc((1.5rem - 1.15em) / 2) 0 calc((1.5rem - 1.15em) / 2) 2ch; text-indent: -2ch;
-    }
-    /* The context line starts under the link text, not 2ch further in. */
-    .Hero [role="listitem"] a { line-height: inherit; }
-    .Hero .i { display: none; }
+    /* Rows may wrap; the hanging indent keeps each one visibly one item. */
+    .Hero [role="listitem"] { white-space: pre-wrap; }
     /* The email address stays readable (and copyable) on phones. */
     .Hero a[href^="mailto:"] .u { display: inline; }
     .Hero .md-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -241,7 +238,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--hl-link); outli
     .Hero { min-height: 0; }
     /* Paper needs no tap spacing. */
     .Hero [role="listitem"] { padding-top: 0; padding-bottom: 0; }
-    .Hero [role="listitem"] a { line-height: inherit; }
     .Hero .u { display: inline; }
     .profile-stack { height: 240px; width: auto; }
 }
