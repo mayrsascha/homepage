@@ -117,6 +117,7 @@ Each round got fixed, then reviewed again. The first rounds found real problems.
   - Roughly one in five websites already sits behind Cloudflare. The web is healthier when not everything does.
   - Cloudflare kept protecting sites like the Daily Stormer, 8chan and Kiwi Farms until public pressure made it stop. Not adding to that is a preference, not a verdict, but it tipped the decision.
   - And what's actually lost is small. HTTP/3 shines with many requests on a shaky connection; this page is two requests in one round trip. DNSSEC protects DNS answers from forgery; with HSTS, a forged answer ends in a certificate error rather than a fake page.
+  - Other hosts were checked too. GitHub Pages can't send the headers this page depends on, and the hosts that do offer HTTP/3 are mostly Cloudflare, Google or Amazon underneath. Netlify stays.
 - On a 6K display the photo is upscaled 1.56 times. Nobody with a 6K display has visited yet, probably.
 - The page still can't tell who you are. `{visitorName}` stays a placeholder on purpose: there's no analytics, so it genuinely doesn't know.
 
