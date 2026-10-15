@@ -12,7 +12,7 @@
     "generate": "node scripts/generate.ts",
     "build": "node scripts/generate.ts && tsc -b && vite build && node scripts/verify-build.ts",
     "preview": "vite preview",
-    "check": "pnpm run build && git diff --exit-code -- index.html src/assets public",
+    "check": "pnpm run build && git diff --exit-code -- index.html how-its-built src/assets public",
     "lint": "biome check .",
     "format": "biome check --write ."
   },
