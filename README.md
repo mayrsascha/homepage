@@ -171,7 +171,7 @@ the photo or tagline changes.
 - **CI** (`.github/workflows/check.yml`, on every push and PR; actions
   pinned by commit, kept current by Dependabot, which waits 7 days after a
   release; pnpm refuses versions younger than 3 days, `pnpm-workspace.yaml`): `pnpm check` (the build
-  passes the budget and `verify-build`, and leaves `index.html` and the
+  passes the budget and `verify-build`, and leaves the generated pages and the
   photos unchanged), Biome, the Netlify fallback test, and Lighthouse CI
   (`treosh/lighthouse-ci-action`, so the repo doesn't install it;
   `lighthouserc.json`, 3 mobile runs) against `scripts/serve.ts`, so
