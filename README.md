@@ -44,13 +44,14 @@ No framework, no analytics script: the built page is a single ~10 kB
   into `index.html`, so the page needs no follow-up requests besides
   images; minify the hand-written inline scripts and strip HTML comments;
   hash every inline script and style (SHA-256) into a
-  Content-Security-Policy in `build/_headers`, so only exactly those can
-  run, together with the caching rules (see Profile photo); and fail the
-  build over the size budget (see Checks). The other headers are static,
-  in `netlify.toml`.
+  Content-Security-Policy (with Trusted Types) in `build/_headers`, so
+  only exactly those can run, together with the other security headers
+  and the caching rules (see Profile photo); and fail the build over the
+  size budget (see Checks). Every header the site sets is in that file.
 - **`tsconfig.app.json`** checks the page's TypeScript, **`tsconfig.node.json`**
   the Vite config and `scripts/*.ts` (`tsc -b` runs both). Biome
-  (`biome.json`) lints and formats the TypeScript, CSS and JSON.
+  (`biome.json`) lints the TypeScript, CSS and JSON and formats the
+  TypeScript and JSON (the CSS keeps its compact one-line rules).
 - **Printing** always uses the light colours (printers skip the dark
   background) and fits one page with the URLs, whatever the paper.
 - **Without JavaScript** the page still works: a `<noscript>` style shows the
@@ -146,15 +147,19 @@ the photo or tagline changes.
 - **Size budget:** `vite.config.ts` fails the build if the page is over
   10.5 kB gzipped, so the footer's "10 kB" stays true. It also minifies
   the hand-written inline scripts and strips HTML comments.
-- **`scripts/verify-build.ts`** (part of `pnpm build`) fails if any
-  inline script or style in the built pages lacks its hash in
-  `build/_headers`, or if a stylesheet or script is still external (the
-  build itself also fails when it can't inline one). It also checks the
+- **`scripts/verify-build.ts`** (part of `pnpm build`) fails if a security
+  header is missing or weakened in `build/_headers`, if any inline script
+  or style in the built pages lacks its hash there, or if the pages use
+  anything the policy blocks: external stylesheets or scripts (the build
+  itself also fails when it can't inline one), style attributes, event
+  handlers, `javascript:` URLs. It also checks the
   theme copies that `src/style.css` can't reach (the `noscript` style, the
-  inline scripts, the `theme-color` tags, `src/main.ts`, `404.html`): their
-  colours and the storage key must match.
+  inline scripts, the `theme-color` tags, `src/main.ts`, `404.html`): each
+  copy must be complete and match its own theme, and the storage key must
+  match.
 - **CI** (`.github/workflows/check.yml`, on every push and PR; actions
-  pinned by commit, kept current by Dependabot): `pnpm check` (the build
+  pinned by commit, kept current by Dependabot, which waits 7 days after a
+  release; pnpm refuses versions younger than 3 days, `pnpm-workspace.yaml`): `pnpm check` (the build
   passes the budget and `verify-build`, and leaves `index.html` and the
   photos unchanged), Biome, the Netlify fallback test, and Lighthouse CI
   (`treosh/lighthouse-ci-action`, so the repo doesn't install it;
@@ -167,9 +172,10 @@ the photo or tagline changes.
 ## Deploy
 
 Netlify, auto-deploys from `master` (Node from `.nvmrc`, `pnpm run build`,
-publish `build/`). `netlify.toml` holds the security headers (HSTS with
-`includeSubDomains; preload`, Permissions-Policy, framing, MIME sniffing)
-and a few redirects: `/index.html` goes to `/`, and
+publish `build/`). The headers come from `build/_headers` (HSTS with
+`includeSubDomains; preload`, CSP, COOP, Permissions-Policy, framing, MIME
+sniffing, caching); `netlify.toml` holds the build settings and a few
+redirects: `/index.html` goes to `/`, and
 `/404` and `/404.html` answer 404. Unknown URLs get `404.html` (built by
 Vite, so it's covered by the CSP) with a real 404 status; it follows the
 same remembered light/dark choice.

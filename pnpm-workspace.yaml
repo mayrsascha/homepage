@@ -1,0 +1,5 @@
+# pnpm settings (this is a single package, not a workspace). Versions
+# published less than 3 days ago aren't installed, and the lockfile is
+# checked against the same rule (in minutes). Dependabot waits 7 days
+# (.github/dependabot.yml); this covers manual installs.
+minimumReleaseAge: 4320

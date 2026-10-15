@@ -49,3 +49,5 @@ jobs:
         with:
           configPath: ./lighthouserc.json
           runs: 3
+          # The reports, to see why a run failed.
+          uploadArtifacts: true

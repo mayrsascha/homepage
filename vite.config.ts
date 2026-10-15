@@ -82,7 +82,9 @@ function sizeBudget(): Plugin {
   };
 }
 
-// Netlify's _headers file, written per build:
+// Netlify's _headers file, written per build, holds every header we set
+// (so scripts/serve.ts, and with it Lighthouse CI, serves all of them):
+// - The security headers below, on every path.
 // - Content-Security-Policy: the SHA-256 of every inline script and style in
 //   the built pages, so only exactly these can run. One site-wide policy
 //   (the 404 page is served at arbitrary paths). As a header rather than a
@@ -90,7 +92,19 @@ function sizeBudget(): Plugin {
 // - Caching for the files that need more than Netlify's default (always
 //   revalidate), each named: a wildcard would also cache a 404 for a
 //   missing file.
-// The static security headers are in netlify.toml.
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  // For browsers without CSP frame-ancestors.
+  'X-Frame-Options': 'DENY',
+  // Two years, all subdomains, eligible for the browsers' preload list
+  // (hstspreload.org): browsers never try plain HTTP, not even on the first
+  // visit. Every future subdomain must serve HTTPS.
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+};
+
 const sha256 = (text: string) => `'sha256-${createHash('sha256').update(text).digest('base64')}'`;
 
 // Unhashed files from public/ can't change URL when their content changes:
@@ -152,7 +166,9 @@ function netlifyHeaders(): Plugin {
       this.emitFile({
         type: 'asset',
         fileName: '_headers',
-        source: `/*\n  Content-Security-Policy: ${policy}\n${assets}${month}`,
+        source: `/*\n${[...Object.entries(SECURITY_HEADERS), ['Content-Security-Policy', policy]]
+          .map(([name, value]) => `  ${name}: ${value}\n`)
+          .join('')}${assets}${month}`,
       });
     },
   };

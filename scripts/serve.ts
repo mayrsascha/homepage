@@ -6,9 +6,9 @@
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { extname, join, normalize } from 'node:path';
+import { extname, join, resolve, sep } from 'node:path';
 
-const ROOT = 'build';
+const ROOT = resolve('build');
 const port = Number(process.argv[2] ?? 5180);
 const TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -36,13 +36,20 @@ const headersFor = (path: string) =>
   Object.assign({}, ...rules.filter((r) => r.path === '/*' || r.path === path).map((r) => r.headers));
 
 createServer((req, res) => {
-  const path = decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname);
-  let file = normalize(join(ROOT, path.endsWith('/') ? `${path}index.html` : path));
+  let path: string;
+  try {
+    path = decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname);
+  } catch {
+    res.writeHead(400).end();
+    return;
+  }
+  // resolve() also collapses ../ : anything outside build/ is a 404.
+  let file = resolve(ROOT, `.${path.endsWith('/') ? `${path}index.html` : path}`);
   let status = 200;
-  if (!file.startsWith(ROOT) || !existsSync(file) || !statSync(file).isFile()) {
+  if (!file.startsWith(ROOT + sep) || !existsSync(file) || !statSync(file).isFile()) {
     file = join(ROOT, '404.html');
     status = 404;
   }
   res.writeHead(status, { 'Content-Type': TYPES[extname(file)] ?? 'application/octet-stream', ...headersFor(path) });
   res.end(readFileSync(file));
-}).listen(port, () => console.log(`serving ${ROOT}/ with its _headers at http://localhost:${port}/`));
+}).listen(port, 'localhost', () => console.log(`serving build/ with its _headers at http://localhost:${port}/`));

@@ -2,7 +2,6 @@
   "ci": {
     "collect": {
       "url": ["http://localhost:5180/"],
-      "numberOfRuns": 3,
       "startServerCommand": "node scripts/serve.ts 5180",
       "startServerReadyPattern": "serving build"
     },

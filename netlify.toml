@@ -8,27 +8,12 @@
 # edge for a year and purges them on every deploy (docs: "Caching overview").
 # Cache hits vary because requests land on different cache instances.
 
-# Security headers. Content-Security-Policy (with per-build hashes of the
-# inline scripts/styles) is generated into build/_headers by vite.config.ts.
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Cross-Origin-Opener-Policy = "same-origin"
-    X-Frame-Options = "DENY"
-    # Two years, all subdomains, eligible for the browsers' preload list
-    # (hstspreload.org): browsers never try plain HTTP, not even on the first
-    # visit. Every future subdomain must serve HTTPS.
-    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+# Headers are all generated into build/_headers (vite.config.ts): the
+# security headers, the CSP with per-build hashes, and caching (hashed
+# photos immutable, the unhashed public/ files 30 days). HTML keeps
+# Netlify's default (always revalidated) so deploys show up immediately.
 
-# Caching (hashed photos immutable, the unhashed public/ files 30 days) is
-# generated into build/_headers too, file by file (vite.config.ts). HTML
-# keeps Netlify's default (always revalidated) so deploys show up
-# immediately.
-
-# /index.html: Netlify's own redirect skips the custom headers above (its
+# /index.html: Netlify's own redirect skips our custom headers (its
 # HSTS lacks includeSubDomains); this one carries them. (A rule for /index
 # has no effect, and one for /sitemap.xml/ loops: rules ignore a trailing
 # slash.) The 404 page answers 404 at its own URLs too.
