@@ -28,13 +28,13 @@ for (const file of readdirSync('build').filter((f) => f.endsWith('.html'))) {
   const html = readFileSync(`build/${file}`, 'utf8');
   // Attributes the hash-only policy blocks: style="", on*="" handlers,
   // javascript: URLs (all would need 'unsafe-hashes' or 'unsafe-inline').
-  for (const [tag] of html.matchAll(/<[a-z][^>]*>/gi)) {
+  for (const [tag] of html.matchAll(/<[a-z](?:"[^"]*"|'[^']*'|[^'">])*>/gi)) {
     if (/\sstyle\s*=/i.test(tag)) problems.push(`${file}: style attribute in ${tag.slice(0, 60)}`);
     if (/\son[a-z]+\s*=/i.test(tag)) problems.push(`${file}: inline event handler in ${tag.slice(0, 60)}`);
     if (/\s(?:href|src|action|formaction)\s*=\s*["']?\s*javascript:/i.test(tag))
       problems.push(`${file}: javascript: URL in ${tag.slice(0, 60)}`);
   }
-  if (/<link[^>]+rel="?stylesheet/.test(html)) problems.push(`${file}: external stylesheet (not inlined)`);
+  if (/<link[^>]+rel=["']?stylesheet/.test(html)) problems.push(`${file}: external stylesheet (not inlined)`);
   for (const [tag] of html.matchAll(/<script[^>]*\ssrc=[^>]*>/g)) problems.push(`${file}: external script ${tag}`);
   for (const [tag] of html.matchAll(/<style\s[^>]*>/g)) problems.push(`${file}: <style> with attributes ${tag}`);
   for (const [, attrs, code] of html.matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script>/g)) {
@@ -60,13 +60,13 @@ const REQUIRED: [string, (value: string) => boolean][] = [
   ['X-Frame-Options', (v) => v === 'DENY'],
   ['Cross-Origin-Opener-Policy', (v) => v === 'same-origin'],
   ['Referrer-Policy', (v) => v === 'strict-origin-when-cross-origin'],
-  ['Permissions-Policy', (v) => /camera=\(\)/.test(v)],
+  ['Permissions-Policy', (v) => v === 'camera=(), microphone=(), geolocation=()'],
   [
     'Content-Security-Policy',
     (v) =>
-      /^default-src 'none';/.test(v) &&
-      /frame-ancestors 'none'/.test(v) &&
-      /require-trusted-types-for 'script'/.test(v),
+      v.replace(/ 'sha256-[A-Za-z0-9+/]+=*'/g, '') ===
+      "default-src 'none'; script-src; style-src; img-src 'self' data:; connect-src 'self'; base-uri 'none'; " +
+        "form-action 'none'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types 'none'",
   ],
 ];
 for (const [name, ok] of REQUIRED) {
@@ -78,14 +78,13 @@ for (const [name, ok] of REQUIRED) {
 // Hex colours compared lower-case, 3-digit ones expanded.
 const hex = (value: string) =>
   (value.length === 4 ? `#${[...value.slice(1)].map((c) => c + c).join('')}` : value).toLowerCase();
-const COLOUR = /#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi;
+const COLOUR = /(?<![\w&/])#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi;
 const palette = (block = ''): Record<string, string> =>
   Object.fromEntries([...block.matchAll(/--([\w-]+):\s*(#[0-9a-f]{3,6})\b/gi)].map((m) => [m[1], hex(m[2])]));
 const css = readFileSync('src/style.css', 'utf8');
 const light = palette(css.match(/:root \{([^}]*)\}/)?.[1]);
 const dark = palette(css.match(/html\.js-dark \{([^}]*)\}/)?.[1]);
 if (!light.bg || !dark.bg) throw new Error('Theme palettes not found in src/style.css');
-const themeOf = (bg: string) => (bg === light.bg ? light : bg === dark.bg ? dark : undefined);
 const sources: Record<string, string> = {
   'index.html': readFileSync('index.html', 'utf8'),
   '404.html': readFileSync('404.html', 'utf8'),
@@ -96,26 +95,35 @@ const blocks: Record<string, number> = { 'index.html': 1, '404.html': 3, 'src/ma
 for (const [file, text] of Object.entries(sources)) {
   const found = [...text.matchAll(/\{([^{}]*--bg:[^{}]*)\}/g)];
   if (found.length !== blocks[file]) problems.push(`${file}: ${found.length} theme blocks, expected ${blocks[file]}`);
-  for (const [, block] of found) {
-    const values = palette(block);
-    const theme = themeOf(values.bg);
-    if (!theme) {
-      problems.push(`${file}: a theme block's --bg ${values.bg} is neither theme's`);
-      continue;
-    }
-    const name = theme === dark ? 'dark' : 'light';
+  for (const m of found) {
+    const values = palette(m[1]);
+    // The block's selector (back to the previous rule or tag) says which theme it is.
+    const isDark = /dark/.test(text.slice(0, m.index).split(/[>}]/).at(-1) ?? '');
+    const theme = isDark ? dark : light;
+    const name = isDark ? 'dark' : 'light';
+    // Colours in the block other than the theme variables aren't checked copies.
+    for (const [value] of m[1].replace(/--[\w-]+:\s*#[0-9a-f]{3,6}\b/gi, '').matchAll(COLOUR))
+      problems.push(`${file}: colour ${value} in a ${name} theme block`);
     for (const [key, want] of Object.entries(theme)) {
       if (values[key] !== want)
         problems.push(`${file}: ${name} block has --${key}:${values[key] ?? '(missing)'}, not ${want}`);
     }
   }
   // theme-color tags: the background of the theme their media query names.
-  for (const [, value, scheme] of text.matchAll(
-    /<meta name="theme-color" content="(#[0-9a-f]{3,6})" media="\(prefers-color-scheme: (light|dark)\)"/gi,
-  )) {
+  const schemes: string[] = [];
+  for (const [tag] of text.matchAll(/<meta name="theme-color"[^>]*>/gi)) {
+    const value = tag.match(/content="(#[0-9a-f]{3,6})"/i)?.[1];
+    const scheme = tag.match(/media="\(prefers-color-scheme:\s*(light|dark)\)"/i)?.[1];
+    if (!value || !scheme) {
+      problems.push(`${file}: theme-color tag not understood: ${tag}`);
+      continue;
+    }
+    schemes.push(scheme);
     const want = scheme === 'dark' ? dark.bg : light.bg;
     if (hex(value) !== want) problems.push(`${file}: ${scheme} theme-color is ${value}, not ${want}`);
   }
+  if (file === 'index.html' && schemes.sort().join() !== 'dark,light')
+    problems.push(`index.html: theme-color tags for ${schemes.join(', ') || 'nothing'}, expected light and dark`);
   // Scripts: `dark ? <dark bg> : <light bg>`.
   for (const [, a, b] of text.matchAll(/dark \? '(#[0-9a-f]{3,6})' : '(#[0-9a-f]{3,6})'/gi)) {
     if (hex(a) !== dark.bg || hex(b) !== light.bg)
