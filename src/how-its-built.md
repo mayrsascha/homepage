@@ -8,7 +8,7 @@ This is what happens when you ask "how far can one page be pushed?" and then kee
 
 - **{{gzip}} bytes** gzipped for the whole page: HTML, CSS, JavaScript and a placeholder photo. (The build fills in this number, so this page can't go stale either.)
 - **2 requests**: the page and one photo. No web fonts, no icon font, no analytics, no cookie banner (there are no cookies).
-- **100 · 100 · 100 · 100** in Lighthouse on mobile, checked on every push.
+- **100 · 100 · 100 · 100** in Lighthouse on mobile. CI fails anything lower (it allows 98 for performance, which wobbles on shared CI machines).
 - **{{lines-page}} lines** of TypeScript run in your browser.
 - **{{lines-tooling}} lines** of TypeScript make sure those {{lines-page}} lines behave, plus a CI pipeline. For a business card. Yes. (Both counted by the build. This page made the second number bigger.)
 - **0** frameworks, **0** runtime dependencies, **24** packages to build it.
@@ -20,6 +20,15 @@ A new connection sends about ten packets, roughly 14 KB, before it waits for the
 - Vite builds the page, then a small plugin inlines the CSS and JavaScript into the HTML. After the document arrives there is nothing left to wait for.
 - HTML comments are stripped and the hand-written inline scripts minified. Comments are free to write, not to ship.
 - The build measures the result and **fails above 10.5 kB**. The footer says "10 kB", and the footer is not allowed to lie.
+
+## No analytics
+
+From 2023 the page ran Google Analytics. It was removed in October 2026, for two reasons:
+
+- **Speed.** Its script is 177 KB gzipped today, about seventeen times this entire page, and on a phone it blocked the main thread for 150 to 380 ms. It was the only thing standing between the page and a Lighthouse score of 100.
+- **Data.** It sends every visit to Google, and in 2022 data protection authorities in Austria, France, Italy and Denmark ruled against websites using it under the GDPR, because of how the data reached the US. A business card shouldn't come with a legal opinion attached.
+
+Removing it also removed the reason for a cookie banner. The cost: no idea how many people read this. That seems fair.
 
 ## The photo
 
@@ -58,7 +67,7 @@ So the text size is a formula:
 - The theme is set before the first paint, so there's no white flash. Without JavaScript the page follows your OS.
 - A click on the toggle is remembered. Choosing what your OS shows anyway forgets it, so the page follows the OS again. Other open tabs switch along.
 - Printing always uses the light theme. Printers skip dark backgrounds, and light-grey text on white paper is a crime.
-- The theme colours live in seven places the stylesheet can't reach. The build checks every copy against the stylesheet. That check has been tightened twice, because two reviews found inputs it let through.
+- The theme colours also live in places the stylesheet can't reach: the no-JavaScript style, the inline scripts, the browser's `theme-color` tags, the 404 page. The build checks every copy against the stylesheet. That check has been tightened twice, because two reviews found inputs it let through.
 
 ## Security for a page with nothing to steal
 
@@ -93,16 +102,22 @@ Every push runs:
 - **Lighthouse CI**, three runs, against a local server that sends the real headers, so a blocked script fails the build instead of the website;
 - strict **TypeScript** for the page and for the build scripts, and **Biome** for lint and format.
 
-New dependency versions wait seven days before they're even proposed, pnpm refuses anything younger than three, and every GitHub Action is pinned to a commit. The Lighthouse tooling alone used to account for most of the 313 packages the repo installed. It now runs from a pinned action, and the repo installs 24.
+New dependency versions wait seven days before they're even proposed, pnpm refuses anything younger than three days, and every GitHub Action is pinned to a commit. The Lighthouse tooling alone used to account for most of the 313 packages the repo installed. It now runs from a pinned action, and the repo installs 24.
 
 ## How it got this way
 
-Mostly by asking reviewers for "the top 10 things to improve", fixing them, and asking again. The first rounds found real problems. Later rounds found problems in the checks written to prevent the earlier problems. Round twelve found a bug in the code that checks the code that checks the colours. That seemed like a good moment to write this page instead.
+Built together with AI, which is how software gets built now. I made the calls: what the page is (a business card, not a CV), what it must never do (cut the photo in half, drop the URLs on a desktop, track anyone), and when a suggestion was wrong. Claude wrote most of the code. Reviews came from AI agents told to find "the top 10 things to improve".
+
+Each round got fixed, then reviewed again. The first rounds found real problems. Later rounds found problems in the checks written to prevent the earlier problems. Round twelve found a bug in the code that checks the code that checks the colours. That seemed like a good moment to write this page instead.
 
 ## What's left
 
-- No HTTP/3 and no DNSSEC: the host doesn't offer them.
-- On a 6K display the photo is upscaled 1.56 times. Nobody has complained. Nobody has a 6K display.
+- **No HTTP/3 and no DNSSEC**, because Netlify, the host since day one, offers neither. Moving to Cloudflare would have fixed both. It was a close call, and the page stayed:
+  - My other projects already run on Cloudflare. If Cloudflare has a bad day, the one page that says how to reach me should not go down with them. On 18 November 2025 it had a very bad day, and X, ChatGPT, Spotify and Canva were among the sites that failed for about three hours.
+  - Roughly one in five websites already sits behind Cloudflare. The web is healthier when not everything does.
+  - Cloudflare kept protecting sites like the Daily Stormer, 8chan and Kiwi Farms until public pressure made it stop. Not adding to that is a preference, not a verdict, but it tipped the decision.
+  - And what's actually lost is small. HTTP/3 shines with many requests on a shaky connection; this page is two requests in one round trip. DNSSEC protects DNS answers from forgery; with HSTS, a forged answer ends in a certificate error rather than a fake page.
+- On a 6K display the photo is upscaled 1.56 times. Nobody with a 6K display has visited yet, probably.
 - The page still can't tell who you are. `{visitorName}` stays a placeholder on purpose: there's no analytics, so it genuinely doesn't know.
 
 [Back to the homepage](/) · [The source on GitHub](https://github.com/mayrsascha/homepage)

@@ -204,7 +204,7 @@ writeFileSync('index.html', index);
 // src/how-its-built.md -> <main class="post"> in how-its-built/index.html,
 // in the homepage's look: the Markdown syntax stays visible but is hidden
 // from screen readers. A small subset: # and ## headings, paragraphs, "- "
-// lists, ``` code blocks, `code`, **bold**, [links](url). {{gzip}} is left
+// lists (one level of "  - " nesting), ``` code blocks, `code`, **bold**, [links](url). {{gzip}} is left
 // for the build to fill in (vite.config.ts).
 const esc = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 const hidden = (text: string) => `<span aria-hidden="true">${text}</span>`;
@@ -241,9 +241,16 @@ const markdown = (source: string) => {
       out.push(`<${tag}><span class="h">${hidden(`${marks} `)}${inline(words.join(' '))}</span></${tag}>`);
       i++;
     } else if (line.startsWith('- ')) {
+      // "- " items; "  - " lines below one form its nested list.
+      const item = (text: string) => `<span class="b" aria-hidden="true">- </span>${inline(text)}`;
       const items: string[] = [];
-      while (lines[i]?.startsWith('- '))
-        items.push(`<li><span class="b" aria-hidden="true">- </span>${inline(lines[i++].slice(2))}</li>`);
+      while (lines[i]?.startsWith('- ')) {
+        let li = item(lines[i++].slice(2));
+        const sub: string[] = [];
+        while (lines[i]?.startsWith('  - ')) sub.push(`<li>${item(lines[i++].slice(4))}</li>`);
+        if (sub.length) li += `<ul>${sub.join('')}</ul>`;
+        items.push(`<li>${li}</li>`);
+      }
       out.push(`<ul>${items.join('')}</ul>`);
     } else if (line.trim()) {
       const para: string[] = [];

@@ -20,3 +20,5 @@
 .post a { color: inherit; text-decoration: none; }
 .post a:hover .s, .post a:focus-visible .s { text-decoration: underline; text-underline-offset: .2em; }
 .post b { font-weight: bolder; }
+/* A nested list continues the item's indent. */
+.post li ul { margin: .35em 0 0; }
