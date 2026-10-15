@@ -122,6 +122,7 @@ const MONTH_CACHED = [
   '/profile-lqip.webp',
   '/apple-touch-icon.png',
   '/og.png',
+  '/og-how-its-built.png',
   '/sascha-mayr.jpg',
   '/favicon.svg',
   '/favicon.ico',

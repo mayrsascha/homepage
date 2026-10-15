@@ -78,7 +78,10 @@ lists, fenced code, `` `code` ``, `**bold**`, links) into
 from screen readers, and fills in `{{lines-page}}` and `{{lines-tooling}}`
 (non-blank lines of `src/main.ts` and of the build code). The build fills
 in `{{gzip}}`, the homepage's measured size. Its extra styles are in
-`src/article.css`, inlined into that page only; Lighthouse CI checks it too.
+`src/article.css`, inlined into that page only; Lighthouse CI checks it too. Its link
+preview (Open Graph, `twitter:*`, `TechArticle` JSON-LD) uses
+`public/og-how-its-built.png`, a 1200×630 screenshot of
+`scripts/og/how-its-built.html`; re-take it by hand if that changes.
 
 Layouts (`src/style.css`):
 
