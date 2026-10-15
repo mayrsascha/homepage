@@ -32,7 +32,9 @@ No framework, no analytics script: the built page is a single ~10 kB
 ## How it fits together
 
 - **`index.html`** is the page. All markup lives there; nothing is rendered
-  by JavaScript.
+  by JavaScript. Its footer's first line links to **`/how-its-built/`**, a
+  write-up of the engineering in the same Markdown look (see Editing
+  content).
 - **`src/main.ts`** imports the CSS and owns the theme toggle, following OS
   theme changes, the `theme-color` meta tags and the footer year. A click
   is remembered; choosing what the OS shows anyway forgets the choice (the
@@ -68,6 +70,15 @@ into divs styled like `<pre><code>` (headings aren't allowed inside those).
 Edit it, then run `pnpm generate` to copy it into `index.html`; `pnpm build`
 does this automatically, and CI fails if the committed `index.html` is out
 of sync.
+
+The engineering page is written in **`src/how-its-built.md`**. `generate.ts`
+converts it (a small Markdown subset: `#`/`##` headings, paragraphs, `- `
+lists, fenced code, `` `code` ``, `**bold**`, links) into
+`how-its-built/index.html`, with the Markdown syntax visible but hidden
+from screen readers, and fills in `{{lines-page}}` and `{{lines-tooling}}`
+(non-blank lines of `src/main.ts` and of the build code). The build fills
+in `{{gzip}}`, the homepage's measured size. Its extra styles are in
+`src/article.css`, inlined into that page only; Lighthouse CI checks it too.
 
 Layouts (`src/style.css`):
 

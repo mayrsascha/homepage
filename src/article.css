@@ -1,0 +1,22 @@
+/* The engineering page (how-its-built/): the homepage's Markdown look and
+   theme (src/style.css), as prose that wraps. vite.config.ts inlines this
+   file into that page only. */
+
+.post {
+    flex: 1 0 auto; width: 100%; max-width: 84ch; margin: 0 auto; padding: 1em;
+    font-size: clamp(.8125rem, .75rem + .4vw, 1rem); line-height: 1.5;
+    color: var(--fg); overflow-wrap: anywhere;
+}
+.post h1, .post h2 { color: var(--hl-section); line-height: 1.3; margin: 1.5em 0 .75em; }
+.post h1 { font-size: 1.5em; margin-top: 0; }
+.post h2 { font-size: 1.25em; }
+.post p, .post ul, .post pre { margin: 0 0 1em; }
+/* "- " lines: the bullet hangs, wrapped lines start under the text. */
+.post ul { list-style: none; padding: 0; }
+.post li { padding-left: 2ch; text-indent: -2ch; margin-bottom: .35em; }
+/* Code blocks keep their lines and scroll sideways on narrow screens. */
+.post pre { font-family: inherit; white-space: pre; overflow-x: auto; overflow-wrap: normal; line-height: 1.35; }
+.post code { font-family: inherit; font-size: inherit; color: var(--hl-string); }
+.post a { color: inherit; text-decoration: none; }
+.post a:hover .s, .post a:focus-visible .s { text-decoration: underline; text-underline-offset: .2em; }
+.post b { font-weight: bolder; }

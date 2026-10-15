@@ -4,6 +4,7 @@
       widths (AVIF + WebP fallback) and the placeholder (AVIF + WebP fallback)
    3. Sync index.html: the markup into the code block (byte-identical), the
       AVIF placeholder as a data URI, and the photo's srcset/sizes
+   4. The engineering page: src/how-its-built.md -> how-its-built/index.html
 
    The converged markup started as the highlight.js output of the old React
    runtime; its class names are now shortened (h, s, l, b, e, w; styled in
@@ -13,7 +14,7 @@
 
 import { execFileSync, type StdioOptions } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -199,6 +200,92 @@ index = index.replace(srcsetRe, (_m, attr) => `${attr}="${SRCSET}"`);
 
 writeFileSync('index.html', index);
 
+// ---------- 4) The engineering page from Markdown ----------
+// src/how-its-built.md -> <main class="post"> in how-its-built/index.html,
+// in the homepage's look: the Markdown syntax stays visible but is hidden
+// from screen readers. A small subset: # and ## headings, paragraphs, "- "
+// lists, ``` code blocks, `code`, **bold**, [links](url). {{gzip}} is left
+// for the build to fill in (vite.config.ts).
+const esc = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+const hidden = (text: string) => `<span aria-hidden="true">${text}</span>`;
+const inline = (text: string) => {
+  const codes: string[] = [];
+  return esc(text)
+    .replace(
+      /`([^`]+)`/g,
+      (_m, code: string) => `\0${codes.push(`<code>${hidden('`')}${code}${hidden('`')}</code>`) - 1}\0`,
+    )
+    .replace(/\*\*([^*]+)\*\*/g, (_m, bold: string) => `<b>${hidden('**')}${bold}${hidden('**')}</b>`)
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, label: string, url: string) => {
+      const external = /^https?:/.test(url);
+      const name = `${label.replace(/<[^>]+>/g, '')}${external ? ' (opens in a new tab)' : ''}`;
+      return `<a href="${url}"${external ? ' target="_blank" rel="noopener"' : ''} aria-label="${name}">[<span class="s">${label}</span>](<span class="l">${url}</span>)</a>`;
+    })
+    .replace(/\0(\d+)\0/g, (_m, n: string) => codes[Number(n)]);
+};
+const markdown = (source: string) => {
+  const out: string[] = [];
+  const lines = source.replace(/\n+$/, '').split('\n');
+  for (let i = 0; i < lines.length; ) {
+    const line = lines[i];
+    const fence = line.match(/^```(\w*)$/);
+    if (fence) {
+      const end = lines.indexOf('```', i + 1);
+      if (end === -1) throw new Error(`Unclosed code block at line ${i + 1} of src/how-its-built.md`);
+      const code = esc(lines.slice(i + 1, end).join('\n'));
+      out.push(`<pre>${hidden(`\`\`\`${fence[1]}`)}\n${code}\n${hidden('```')}</pre>`);
+      i = end + 1;
+    } else if (/^#{1,2} /.test(line)) {
+      const [marks, ...words] = line.split(' ');
+      const tag = `h${marks.length}`;
+      out.push(`<${tag}><span class="h">${hidden(`${marks} `)}${inline(words.join(' '))}</span></${tag}>`);
+      i++;
+    } else if (line.startsWith('- ')) {
+      const items: string[] = [];
+      while (lines[i]?.startsWith('- '))
+        items.push(`<li><span class="b" aria-hidden="true">- </span>${inline(lines[i++].slice(2))}</li>`);
+      out.push(`<ul>${items.join('')}</ul>`);
+    } else if (line.trim()) {
+      const para: string[] = [];
+      while (lines[i]?.trim() && !/^(#{1,2} |- |```)/.test(lines[i])) para.push(lines[i++]);
+      out.push(`<p>${inline(para.join(' '))}</p>`);
+    } else i++;
+  }
+  return out.join('\n');
+};
+// Lines of code (non-blank), counted here so the page quotes current numbers.
+const loc = (...files: string[]) =>
+  files.reduce(
+    (n, f) =>
+      n +
+      readFileSync(f, 'utf8')
+        .split('\n')
+        .filter((l) => l.trim()).length,
+    0,
+  );
+const counts: Record<string, number> = {
+  'lines-page': loc('src/main.ts'),
+  'lines-tooling': loc(
+    'vite.config.ts',
+    ...readdirSync('scripts')
+      .filter((f) => f.endsWith('.ts'))
+      .map((f) => `scripts/${f}`),
+  ),
+};
+const article = markdown(
+  readFileSync('src/how-its-built.md', 'utf8').replace(/\{\{(lines-[a-z]+)\}\}/g, (_m, key: string) =>
+    String(counts[key]),
+  ),
+);
+const pagePath = 'how-its-built/index.html';
+const page = readFileSync(pagePath, 'utf8');
+const postRe = /(<main class="post">)[\s\S]*?(<\/main>)/;
+if (!postRe.test(page)) throw new Error(`<main class="post"> not found in ${pagePath}`);
+writeFileSync(
+  pagePath,
+  page.replace(postRe, (_m, open: string, close: string) => `${open}${article}${close}`),
+);
+
 console.log(
   'generate.ts:',
   'converged',
@@ -207,5 +294,8 @@ console.log(
   'placeholder',
   placeholderBytes,
   'bytes (profile-lqip.avif);',
-  'index.html synced',
+  'index.html synced;',
+  'how-its-built page',
+  article.length,
+  'chars',
 );

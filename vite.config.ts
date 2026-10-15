@@ -2,34 +2,37 @@ import { createHash } from 'node:crypto';
 import { Features } from 'lightningcss';
 import { defineConfig, minify, type Plugin } from 'vite';
 
-// Inline the (tiny) CSS and JS bundles into index.html: zero render-blocking
-// requests and no request chain after the document itself.
+// Inline the (tiny) CSS and JS bundles into every page: zero render-blocking
+// requests and no request chain after the document itself. A stylesheet or
+// script left external fails the build: the CSP would block it.
 function inlineAssets(): Plugin {
   return {
     name: 'inline-assets',
     apply: 'build',
     enforce: 'post',
     generateBundle(_, bundle) {
-      const page = bundle['index.html'];
-      if (page?.type !== 'asset') return;
-      let html = String(page.source);
-      for (const [name, chunk] of Object.entries(bundle)) {
-        if (name.endsWith('.css') && chunk.type === 'asset') {
-          const re = new RegExp(`<link rel="stylesheet"[^>]*href="/${name}"[^>]*>`);
-          if (!re.test(html)) this.error(`could not inline ${name}: the CSP would block it as an external stylesheet`);
-          html = html.replace(re, () => `<style>${chunk.source}</style>`);
-          delete bundle[name];
-        } else if (name.endsWith('.js') && chunk.type === 'chunk' && chunk.isEntry) {
-          const re = new RegExp(`<script type="module"[^>]*src="/${name}"[^>]*></script>`);
-          if (!re.test(html)) this.error(`could not inline ${name}: the CSP would block it as an external script`);
-          html = html.replace(
-            re,
-            () => `<script type="module">${chunk.code.replace(/<\/script/gi, '<\\/script')}</script>`,
+      const inlined = new Set<string>();
+      const take = (name: string) => {
+        const item = bundle[name];
+        if (!item) this.error(`could not inline ${name}: not in the bundle`);
+        inlined.add(name);
+        return item.type === 'asset' ? String(item.source) : item.code.replace(/<\/script/gi, '<\\/script');
+      };
+      for (const page of Object.values(bundle)) {
+        if (page.type !== 'asset' || !page.fileName.endsWith('.html')) continue;
+        page.source = String(page.source)
+          .replace(
+            /<link rel="stylesheet"[^>]*href="\/([^"]+\.css)"[^>]*>/g,
+            (_m, name: string) => `<style>${take(name)}</style>`,
+          )
+          .replace(
+            /<script type="module"[^>]*src="\/([^"]+\.js)"[^>]*><\/script>/g,
+            (_m, name: string) => `<script type="module">${take(name)}</script>`,
           );
-          delete bundle[name];
-        }
+        if (/<link[^>]+rel="(?:stylesheet|modulepreload)"|<script[^>]*\ssrc=/.test(page.source))
+          this.error(`${page.fileName}: a stylesheet or script is still external, the CSP would block it`);
       }
-      page.source = html;
+      for (const name of inlined) delete bundle[name];
     },
   };
 }
@@ -78,6 +81,11 @@ function sizeBudget(): Plugin {
       if (size > PAGE_BUDGET)
         this.error(`index.html is ${size} B gzipped, over the ${PAGE_BUDGET} B budget the footer's "10 kB" promises`);
       console.log(`size-budget: index.html ${size} B gzipped (budget ${PAGE_BUDGET} B)`);
+      // The engineering page quotes this number: fill it in, so it can't go stale.
+      for (const other of Object.values(bundle)) {
+        if (other.type === 'asset' && other.fileName.endsWith('.html'))
+          other.source = String(other.source).replaceAll('{{gzip}}', size.toLocaleString('en-US'));
+      }
     },
   };
 }
@@ -185,7 +193,7 @@ export default defineConfig({
   build: {
     outDir: 'build',
     rollupOptions: {
-      input: { main: 'index.html', notFound: '404.html' },
+      input: { main: 'index.html', notFound: '404.html', howItsBuilt: 'how-its-built/index.html' },
     },
     // Vite's default CSS target (Safari 16.4) writes media queries in range
     // syntax (width>=45em), which iOS 15 and Chrome < 104 ignore: no layout

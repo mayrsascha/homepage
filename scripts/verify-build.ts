@@ -24,7 +24,9 @@ const styles = allowed('style-src');
 const hash = (code: string) => `'sha256-${createHash('sha256').update(code).digest('base64')}'`;
 
 let checked = 0;
-for (const file of readdirSync('build').filter((f) => f.endsWith('.html'))) {
+const pages = readdirSync('build', { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.html'));
+if (pages.length < 3) problems.push(`only ${pages.length} pages in build/`);
+for (const file of pages) {
   const html = readFileSync(`build/${file}`, 'utf8');
   // Attributes the hash-only policy blocks: style="", on*="" handlers,
   // javascript: URLs (all would need 'unsafe-hashes' or 'unsafe-inline').
@@ -88,10 +90,16 @@ if (!light.bg || !dark.bg) throw new Error('Theme palettes not found in src/styl
 const sources: Record<string, string> = {
   'index.html': readFileSync('index.html', 'utf8'),
   '404.html': readFileSync('404.html', 'utf8'),
+  'how-its-built/index.html': readFileSync('how-its-built/index.html', 'utf8'),
   'src/main.ts': readFileSync('src/main.ts', 'utf8'),
 };
 // Palette blocks: every CSS block that sets --bg is one theme, complete.
-const blocks: Record<string, number> = { 'index.html': 1, '404.html': 3, 'src/main.ts': 0 };
+const blocks: Record<string, number> = {
+  'index.html': 1,
+  '404.html': 3,
+  'how-its-built/index.html': 1,
+  'src/main.ts': 0,
+};
 for (const [file, text] of Object.entries(sources)) {
   const found = [...text.matchAll(/\{([^{}]*--bg:[^{}]*)\}/g)];
   if (found.length !== blocks[file]) problems.push(`${file}: ${found.length} theme blocks, expected ${blocks[file]}`);
@@ -122,8 +130,8 @@ for (const [file, text] of Object.entries(sources)) {
     const want = scheme === 'dark' ? dark.bg : light.bg;
     if (hex(value) !== want) problems.push(`${file}: ${scheme} theme-color is ${value}, not ${want}`);
   }
-  if (file === 'index.html' && schemes.sort().join() !== 'dark,light')
-    problems.push(`index.html: theme-color tags for ${schemes.join(', ') || 'nothing'}, expected light and dark`);
+  if (file.endsWith('index.html') && schemes.sort().join() !== 'dark,light')
+    problems.push(`${file}: theme-color tags for ${schemes.join(', ') || 'nothing'}, expected light and dark`);
   // Scripts: `dark ? <dark bg> : <light bg>`.
   for (const [, a, b] of text.matchAll(/dark \? '(#[0-9a-f]{3,6})' : '(#[0-9a-f]{3,6})'/gi)) {
     if (hex(a) !== dark.bg || hex(b) !== light.bg)
@@ -138,13 +146,13 @@ for (const [file, text] of Object.entries(sources)) {
   for (const [value] of rest.matchAll(COLOUR))
     problems.push(`${file}: colour ${value} outside the checked theme copies`);
 }
-for (const file of ['index.html', 'src/main.ts']) {
+for (const file of ['index.html', 'how-its-built/index.html', 'src/main.ts']) {
   if (!/dark \? '#/.test(sources[file])) problems.push(`${file}: theme-color script not found`);
 }
 if ((sources['index.html'].match(/<meta name="theme-color"/g) ?? []).length !== 2)
   problems.push('index.html: expected 2 theme-color tags (light, dark)');
 const KEY = sources['src/main.ts'].match(/const KEY = '([^']+)'/)?.[1];
-for (const file of ['index.html', '404.html']) {
+for (const file of ['index.html', '404.html', 'how-its-built/index.html']) {
   const keys = [...sources[file].matchAll(/localStorage\.getItem\('([^']+)'\)/g)].map((m) => m[1]);
   if (!keys.length) problems.push(`${file}: no localStorage.getItem found`);
   for (const key of keys) if (key !== KEY) problems.push(`${file}: storage key '${key}', src/main.ts uses '${KEY}'`);

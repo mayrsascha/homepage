@@ -109,6 +109,10 @@ body { display: flex; flex-direction: column; }
 /* Three short lines: tight spacing keeps the footer short (the layouts
    reserve 6.25-7.25rem for it and the page padding). */
 .Footer p { margin: .35em 0; }
+/* The first line links to the engineering page: same words, underlined on
+   hover and focus. */
+.Footer p a { color: inherit; text-decoration: none; }
+.Footer p a:hover, .Footer p a:focus-visible { text-decoration: underline; text-underline-offset: .2em; }
 .Footer .button {
     background: inherit; border: none; padding: 0; color: inherit;
     cursor: pointer;
